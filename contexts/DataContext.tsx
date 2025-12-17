@@ -17,6 +17,8 @@ interface DataContextType {
   resetData: () => Promise<void>;
   registerBackup: () => void;
   isLoading: boolean;
+  isOffline: boolean;
+  refreshData: () => Promise<void>;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -24,6 +26,7 @@ const DataContext = createContext<DataContextType | undefined>(undefined);
 export const DataProvider = ({ children }: { children?: ReactNode }) => {
   const { addToast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
+  const [isOffline, setIsOffline] = useState(false);
   
   // Initialize states
   const [schools, setSchools] = useState<School[]>([]);
@@ -34,6 +37,15 @@ export const DataProvider = ({ children }: { children?: ReactNode }) => {
   useEffect(() => {
     loadData();
   }, []);
+
+  const isTableMissingError = (error: any) => {
+    if (!error) return false;
+    return (
+      error.code === 'PGRST205' || 
+      error.code === '42P01' || 
+      (error.message && error.message.includes('Could not find the table'))
+    );
+  };
 
   const loadData = async () => {
     setIsLoading(true);
@@ -48,10 +60,11 @@ export const DataProvider = ({ children }: { children?: ReactNode }) => {
         .select('*');
 
       if (schoolsError) {
-          // Ignore table missing errors in console.error, allow catch block to handle fallback
-          if (schoolsError.code !== 'PGRST205' && schoolsError.code !== '42P01') {
-              console.error("Supabase Error (Schools):", JSON.stringify(schoolsError, null, 2));
+          if (isTableMissingError(schoolsError)) {
+             console.warn("Supabase: Tabelas não encontradas. Carregando dados de exemplo.");
+             throw new Error("TABLE_MISSING");
           }
+          console.error("Supabase Error (Schools):", JSON.stringify(schoolsError, null, 2));
           throw schoolsError;
       }
 
@@ -61,16 +74,17 @@ export const DataProvider = ({ children }: { children?: ReactNode }) => {
         .select('*');
 
       if (studentsError) {
-          if (studentsError.code !== 'PGRST205' && studentsError.code !== '42P01') {
-              console.error("Supabase Error (Students):", JSON.stringify(studentsError, null, 2));
+          if (isTableMissingError(studentsError)) {
+             throw new Error("TABLE_MISSING");
           }
+          console.error("Supabase Error (Students):", JSON.stringify(studentsError, null, 2));
           throw studentsError;
       }
 
       let finalSchools = schoolsData as School[];
       let finalStudents = studentsData as RegistryStudent[];
 
-      // SEEDING INICIAL: Se o banco estiver vazio, popula com os dados de Mock (apenas na primeira vez)
+      // SEEDING INICIAL
       if ((!finalSchools || finalSchools.length === 0) && (!finalStudents || finalStudents.length === 0)) {
           console.log("Banco vazio detectado. Populando com dados iniciais...");
           
@@ -87,45 +101,34 @@ export const DataProvider = ({ children }: { children?: ReactNode }) => {
              finalStudents = MOCK_STUDENT_REGISTRY;
              addToast("Banco de dados inicializado com sucesso!", "success");
           } else {
-             // Se erro for de tabela inexistente, será capturado no catch geral se lançarmos,
-             // mas aqui é seeding. Apenas logamos warning.
-             console.warn("Não foi possível popular o banco (Tabelas ausentes?).");
+             if (!isTableMissingError(seedSchoolsError) && !isTableMissingError(seedStudentsError)) {
+                 console.warn("Não foi possível popular o banco:", seedSchoolsError || seedStudentsError);
+             }
           }
       }
 
       setSchools(finalSchools || []);
       setStudents(finalStudents || []);
+      setIsOffline(false); // Conexão bem sucedida
 
       const savedBackup = localStorage.getItem('educa_last_backup');
       setLastBackupDate(savedBackup);
       
     } catch (error: any) {
-      const isMissingTable = error?.code === 'PGRST205' || error?.code === '42P01';
-
-      if (!isMissingTable) {
-          // Log real critical errors
-          const errorMsg = error instanceof Error ? error.message : JSON.stringify(error);
-          console.error("Erro crítico ao carregar dados do Supabase:", errorMsg);
-      } else {
-          // Log setup warning
-          console.warn("Supabase: Tabelas não encontradas. Ativando modo offline com dados locais.");
-      }
-      
       // --- FALLBACK STRATEGY ---
-      // Se falhar (ex: tabelas não existem, sem internet), usa dados locais para o app não quebrar
       setSchools(MOCK_SCHOOLS);
       setStudents(MOCK_STUDENT_REGISTRY);
+      setIsOffline(true); // Marca como offline
 
-      let userMessage = "Erro de conexão com o banco.";
-      
-      if (isMissingTable) {
-          userMessage = "Banco de dados não configurado (Tabelas ausentes).";
-          // console.info("DICA: Execute o SQL de criação das tabelas no painel do Supabase (SQL Editor).");
-      } else if (error?.message) {
-          userMessage = `Erro no banco: ${error.message}`;
+      const isMissing = error.message === "TABLE_MISSING" || isTableMissingError(error);
+
+      if (isMissing) {
+          addToast("Banco não configurado. Usando dados locais.", 'info');
+      } else {
+          const errorMsg = error instanceof Error ? error.message : JSON.stringify(error);
+          console.error("Erro crítico ao carregar dados do Supabase:", errorMsg);
+          addToast("Erro de conexão. Usando dados locais.", 'warning');
       }
-
-      addToast(`${userMessage} Usando dados locais.`, 'warning');
       
     } finally {
       setIsLoading(false);
@@ -135,116 +138,102 @@ export const DataProvider = ({ children }: { children?: ReactNode }) => {
   const addSchool = async (school: School) => {
     try {
         if (!supabase) return;
-        
-        // Otimistic UI Update
         setSchools(prev => [...prev, school]);
+        
+        if (isOffline) {
+            addToast("Salvo localmente (Offline).", "info");
+            return;
+        }
 
         const { error } = await supabase.from('schools').insert(school);
-        
         if (error) {
-            console.error("Erro ao inserir escola:", error);
-            // Revert on error
             setSchools(prev => prev.filter(s => s.id !== school.id));
-            throw error;
+            if (isTableMissingError(error)) {
+                setIsOffline(true);
+                addToast("Modo Offline ativado.", "warning");
+            } else {
+                throw error;
+            }
         }
     } catch (e: any) {
-        // Se erro for tabela inexistente, não mostre erro critico, apenas aviso
-        if (e?.code === 'PGRST205' || e?.code === '42P01') {
-            addToast("Modo Offline: Dados salvos apenas na memória.", "info");
-        } else {
-            addToast(`Erro ao salvar escola: ${e.message || 'Verifique o console'}`, "error");
-        }
+        addToast(`Erro ao salvar escola: ${e.message}`, "error");
     }
   };
 
   const addStudent = async (student: RegistryStudent) => {
     try {
         if (!supabase) return;
-
-        // Otimistic UI Update
         setStudents(prev => [...prev, student]);
 
+        if (isOffline) {
+            addToast("Salvo localmente (Offline).", "info");
+            return;
+        }
+
         const { error } = await supabase.from('students').insert(student);
-        
         if (error) {
-             console.error("Erro ao inserir aluno:", error);
-             // Revert on error
              setStudents(prev => prev.filter(s => s.id !== student.id));
-             throw error;
+             if (isTableMissingError(error)) {
+                 setIsOffline(true);
+                 addToast("Modo Offline ativado.", "warning");
+                 setStudents(prev => [...prev, student]); // Re-add locally
+             } else {
+                 throw error;
+             }
         }
     } catch (e: any) {
-        if (e?.code === 'PGRST205' || e?.code === '42P01') {
-            addToast("Modo Offline: Dados salvos apenas na memória.", "info");
-        } else {
-            addToast(`Erro ao salvar aluno: ${e.message || 'Verifique o console'}`, "error");
-        }
+        addToast(`Erro ao salvar aluno: ${e.message}`, "error");
     }
   };
 
   const updateSchools = async (newSchools: School[]) => {
     try {
+        setSchools(newSchools);
+        if (isOffline) return;
         if (!supabase) return;
 
-        // Para simplificar a sincronização, enviamos upsert para cada item modificado
-        // Em um app real, idealmente saberíamos qual mudou, mas aqui o app passa o array todo.
-        // Vamos atualizar o estado local primeiro.
-        setSchools(newSchools);
-
-        const { error } = await supabase
-            .from('schools')
-            .upsert(newSchools);
-
+        const { error } = await supabase.from('schools').upsert(newSchools);
         if (error) throw error;
-        
     } catch (e: any) {
-         if (e?.code === 'PGRST205' || e?.code === '42P01') return; // Ignore offline
+         if (isTableMissingError(e)) { setIsOffline(true); return; }
          console.error(e);
          addToast("Erro ao atualizar escolas.", "error");
-         loadData(); // Revert to server state
+         loadData();
     }
   };
 
   const updateStudents = async (newStudents: RegistryStudent[]) => {
     try {
-        if (!supabase) return;
-
-        // Otimistic UI
         setStudents(prev => {
             const studentMap = new Map(prev.map(s => [s.id, s]));
             newStudents.forEach(s => studentMap.set(s.id, s));
             return Array.from(studentMap.values());
         });
 
-        const { error } = await supabase
-            .from('students')
-            .upsert(newStudents);
+        if (isOffline) return;
+        if (!supabase) return;
 
+        const { error } = await supabase.from('students').upsert(newStudents);
         if (error) throw error;
-
     } catch (e: any) {
-        if (e?.code === 'PGRST205' || e?.code === '42P01') return; // Ignore offline
+        if (isTableMissingError(e)) { setIsOffline(true); return; }
         console.error(e);
         addToast("Erro ao atualizar alunos.", "error");
-        loadData(); // Revert to server state
+        loadData();
     }
   };
 
   const removeStudent = async (id: string) => {
     try {
+        setStudents(prev => prev.filter(s => s.id !== id));
+        if (isOffline) return;
         if (!supabase) return;
 
-        setStudents(prev => prev.filter(s => s.id !== id));
-
-        const { error } = await supabase
-            .from('students')
-            .delete()
-            .eq('id', id);
-
+        const { error } = await supabase.from('students').delete().eq('id', id);
         if (error) throw error;
-        
         addToast("Aluno removido.", "success");
     } catch (e: any) {
-        if (e?.code === 'PGRST205' || e?.code === '42P01') return;
+        if (isTableMissingError(e)) { setIsOffline(true); return; }
         addToast("Erro ao remover aluno da nuvem.", "error");
         loadData();
     }
@@ -252,20 +241,15 @@ export const DataProvider = ({ children }: { children?: ReactNode }) => {
 
   const removeSchool = async (id: string) => {
     try {
+        setSchools(prev => prev.filter(s => s.id !== id));
+        if (isOffline) return;
         if (!supabase) return;
 
-        setSchools(prev => prev.filter(s => s.id !== id));
-
-        const { error } = await supabase
-            .from('schools')
-            .delete()
-            .eq('id', id);
-
+        const { error } = await supabase.from('schools').delete().eq('id', id);
         if (error) throw error;
-
         addToast("Escola removida.", "success");
     } catch (e: any) {
-        if (e?.code === 'PGRST205' || e?.code === '42P01') return;
+        if (isTableMissingError(e)) { setIsOffline(true); return; }
         addToast("Erro ao remover escola da nuvem.", "error");
         loadData();
     }
@@ -275,28 +259,27 @@ export const DataProvider = ({ children }: { children?: ReactNode }) => {
     if(!window.confirm("ATENÇÃO: Isso apagará TODOS os dados no Supabase e restaurará os dados de exemplo. Deseja continuar?")) {
         return;
     }
-
     try {
         if (!supabase) return;
         setIsLoading(true);
-
-        // 1. Delete all rows
-        await supabase.from('students').delete().neq('id', '0'); // Hack to delete all
-        await supabase.from('schools').delete().neq('id', '0');
-
-        // 2. Insert Mocks
-        await supabase.from('schools').insert(MOCK_SCHOOLS);
-        await supabase.from('students').insert(MOCK_STUDENT_REGISTRY);
-        
+        if (!isOffline) {
+            await supabase.from('students').delete().neq('id', '0'); 
+            await supabase.from('schools').delete().neq('id', '0');
+            await supabase.from('schools').insert(MOCK_SCHOOLS);
+            await supabase.from('students').insert(MOCK_STUDENT_REGISTRY);
+        }
         setSchools(MOCK_SCHOOLS);
         setStudents(MOCK_STUDENT_REGISTRY);
-        
         addToast("Sistema restaurado para os padrões de fábrica.", "info");
-    } catch (e) {
-        addToast("Erro ao resetar sistema (possivelmente offline).", "error");
-        // Fallback for UI even if backend fails
-        setSchools(MOCK_SCHOOLS);
-        setStudents(MOCK_STUDENT_REGISTRY);
+    } catch (e: any) {
+        if (isTableMissingError(e)) {
+             setSchools(MOCK_SCHOOLS);
+             setStudents(MOCK_STUDENT_REGISTRY);
+             setIsOffline(true);
+             addToast("Dados locais restaurados (Banco desconectado).", "info");
+        } else {
+             addToast("Erro ao resetar sistema.", "error");
+        }
     } finally {
         setIsLoading(false);
     }
@@ -321,7 +304,9 @@ export const DataProvider = ({ children }: { children?: ReactNode }) => {
       removeSchool, 
       resetData, 
       registerBackup, 
-      isLoading
+      isLoading,
+      isOffline,
+      refreshData: loadData
     }}>
       {children}
     </DataContext.Provider>

@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from '../router';
-import { GraduationCap, Menu, X, Database, LayoutDashboard, CloudCheck, BarChart3, Lock, LayoutGrid, TrendingUp } from 'lucide-react';
+import { GraduationCap, Menu, X, Database, LayoutDashboard, CloudCheck, CloudOff, BarChart3, Lock, LayoutGrid, TrendingUp, RefreshCw } from 'lucide-react';
+import { useData } from '../contexts/DataContext';
 
 export const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { isOffline, refreshData } = useData();
 
   // Monitor auth status for visual feedback
   useEffect(() => {
@@ -65,9 +67,23 @@ export const Navbar: React.FC = () => {
 
           <div className="flex items-center gap-4">
              {/* Data Status Indicator */}
-             <div className="hidden lg:flex items-center gap-1.5 bg-green-50 px-2 py-1 rounded-full border border-green-100" title="Dados salvos localmente no navegador">
-                <CloudCheck className="h-3.5 w-3.5 text-green-600" />
-                <span className="text-[10px] font-bold text-green-700 uppercase tracking-wide">Salvo</span>
+             <div className="hidden lg:flex items-center">
+               {isOffline ? (
+                 <button 
+                    onClick={() => refreshData()}
+                    className="flex items-center gap-1.5 bg-orange-50 px-3 py-1 rounded-full border border-orange-200 hover:bg-orange-100 transition cursor-pointer" 
+                    title="Modo Offline (Dados locais). Clique para tentar reconectar."
+                 >
+                    <CloudOff className="h-3.5 w-3.5 text-orange-600" />
+                    <span className="text-[10px] font-bold text-orange-700 uppercase tracking-wide">Offline</span>
+                    <RefreshCw className="h-3 w-3 text-orange-400 ml-1" />
+                 </button>
+               ) : (
+                 <div className="flex items-center gap-1.5 bg-green-50 px-3 py-1 rounded-full border border-green-100" title="Conectado ao Supabase">
+                    <CloudCheck className="h-3.5 w-3.5 text-green-600" />
+                    <span className="text-[10px] font-bold text-green-700 uppercase tracking-wide">Online</span>
+                 </div>
+               )}
              </div>
              
              {/* Admin Login Shortcut - Aponta para raiz agora */}
