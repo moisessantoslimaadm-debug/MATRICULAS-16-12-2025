@@ -32,14 +32,13 @@ let chatSession: Chat | null = null;
 let ai: GoogleGenAI | null = null;
 
 const getAiClient = () => {
+  // Fixed: Always use new GoogleGenAI({apiKey: process.env.API_KEY}); directly
   if (!ai) {
-    // A chave DEVE vir do process.env.API_KEY conforme regras de segurança
-    const apiKey = process.env.API_KEY;
-    if (!apiKey) {
+    if (!process.env.API_KEY) {
         console.error("API Key is missing for GoogleGenAI");
         throw new Error("API Key configuration error");
     }
-    ai = new GoogleGenAI({ apiKey });
+    ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   }
   return ai;
 }
@@ -85,8 +84,9 @@ export const getChatSession = (schools: School[] = [], forceReset = false): Chat
         Se perguntarem sobre uma escola específica, forneça o endereço e as modalidades.
       `;
 
+      // Fixed: Use gemini-3-flash-preview for general assistant tasks
       chatSession = client.chats.create({
-        model: 'gemini-2.5-flash',
+        model: 'gemini-3-flash-preview',
         config: {
           systemInstruction: dynamicInstruction,
           temperature: 0.4, // Baixa temperatura para respostas mais factuais
@@ -103,7 +103,6 @@ export const getChatSession = (schools: School[] = [], forceReset = false): Chat
 export const sendMessageToGemini = async (message: string, currentSchools: School[]): Promise<AsyncIterable<string>> => {
   // Sempre reinicia a sessão se a lista de escolas mudar drasticamente ou para garantir contexto fresco,
   // mas aqui optamos por manter a sessão e apenas garantir que ela exista.
-  // Para sistemas mais complexos, poderíamos atualizar o contexto dinamicamente.
   const chat = getChatSession(currentSchools);
   
   async function* streamGenerator() {

@@ -105,6 +105,7 @@ export const Reports: React.FC = () => {
     const [activeTab, setActiveTab] = useState<'overview' | 'individual'>('overview');
     const [selectedSchoolId, setSelectedSchoolId] = useState<string>('');
     const [gradeFilter, setGradeFilter] = useState<string>('Todas');
+    const [aeeFilter, setAeeFilter] = useState<string>('Todos'); // Novo Estado para Filtro AEE
 
     // --- Analytics Logic ---
 
@@ -182,7 +183,7 @@ export const Reports: React.FC = () => {
         }));
     }, [schoolComparison]);
 
-    // 5. Individual School Data with Grade Filter
+    // 5. Individual School Data with Grade & AEE Filter
     const selectedSchoolData = useMemo(() => {
         if (!selectedSchoolId) return null;
         
@@ -198,6 +199,11 @@ export const Reports: React.FC = () => {
             schoolStudents = schoolStudents.filter(s => s.grade === gradeFilter);
         }
 
+        // Apply AEE Filter (NEW)
+        if (aeeFilter === 'AEE') {
+            schoolStudents = schoolStudents.filter(s => s.specialNeeds);
+        }
+
         const stats = {
             total: schoolStudents.length,
             aee: schoolStudents.filter(s => s.specialNeeds).length,
@@ -207,7 +213,7 @@ export const Reports: React.FC = () => {
         };
 
         return { info: schoolInfo, students: schoolStudents, stats };
-    }, [selectedSchoolId, schools, students, gradeFilter]);
+    }, [selectedSchoolId, schools, students, gradeFilter, aeeFilter]);
 
     const handlePrint = () => {
         window.print();
@@ -216,6 +222,7 @@ export const Reports: React.FC = () => {
     const handleResetFilters = () => {
         setSelectedSchoolId('');
         setGradeFilter('Todas');
+        setAeeFilter('Todos');
         addToast('Filtros limpos.', 'info');
     };
     
@@ -421,27 +428,39 @@ export const Reports: React.FC = () => {
                                             <th className="px-6 py-3 text-center">Capacidade</th>
                                             <th className="px-6 py-3 text-center">Matriculados</th>
                                             <th className="px-6 py-3 text-center">Ocupação (%)</th>
-                                            <th className="px-6 py-3 text-center text-pink-700">Alunos AEE</th>
+                                            <th className="px-6 py-3 text-center">AEE</th>
+                                            <th className="px-6 py-3 text-center">Transporte</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-200">
-                                        {schoolComparison.map((s, idx) => (
-                                            <tr key={idx} className="hover:bg-slate-50 transition">
-                                                <td className="px-6 py-3 font-medium text-slate-800 truncate max-w-xs" title={s.name}>
-                                                    {s.name}
-                                                </td>
+                                        {schoolComparison.map(s => (
+                                            <tr key={s.name} className="hover:bg-slate-50 transition">
+                                                <td className="px-6 py-3 font-medium text-slate-800">{s.name}</td>
                                                 <td className="px-6 py-3 text-center text-slate-500">{s.capacity}</td>
-                                                <td className="px-6 py-3 text-center font-bold text-slate-700">{s.total}</td>
+                                                <td className="px-6 py-3 text-center font-bold text-blue-600">{s.total}</td>
                                                 <td className="px-6 py-3 text-center">
-                                                    <span className={`px-2 py-1 rounded text-xs font-bold ${
-                                                        s.occupancy > 100 ? 'bg-red-100 text-red-700' :
-                                                        s.occupancy > 90 ? 'bg-yellow-100 text-yellow-700' :
-                                                        'bg-green-100 text-green-700'
-                                                    }`}>
-                                                        {s.occupancy.toFixed(1)}%
-                                                    </span>
+                                                    <div className="w-full bg-slate-100 rounded-full h-1.5 mt-1 mb-1">
+                                                        <div 
+                                                            className={`h-1.5 rounded-full ${s.occupancy >= 100 ? 'bg-red-500' : s.occupancy > 80 ? 'bg-yellow-500' : 'bg-green-500'}`} 
+                                                            style={{ width: `${Math.min(s.occupancy, 100)}%` }}
+                                                        ></div>
+                                                    </div>
+                                                    <span className="text-xs text-slate-400">{s.occupancy.toFixed(0)}%</span>
                                                 </td>
-                                                <td className="px-6 py-3 text-center text-pink-600 font-medium">{s.aee > 0 ? s.aee : '-'}</td>
+                                                <td className="px-6 py-3 text-center">
+                                                    {s.aee > 0 ? (
+                                                        <span className="inline-flex items-center gap-1 bg-pink-50 text-pink-700 px-2 py-0.5 rounded-full text-xs font-bold border border-pink-100">
+                                                            <HeartPulse className="h-3 w-3" /> {s.aee}
+                                                        </span>
+                                                    ) : <span className="text-slate-300">-</span>}
+                                                </td>
+                                                <td className="px-6 py-3 text-center">
+                                                    {s.transport > 0 ? (
+                                                        <span className="inline-flex items-center gap-1 bg-orange-50 text-orange-700 px-2 py-0.5 rounded-full text-xs font-bold border border-orange-100">
+                                                            <Bus className="h-3 w-3" /> {s.transport}
+                                                        </span>
+                                                    ) : <span className="text-slate-300">-</span>}
+                                                </td>
                                             </tr>
                                         ))}
                                     </tbody>
@@ -451,175 +470,148 @@ export const Reports: React.FC = () => {
                     </div>
                 )}
 
-                {/* --- INDIVIDUAL TAB --- */}
+                {/* --- INDIVIDUAL SCHOOL TAB --- */}
                 {activeTab === 'individual' && (
-                    <div className="space-y-6 animate-in fade-in duration-300">
+                    <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
                         
-                        {/* Filters */}
-                        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 print:hidden flex flex-col md:flex-row gap-4">
-                            <div className="flex-1">
-                                <label className="block text-sm font-medium text-slate-700 mb-2">Unidade Escolar</label>
+                        {/* School Selector */}
+                        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm mb-6 flex flex-col md:flex-row gap-4 items-end print:hidden">
+                            <div className="flex-1 w-full">
+                                <label className="block text-xs font-bold text-slate-500 mb-1">Selecione a Escola</label>
                                 <div className="relative">
-                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
-                                    <select 
-                                        className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-white appearance-none cursor-pointer text-slate-700 font-medium"
+                                    <SchoolIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                    <select
                                         value={selectedSchoolId}
                                         onChange={(e) => setSelectedSchoolId(e.target.value)}
+                                        className="w-full pl-9 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-white"
                                     >
-                                        <option value="">-- Selecione uma escola --</option>
-                                        {schools.sort((a,b) => a.name.localeCompare(b.name)).map(s => (
-                                            <option key={s.id} value={s.id}>{s.name}</option>
-                                        ))}
+                                        <option value="">-- Escolha uma unidade --</option>
+                                        {schools.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                                     </select>
                                 </div>
                             </div>
-                            <div className="w-full md:w-64">
-                                <label className="block text-sm font-medium text-slate-700 mb-2">Filtrar por Etapa</label>
+                            
+                            {/* Grade Filter */}
+                            <div className="w-full md:w-48">
+                                <label className="block text-xs font-bold text-slate-500 mb-1">Filtrar por Etapa</label>
                                 <div className="relative">
-                                    <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                                    <select 
-                                        className="w-full pl-9 pr-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-white appearance-none cursor-pointer text-slate-700 font-medium"
+                                     <Layers className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                     <select
                                         value={gradeFilter}
                                         onChange={(e) => setGradeFilter(e.target.value)}
-                                        disabled={!selectedSchoolId}
-                                    >
+                                        className="w-full pl-9 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-white"
+                                     >
                                         <option value="Todas">Todas as Etapas</option>
-                                        {/* Typical grades, could be dynamic based on data */}
-                                        <option value="Educação Infantil">Educação Infantil</option>
-                                        <option value="Fundamental I">Fundamental I</option>
-                                        <option value="Fundamental II">Fundamental II</option>
-                                    </select>
+                                        {[...new Set(selectedSchoolData?.students.map(s => s.grade) || [])].filter(Boolean).map(grade => (
+                                            <option key={grade} value={grade}>{grade}</option>
+                                        ))}
+                                     </select>
                                 </div>
+                            </div>
+
+                            {/* AEE Filter (NEW) */}
+                            <div className="w-full md:w-48">
+                                 <label className="block text-xs font-bold text-slate-500 mb-1">Necessidades Especiais</label>
+                                 <div className="relative">
+                                     <HeartPulse className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                     <select
+                                        value={aeeFilter}
+                                        onChange={(e) => setAeeFilter(e.target.value)}
+                                        className="w-full pl-9 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-white"
+                                     >
+                                        <option value="Todos">Todos os Alunos</option>
+                                        <option value="AEE">Apenas AEE (Laudo)</option>
+                                     </select>
+                                 </div>
                             </div>
                         </div>
 
                         {selectedSchoolData ? (
-                            <div className="space-y-6">
-                                {/* School Info Header */}
-                                <div className="bg-white rounded-2xl shadow-sm border-l-4 border-l-blue-600 p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                                    <div>
-                                        <h2 className="text-2xl font-bold text-slate-900">{selectedSchoolData.info.name}</h2>
-                                        <p className="text-slate-500 mt-1 flex items-center gap-2">
-                                            <SchoolIcon className="h-4 w-4" /> 
-                                            {selectedSchoolData.info.address}
-                                        </p>
-                                        {gradeFilter !== 'Todas' && (
-                                            <span className="mt-2 inline-block px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-bold rounded border border-yellow-200">
-                                                Filtrando por: {gradeFilter}
-                                            </span>
-                                        )}
+                            <>
+                                {/* School Header Info */}
+                                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 pb-6 border-b border-slate-100">
+                                        <div>
+                                            <h2 className="text-xl font-bold text-slate-900">{selectedSchoolData.info.name}</h2>
+                                            <p className="text-slate-500 text-sm flex items-center gap-2 mt-1">
+                                                <SchoolIcon className="h-4 w-4" /> 
+                                                INEP: {selectedSchoolData.info.inep || 'N/A'} • {selectedSchoolData.info.address}
+                                            </p>
+                                        </div>
+                                        <div className="flex gap-4 text-center">
+                                            <div className="px-4 py-2 bg-blue-50 rounded-lg border border-blue-100">
+                                                <span className="block text-xl font-bold text-blue-700">{selectedSchoolData.stats.total}</span>
+                                                <span className="text-[10px] font-bold text-blue-500 uppercase">Alunos</span>
+                                            </div>
+                                            <div className="px-4 py-2 bg-pink-50 rounded-lg border border-pink-100">
+                                                <span className="block text-xl font-bold text-pink-700">{selectedSchoolData.stats.aee}</span>
+                                                <span className="text-[10px] font-bold text-pink-500 uppercase">AEE</span>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div className="bg-slate-50 px-6 py-3 rounded-xl border border-slate-200 text-center min-w-[120px]">
-                                        <span className="block text-xs text-slate-400 uppercase font-bold tracking-wider">INEP</span>
-                                        <span className="block text-xl font-mono font-bold text-slate-800">{selectedSchoolData.info.inep || 'N/A'}</span>
-                                    </div>
-                                </div>
 
-                                {/* Stats Grid */}
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                     <div className="bg-white p-4 rounded-xl border border-slate-200">
-                                        <p className="text-xs text-slate-500 uppercase font-bold">Total Listado</p>
-                                        <p className="text-2xl font-bold text-blue-600 mt-1">{selectedSchoolData.stats.total}</p>
-                                     </div>
-                                     <div className="bg-white p-4 rounded-xl border border-slate-200">
-                                        <p className="text-xs text-slate-500 uppercase font-bold">Capacidade Escola</p>
-                                        <p className="text-2xl font-bold text-slate-700 mt-1">{selectedSchoolData.info.availableSlots}</p>
-                                     </div>
-                                     <div className="bg-white p-4 rounded-xl border border-slate-200">
-                                        <p className="text-xs text-slate-500 uppercase font-bold">AEE (Inclusão)</p>
-                                        <p className="text-2xl font-bold text-pink-600 mt-1">{selectedSchoolData.stats.aee}</p>
-                                     </div>
-                                     <div className="bg-white p-4 rounded-xl border border-slate-200">
-                                        <p className="text-xs text-slate-500 uppercase font-bold">Transporte</p>
-                                        <p className="text-2xl font-bold text-orange-600 mt-1">{selectedSchoolData.stats.transport}</p>
-                                     </div>
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    {/* AEE Student List */}
-                                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 break-inside-avoid">
-                                        <h3 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
-                                            <HeartPulse className="h-4 w-4 text-pink-500" /> Alunos AEE (Inclusão)
-                                        </h3>
-                                        {selectedSchoolData.stats.aee > 0 ? (
-                                            <div className="overflow-y-auto max-h-[300px] border border-slate-100 rounded-lg">
-                                                <table className="w-full text-xs text-left">
-                                                    <thead className="bg-slate-50 text-slate-600 font-bold sticky top-0">
-                                                        <tr>
-                                                            <th className="px-3 py-2">Nome</th>
-                                                            <th className="px-3 py-2">Turma</th>
-                                                            <th className="px-3 py-2">Deficiência?</th>
+                                    {/* Student List */}
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full text-sm text-left">
+                                            <thead className="bg-slate-50 text-slate-700 border-b border-slate-200">
+                                                <tr>
+                                                    <th className="px-4 py-3 font-bold">Nome do Aluno</th>
+                                                    <th className="px-4 py-3 font-bold">Matrícula</th>
+                                                    <th className="px-4 py-3 font-bold">Etapa / Turma</th>
+                                                    <th className="px-4 py-3 font-bold">Turno</th>
+                                                    <th className="px-4 py-3 font-bold text-center">AEE</th>
+                                                    <th className="px-4 py-3 font-bold text-center">Transp.</th>
+                                                    <th className="px-4 py-3 font-bold">Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-slate-100">
+                                                {selectedSchoolData.students.length > 0 ? (
+                                                    selectedSchoolData.students.map((student) => (
+                                                        <tr key={student.id} className="hover:bg-slate-50 transition">
+                                                            <td className="px-4 py-3 font-medium text-slate-800">{student.name}</td>
+                                                            <td className="px-4 py-3 font-mono text-slate-500 text-xs">{student.enrollmentId || '-'}</td>
+                                                            <td className="px-4 py-3 text-slate-600">
+                                                                {student.grade || 'ND'} 
+                                                                <span className="text-slate-300 mx-1">/</span>
+                                                                {student.className || '-'}
+                                                            </td>
+                                                            <td className="px-4 py-3 text-slate-600">{student.shift || '-'}</td>
+                                                            <td className="px-4 py-3 text-center">
+                                                                {student.specialNeeds ? <HeartPulse className="h-4 w-4 text-pink-500 mx-auto" /> : <span className="text-slate-200">-</span>}
+                                                            </td>
+                                                            <td className="px-4 py-3 text-center">
+                                                                {student.transportRequest ? <Bus className="h-4 w-4 text-orange-500 mx-auto" /> : <span className="text-slate-200">-</span>}
+                                                            </td>
+                                                            <td className="px-4 py-3">
+                                                                <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                                                                    student.status === 'Matriculado' ? 'bg-green-100 text-green-700' :
+                                                                    student.status === 'Pendente' ? 'bg-yellow-100 text-yellow-700' : 'bg-blue-100 text-blue-700'
+                                                                }`}>
+                                                                    {student.status}
+                                                                </span>
+                                                            </td>
                                                         </tr>
-                                                    </thead>
-                                                    <tbody className="divide-y divide-slate-100">
-                                                        {selectedSchoolData.students
-                                                            .filter(s => s.specialNeeds)
-                                                            .map(s => (
-                                                            <tr key={s.id}>
-                                                                <td className="px-3 py-2 font-medium">{s.name}</td>
-                                                                <td className="px-3 py-2 text-slate-500">{s.className || '-'}</td>
-                                                                <td className="px-3 py-2 text-pink-600 font-bold">Sim</td>
-                                                            </tr>
-                                                        ))}
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        ) : (
-                                            <div className="flex flex-col items-center justify-center h-[200px] bg-slate-50 rounded-lg border border-dashed border-slate-300">
-                                                <HeartPulse className="h-8 w-8 text-slate-300 mb-2" />
-                                                <p className="text-slate-500 text-sm">Nenhum aluno AEE encontrado.</p>
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    {/* Transport Student List */}
-                                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 break-inside-avoid">
-                                        <h3 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
-                                            <Bus className="h-4 w-4 text-orange-500" /> Alunos com Transporte
-                                        </h3>
-                                        {selectedSchoolData.stats.transport > 0 ? (
-                                            <div className="overflow-y-auto max-h-[300px] border border-slate-100 rounded-lg">
-                                                <table className="w-full text-xs text-left">
-                                                    <thead className="bg-slate-50 text-slate-600 font-bold sticky top-0">
-                                                        <tr>
-                                                            <th className="px-3 py-2">Nome</th>
-                                                            <th className="px-3 py-2">Turma</th>
-                                                            <th className="px-3 py-2">Etapa</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody className="divide-y divide-slate-100">
-                                                        {selectedSchoolData.students
-                                                            .filter(s => s.transportRequest)
-                                                            .map(s => (
-                                                            <tr key={s.id}>
-                                                                <td className="px-3 py-2 font-medium">{s.name}</td>
-                                                                <td className="px-3 py-2 text-slate-500">{s.className || '-'}</td>
-                                                                <td className="px-3 py-2">{s.grade || '-'}</td>
-                                                            </tr>
-                                                        ))}
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        ) : (
-                                            <div className="flex flex-col items-center justify-center h-[200px] bg-slate-50 rounded-lg border border-dashed border-slate-300">
-                                                <Bus className="h-8 w-8 text-slate-300 mb-2" />
-                                                <p className="text-slate-500 text-sm">Nenhum aluno utiliza transporte.</p>
-                                            </div>
-                                        )}
+                                                    ))
+                                                ) : (
+                                                    <tr>
+                                                        <td colSpan={7} className="px-4 py-8 text-center text-slate-400 italic">
+                                                            Nenhum aluno encontrado com os filtros selecionados.
+                                                        </td>
+                                                    </tr>
+                                                )}
+                                            </tbody>
+                                        </table>
                                     </div>
                                 </div>
-                            </div>
+                            </>
                         ) : (
-                            // Empty State
-                            <div className="flex flex-col items-center justify-center py-16 bg-white rounded-2xl border-2 border-dashed border-slate-200">
-                                <SchoolIcon className="h-16 w-16 text-slate-200 mb-4" />
-                                <h3 className="text-lg font-bold text-slate-400">Nenhuma escola selecionada</h3>
-                                <p className="text-slate-400">Escolha uma unidade acima para ver o relatório detalhado.</p>
+                            <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl border border-dashed border-slate-300 text-slate-400">
+                                <Search className="h-10 w-10 mb-3 opacity-20" />
+                                <p>Selecione uma escola acima para visualizar o relatório individual.</p>
                             </div>
                         )}
                     </div>
                 )}
-
             </div>
         </div>
     );

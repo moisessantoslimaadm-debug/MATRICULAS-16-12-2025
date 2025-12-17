@@ -1,323 +1,210 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { useData } from '../contexts/DataContext';
-import { MapPin, Users, School as SchoolIcon, Search, X, Star, Navigation, Phone, Mail } from 'lucide-react';
-import { School } from '../types';
+import { MapPin, Users, School as SchoolIcon, Search, X, Star, Navigation, Filter, ChevronLeft, ChevronRight, HeartPulse, LayoutGrid, Map as MapIcon, CheckCircle2, AlertTriangle, XCircle, ChevronDown } from 'lucide-react';
+import { School, SchoolType } from '../types';
 
-// Declaração global do Leaflet
 declare const L: any;
+
+interface SchoolCardProps {
+  school: School;
+  enrolledCount: number;
+  onClick: (s: School) => void;
+}
+
+const SchoolCard: React.FC<SchoolCardProps> = ({ school, enrolledCount, onClick }) => {
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+    const images = useMemo(() => (school.gallery && school.gallery.length > 0 ? school.gallery : [school.image]), [school]);
+
+    const occupancy = school.availableSlots > 0 ? (enrolledCount / school.availableSlots) * 100 : 0;
+    const getStatus = () => {
+        if (occupancy >= 95) return { color: 'text-red-600', bg: 'bg-red-500', label: 'Lotada', icon: <XCircle className="h-3 w-3" /> };
+        if (occupancy >= 80) return { color: 'text-yellow-600', bg: 'bg-yellow-500', label: 'Vagas Limitadas', icon: <AlertTriangle className="h-3 w-3" /> };
+        return { color: 'text-green-600', bg: 'bg-green-500', label: 'Vagas Disponíveis', icon: <CheckCircle2 className="h-3 w-3" /> };
+    };
+
+    const status = getStatus();
+
+    return (
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition-all group flex flex-col">
+            <div className="h-52 relative overflow-hidden bg-slate-200">
+                <img 
+                    src={images[currentImageIndex]} 
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+                    alt={school.name} 
+                />
+                
+                {/* Navigation Arrows */}
+                {images.length > 1 && (
+                    <>
+                        <button 
+                            onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(p => (p - 1 + images.length) % images.length); }}
+                            className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white p-2 rounded-full backdrop-blur-sm transition-opacity opacity-0 group-hover:opacity-100"
+                        >
+                            <ChevronLeft className="h-4 w-4" />
+                        </button>
+                        <button 
+                            onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(p => (p + 1) % images.length); }}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white p-2 rounded-full backdrop-blur-sm transition-opacity opacity-0 group-hover:opacity-100"
+                        >
+                            <ChevronRight className="h-4 w-4" />
+                        </button>
+                    </>
+                )}
+
+                {/* Dots Indicator */}
+                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+                    {images.map((_, i) => (
+                        <div key={i} className={`h-1.5 rounded-full transition-all ${i === currentImageIndex ? 'bg-white w-4' : 'bg-white/50 w-1.5'}`} />
+                    ))}
+                </div>
+
+                <div className="absolute top-4 left-4 z-10 px-2 py-1 bg-white/95 rounded-lg text-[10px] font-bold flex items-center gap-1 shadow-sm border border-slate-100">
+                    <Star className="h-3 w-3 text-yellow-500 fill-yellow-500" />
+                    {school.rating.toFixed(1)}
+                </div>
+            </div>
+
+            <div className="p-6 flex-1 flex flex-col">
+                <div className="flex justify-between items-start gap-2 mb-3">
+                    <h3 className="text-lg font-bold text-slate-900 leading-tight line-clamp-2">{school.name}</h3>
+                    {school.hasAEE && (
+                        <div className="bg-pink-100 text-pink-600 p-1.5 rounded-lg" title="AEE Disponível">
+                            <HeartPulse className="h-4 w-4 animate-pulse" />
+                        </div>
+                    )}
+                </div>
+                
+                <div className="flex items-start gap-2 text-slate-500 text-sm mb-4">
+                    <MapPin className="h-4 w-4 shrink-0 text-slate-300" />
+                    <span className="line-clamp-2">{school.address}</span>
+                </div>
+
+                <div className="mt-auto pt-4 border-t border-slate-100">
+                    <div className="flex justify-between items-center text-xs mb-2">
+                        <span className="text-slate-500 font-bold uppercase tracking-wider flex items-center gap-1">
+                            {status.icon} {status.label}
+                        </span>
+                        <span className={`font-bold ${status.color}`}>{enrolledCount} / {school.availableSlots} vagas</span>
+                    </div>
+                    <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                        <div className={`h-full transition-all duration-1000 ${status.bg}`} style={{ width: `${Math.min(occupancy, 100)}%` }} />
+                    </div>
+                    <button 
+                        onClick={() => onClick(school)}
+                        className="w-full mt-4 py-2.5 bg-slate-50 hover:bg-blue-600 hover:text-white text-slate-700 font-bold rounded-xl transition-all border border-slate-200 flex items-center justify-center gap-2"
+                    >
+                        <Users className="h-4 w-4" /> Detalhes e Quadro
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
 
 export const SchoolList: React.FC = () => {
   const { schools, students } = useData();
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedType, setSelectedType] = useState<string>('');
+  const [showAEE, setShowAEE] = useState(false);
+  const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
   const [selectedSchool, setSelectedSchool] = useState<School | null>(null);
   
-  // Refs para o mapa
-  const mapContainerRef = useRef<HTMLDivElement>(null);
-  const mapInstanceRef = useRef<any>(null);
+  const mapRef = useRef<any>(null);
+  const markersLayerRef = useRef<any>(null);
 
-  const filteredSchools = useMemo(() => {
-    return schools.filter(school => 
-      school.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      school.address.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [schools, searchTerm]);
+  const getEnrolled = useCallback((name: string) => students.filter(s => s.school === name && s.status === 'Matriculado').length, [students]);
 
-  const getEnrolledCount = (schoolName: string) => {
-    return students.filter(s => s.school === schoolName && s.status === 'Matriculado').length;
-  };
+  const filteredSchools = useMemo(() => schools.filter(s => {
+    const matchesSearch = s.name.toLowerCase().includes(searchTerm.toLowerCase()) || s.address.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesType = !selectedType || s.types.includes(selectedType as SchoolType);
+    const matchesAEE = !showAEE || s.hasAEE;
+    return matchesSearch && matchesType && matchesAEE;
+  }), [schools, searchTerm, selectedType, showAEE]);
 
-  const getSchoolStudents = (schoolName: string) => {
-      return students.filter(s => s.school === schoolName);
-  };
+  const updateMarkers = useCallback(() => {
+    if (!mapRef.current || !markersLayerRef.current) return;
+    const map = mapRef.current;
+    const bounds = map.getBounds();
+    markersLayerRef.current.clearLayers();
 
-  const handleViewDetails = (school: School) => {
-    setSelectedSchool(school);
-  };
+    filteredSchools.forEach(school => {
+        // LAZY LOADING: Só renderiza o que está no viewport
+        if (bounds.contains([school.lat, school.lng])) {
+            const enrolled = getEnrolled(school.name);
+            const occ = (enrolled / school.availableSlots) * 100;
+            const color = occ >= 95 ? '#ef4444' : occ >= 80 ? '#eab308' : '#22c55e';
 
-  const closeDetails = () => {
-    setSelectedSchool(null);
-  };
-
-  // Efeito para inicializar o mapa quando uma escola é selecionada
-  useEffect(() => {
-    if (selectedSchool && mapContainerRef.current) {
-        // Limpa instância anterior se existir
-        if (mapInstanceRef.current) {
-            mapInstanceRef.current.remove();
-            mapInstanceRef.current = null;
-        }
-
-        try {
-            // Inicializa o mapa
-            const map = L.map(mapContainerRef.current).setView([selectedSchool.lat, selectedSchool.lng], 15);
-            
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; OpenStreetMap contributors'
-            }).addTo(map);
-
-            const icon = L.icon({
-                iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-                shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-                iconSize: [25, 41],
-                iconAnchor: [12, 41],
-                popupAnchor: [1, -34],
+            const icon = L.divIcon({
+                className: 'custom-marker',
+                html: `<div style="background-color: ${color}; width: 24px; height: 24px; border-radius: 50%; border: 3px solid white; box-shadow: 0 4px 6px rgba(0,0,0,0.2); animation: markerBounce 0.5s ease-out;"></div>`,
+                iconSize: [24, 24],
+                iconAnchor: [12, 12]
             });
 
-            L.marker([selectedSchool.lat, selectedSchool.lng], { icon })
-                .addTo(map)
-                .bindPopup(`<b>${selectedSchool.name}</b><br>${selectedSchool.address}`)
-                .openPopup();
-
-            mapInstanceRef.current = map;
-
-            // Corrige problema de renderização do Leaflet em modais
-            setTimeout(() => {
-                map.invalidateSize();
-            }, 200);
-
-        } catch (error) {
-            console.error("Erro ao carregar mapa:", error);
+            L.marker([school.lat, school.lng], { icon })
+                .bindPopup(`<div class="text-center font-bold text-slate-800 p-1">${school.name}<br/><span class="text-[10px] text-slate-400 font-normal">${enrolled}/${school.availableSlots} vagas</span></div>`, { closeButton: false })
+                .addTo(markersLayerRef.current);
         }
+    });
+  }, [filteredSchools, getEnrolled]);
+
+  useEffect(() => {
+    if (viewMode === 'map' && !mapRef.current) {
+        const map = L.map('main-map', { attributionControl: false, zoomControl: true }).setView([-12.5253, -40.2917], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+        markersLayerRef.current = L.layerGroup().addTo(map);
+        mapRef.current = map;
+        map.on('moveend', updateMarkers);
     }
-
-    // Cleanup ao fechar
-    return () => {
-        if (mapInstanceRef.current) {
-            mapInstanceRef.current.remove();
-            mapInstanceRef.current = null;
-        }
-    };
-  }, [selectedSchool]);
+    if (viewMode === 'map') {
+        setTimeout(() => { mapRef.current?.invalidateSize(); updateMarkers(); }, 100);
+    }
+  }, [viewMode, updateMarkers]);
 
   return (
     <div className="min-h-screen bg-slate-50 py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-slate-900">Escolas Municipais</h1>
-          <p className="text-slate-600 mt-2">Conheça nossa rede de ensino e encontre a unidade mais próxima.</p>
+          <p className="text-slate-600 mt-2">Localize a unidade ideal para seu filho perto de casa.</p>
         </div>
 
-        {/* Search Bar */}
-        <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 mb-8 sticky top-20 z-10">
-          <div className="relative">
+        <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 mb-8 sticky top-20 z-30 flex flex-col md:flex-row gap-4">
+          <div className="relative flex-1">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Buscar por nome da escola ou bairro..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-            />
+            <input type="text" placeholder="Buscar escola..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
+          </div>
+          <div className="flex gap-2">
+            <select value={selectedType} onChange={(e) => setSelectedType(e.target.value)} className="px-4 py-3 border border-slate-200 rounded-lg text-sm bg-white outline-none appearance-none pr-10 relative">
+                <option value="">Todas as Etapas</option>
+                {Object.values(SchoolType).map(t => <option key={t} value={t}>{t}</option>)}
+            </select>
+            <button onClick={() => setShowAEE(!showAEE)} className={`px-4 py-3 rounded-lg border font-bold flex items-center gap-2 transition ${showAEE ? 'bg-pink-50 border-pink-200 text-pink-600' : 'bg-white text-slate-600'}`}>
+                <HeartPulse className="h-5 w-5" /> AEE
+            </button>
+            <div className="bg-slate-100 p-1 rounded-lg flex border">
+                <button onClick={() => setViewMode('list')} className={`p-2 rounded ${viewMode === 'list' ? 'bg-white shadow-sm text-blue-600' : 'text-slate-500'}`}><LayoutGrid className="h-5 w-5" /></button>
+                <button onClick={() => setViewMode('map')} className={`p-2 rounded ${viewMode === 'map' ? 'bg-white shadow-sm text-blue-600' : 'text-slate-500'}`}><MapIcon className="h-5 w-5" /></button>
+            </div>
           </div>
         </div>
 
-        {/* Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredSchools.map((school) => {
-            const enrolledCount = getEnrolledCount(school.name);
-            const occupancy = school.availableSlots > 0 ? (enrolledCount / school.availableSlots) * 100 : 0;
-            
-            return (
-              <div key={school.id} className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition-shadow flex flex-col">
-                <div className="h-48 bg-slate-200 relative overflow-hidden">
-                    {school.image ? (
-                        <img src={school.image} alt={school.name} className="w-full h-full object-cover" />
-                    ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-blue-50">
-                            <SchoolIcon className="h-16 w-16 text-blue-200" />
-                        </div>
-                    )}
-                    <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-lg text-xs font-bold shadow-sm flex items-center gap-1">
-                        <Star className="h-3 w-3 text-yellow-500 fill-yellow-500" />
-                        {school.rating.toFixed(1)}
-                    </div>
-                </div>
-                
-                <div className="p-6 flex-1 flex flex-col">
-                    <h3 className="text-lg font-bold text-slate-900 mb-2 line-clamp-2 min-h-[3.5rem]">{school.name}</h3>
-                    
-                    <div className="flex items-start gap-2 text-slate-500 text-sm mb-4 min-h-[2.5rem]">
-                        <MapPin className="h-4 w-4 mt-0.5 shrink-0" />
-                        <span className="line-clamp-2">{school.address}</span>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2 mb-4">
-                        {school.types.map(type => (
-                            <span key={type} className="text-xs px-2 py-1 bg-slate-100 text-slate-600 rounded-md font-medium border border-slate-200">
-                                {type}
-                            </span>
-                        ))}
-                    </div>
-                    
-                    <div className="mt-auto pt-4 border-t border-slate-100 space-y-4">
-                        <div className="flex justify-between items-center text-sm">
-                            <span className="text-slate-500">Ocupação</span>
-                            <span className={`font-bold ${occupancy >= 100 ? 'text-red-600' : occupancy >= 80 ? 'text-yellow-600' : 'text-green-600'}`}>
-                                {enrolledCount} / {school.availableSlots} vagas
-                            </span>
-                        </div>
-                        
-                        <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
-                             <div 
-                                className={`h-full rounded-full ${occupancy >= 100 ? 'bg-red-500' : occupancy >= 80 ? 'bg-yellow-500' : 'bg-green-500'}`} 
-                                style={{ width: `${Math.min(occupancy, 100)}%` }}
-                             ></div>
-                        </div>
-
-                        <button 
-                            onClick={(e) => { e.stopPropagation(); handleViewDetails(school); }}
-                            className="w-full py-2.5 bg-slate-50 hover:bg-slate-100 text-blue-600 font-bold rounded-xl transition border border-slate-200 flex items-center justify-center gap-2"
-                        >
-                            <Users className="h-4 w-4" /> Ver Detalhes
-                        </button>
-                    </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Empty State */}
-        {filteredSchools.length === 0 && (
-            <div className="text-center py-20">
-                <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Search className="h-10 w-10 text-slate-400" />
-                </div>
-                <h3 className="text-lg font-bold text-slate-700">Nenhuma escola encontrada</h3>
-                <p className="text-slate-500">Tente buscar por outro termo.</p>
+        {viewMode === 'list' ? (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredSchools.map(s => <SchoolCard key={s.id} school={s} enrolledCount={getEnrolled(s.name)} onClick={setSelectedSchool} />)}
             </div>
+        ) : (
+            <div id="main-map" className="h-[600px] w-full rounded-2xl border border-slate-300 shadow-inner z-10" />
         )}
       </div>
 
-      {/* Details Modal */}
-      {selectedSchool && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={closeDetails}></div>
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-5xl max-h-[90vh] relative animate-in zoom-in-95 duration-200 flex flex-col overflow-hidden">
-             
-             {/* Modal Header */}
-             <div className="relative h-48 sm:h-64 bg-slate-200 shrink-0">
-                {selectedSchool.image ? (
-                     <img src={selectedSchool.image} alt={selectedSchool.name} className="w-full h-full object-cover" />
-                ) : (
-                     <div className="w-full h-full flex items-center justify-center bg-blue-50">
-                        <SchoolIcon className="h-20 w-20 text-blue-200" />
-                     </div>
-                )}
-                <button 
-                    onClick={closeDetails}
-                    className="absolute top-4 right-4 bg-white/20 hover:bg-white/40 backdrop-blur-md p-2 rounded-full text-white transition z-10"
-                >
-                    <X className="h-6 w-6" />
-                </button>
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6 text-white">
-                    <h2 className="text-2xl font-bold">{selectedSchool.name}</h2>
-                    <p className="opacity-90 flex items-center gap-2 text-sm mt-1">
-                        <MapPin className="h-4 w-4" /> {selectedSchool.address}
-                    </p>
-                </div>
-             </div>
-
-             {/* Modal Content */}
-             <div className="flex-1 overflow-y-auto p-6 md:p-8">
-                 <div className="grid md:grid-cols-3 gap-8">
-                     
-                     {/* Info Column */}
-                     <div className="md:col-span-1 space-y-6">
-                        <div>
-                            <h3 className="font-bold text-slate-900 mb-2">Modalidades de Ensino</h3>
-                            <div className="flex flex-wrap gap-2">
-                                {selectedSchool.types.map(t => (
-                                    <span key={t} className="px-3 py-1 bg-blue-50 text-blue-700 text-xs font-bold rounded-lg border border-blue-100">{t}</span>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div>
-                            <h3 className="font-bold text-slate-900 mb-2">Informações</h3>
-                            <div className="space-y-3 text-sm text-slate-600">
-                                <div className="flex items-center gap-3">
-                                    <div className="p-2 bg-slate-100 rounded-lg"><Navigation className="h-4 w-4" /></div>
-                                    <span>INEP: {selectedSchool.inep || 'N/A'}</span>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                    <div className="p-2 bg-slate-100 rounded-lg"><Users className="h-4 w-4" /></div>
-                                    <span>{getEnrolledCount(selectedSchool.name)} Alunos Matriculados</span>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                    <div className="p-2 bg-slate-100 rounded-lg"><SchoolIcon className="h-4 w-4" /></div>
-                                    <span>{selectedSchool.availableSlots} Vagas Totais</span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        {/* Fake Contacts for Demo */}
-                        <div>
-                             <h3 className="font-bold text-slate-900 mb-2">Contato</h3>
-                             <div className="space-y-3 text-sm text-slate-600">
-                                <div className="flex items-center gap-3">
-                                    <Phone className="h-4 w-4 text-slate-400" />
-                                    <span>(75) 3251-0000</span>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                    <Mail className="h-4 w-4 text-slate-400" />
-                                    <span>{selectedSchool.name.toLowerCase().replace(/\s+/g, '.')}@itaberaba.ba.gov.br</span>
-                                </div>
-                             </div>
-                        </div>
-                     </div>
-
-                     {/* Right Column: Map, Gallery & Stats */}
-                     <div className="md:col-span-2 space-y-8">
-                        
-                        {/* Location Map (NEW) */}
-                        <div>
-                           <h3 className="font-bold text-slate-900 mb-3 flex items-center gap-2">
-                               <MapPin className="h-4 w-4 text-blue-600" /> Localização
-                           </h3>
-                           <div className="rounded-xl overflow-hidden shadow-sm border border-slate-200 h-64 relative z-0 bg-slate-100">
-                                <div ref={mapContainerRef} className="w-full h-full" />
-                           </div>
-                        </div>
-
-                        <div>
-                            <h3 className="font-bold text-slate-900 mb-4 border-b pb-2">Galeria de Fotos</h3>
-                            {selectedSchool.gallery && selectedSchool.gallery.length > 0 ? (
-                                <div className="grid grid-cols-2 gap-2">
-                                    {selectedSchool.gallery.slice(0, 4).map((img, i) => (
-                                        <img key={i} src={img} alt="" className="rounded-lg h-32 w-full object-cover hover:opacity-90 transition cursor-pointer" />
-                                    ))}
-                                </div>
-                            ) : (
-                                <p className="text-slate-400 text-sm italic">Nenhuma foto disponível na galeria.</p>
-                            )}
-                        </div>
-
-                         {/* Simple Student Stats */}
-                         <div className="bg-slate-50 p-6 rounded-xl border border-slate-100">
-                             <h3 className="font-bold text-slate-800 mb-2">Sobre a Matrícula</h3>
-                             <p className="text-sm text-slate-600 mb-4">
-                                Esta escola atende alunos da região de {selectedSchool.address.split('-')[0]}. 
-                                A alocação é feita via sistema de geolocalização.
-                             </p>
-                             <div className="flex gap-4">
-                                <div className="text-center">
-                                    <span className="block text-2xl font-bold text-blue-600">{getSchoolStudents(selectedSchool.name).filter(s => s.status === 'Pendente').length}</span>
-                                    <span className="text-xs text-slate-500 uppercase font-bold">Fila de Espera</span>
-                                </div>
-                                <div className="w-px bg-slate-300"></div>
-                                <div className="text-center">
-                                    <span className="block text-2xl font-bold text-green-600">{getSchoolStudents(selectedSchool.name).filter(s => s.status === 'Matriculado').length}</span>
-                                    <span className="text-xs text-slate-500 uppercase font-bold">Vagas Preenchidas</span>
-                                </div>
-                             </div>
-                         </div>
-                     </div>
-                 </div>
-             </div>
-          </div>
-        </div>
-      )}
+      <style>{`
+        @keyframes markerBounce {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+      `}</style>
     </div>
   );
 };

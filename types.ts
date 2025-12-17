@@ -20,6 +20,7 @@ export interface School {
   lat: number;
   lng: number;
   distance?: number; // Property for calculated distance
+  hasAEE?: boolean; // Indicates Special Education Support
 }
 
 export interface StudentData {
@@ -49,6 +50,7 @@ export interface AddressData {
   zipCode: string;
   lat?: number;
   lng?: number;
+  residenceZone?: 'Urbana' | 'Rural'; // Nova propriedade
 }
 
 export interface RegistrationFormState {
@@ -132,6 +134,7 @@ export interface RegistryStudent {
   medicalReport?: string; // Laudo médico em Base64
   lat?: number; // Latitude exata da residência
   lng?: number; // Longitude exata da residência
+  residenceZone?: 'Urbana' | 'Rural'; // Nova propriedade
   guardianName?: string; // Nome do Responsável
   guardianContact?: string; // Telefone do Responsável
   guardianCpf?: string; // CPF do Responsável

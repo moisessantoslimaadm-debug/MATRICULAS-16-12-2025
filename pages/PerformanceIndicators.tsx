@@ -190,6 +190,7 @@ export const PerformanceIndicators: React.FC = () => {
           ...prev,
           { subject: '', g1: ['','','','',''], g2: ['','','','',''], g3: ['','',''], g4: ['','',''], g5: ['','',''] }
       ]);
+      // Optional: scroll to bottom logic could be added here
   };
 
   const handleRemoveSubject = (index: number) => {
@@ -489,9 +490,13 @@ export const PerformanceIndicators: React.FC = () => {
                         ))}
                     </tbody>
                 </table>
-                <div className="print:hidden bg-slate-50 border-t border-black p-1 text-center">
-                    <button onClick={handleAddSubject} className="text-[10px] font-bold text-blue-600 hover:text-blue-800 flex items-center justify-center gap-1 w-full">
-                        <Plus className="h-3 w-3" /> Adicionar Disciplina
+                {/* Button to Add New Line */}
+                <div className="print:hidden bg-slate-50 border-t border-black p-1.5 text-center">
+                    <button 
+                        onClick={handleAddSubject} 
+                        className="text-xs font-bold text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 rounded-lg py-1.5 px-4 inline-flex items-center justify-center gap-1.5 transition w-full sm:w-auto"
+                    >
+                        <Plus className="h-3.5 w-3.5" /> Adicionar Disciplina
                     </button>
                 </div>
             </div>

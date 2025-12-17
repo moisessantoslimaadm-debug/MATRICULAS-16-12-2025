@@ -4,7 +4,7 @@ import { INITIAL_REGISTRATION_STATE } from '../constants';
 import { useData } from '../contexts/DataContext';
 import { useToast } from '../contexts/ToastContext';
 import { RegistrationFormState, RegistryStudent } from '../types';
-import { Check, ChevronRight, ChevronLeft, Upload, School as SchoolIcon, Bus, FileText, ListChecks, MapPin, Navigation, AlertCircle, Loader2, Search, RefreshCw, Crosshair, AlertTriangle, Move, Trash2, Paperclip } from 'lucide-react';
+import { Check, ChevronRight, ChevronLeft, Upload, School as SchoolIcon, Bus, FileText, ListChecks, MapPin, Navigation, AlertCircle, Loader2, Search, RefreshCw, Crosshair, AlertTriangle, Move, Trash2, Paperclip, Home } from 'lucide-react';
 import { useNavigate } from '../router';
 
 // Declare Leaflet globally
@@ -433,6 +433,7 @@ export const Registration: React.FC = () => {
         enrollmentId: `PROT-${Math.floor(Math.random() * 100000)}`,
         lat: formState.address.lat, 
         lng: formState.address.lng,
+        residenceZone: formState.address.residenceZone,
         guardianName: formState.guardian.fullName, // Persist guardian name
         guardianContact: formState.guardian.phone, // Persist guardian contact
         guardianCpf: formState.guardian.cpf // Persist guardian CPF
@@ -611,7 +612,7 @@ export const Registration: React.FC = () => {
               </div>
             )}
 
-            {/* Step 3: Address (Enhanced with Map) */}
+            {/* Step 3: Address (Enhanced with Map and Residence Zone) */}
             {formState.step === 3 && (
               <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
                 <h3 className="text-lg font-semibold text-slate-800 border-b pb-2">Endereço Residencial</h3>
@@ -653,6 +654,27 @@ export const Registration: React.FC = () => {
                              <Crosshair className="h-5 w-5" />
                            </button>
                       </div>
+                  </div>
+
+                  {/* Residence Zone Selection (NEW) */}
+                  <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                     <label className="block text-xs font-bold text-slate-500 uppercase mb-3">Zona de Residência</label>
+                     <div className="grid grid-cols-2 gap-4">
+                        <button 
+                            type="button"
+                            onClick={() => handleInputChange('address', 'residenceZone', 'Urbana')}
+                            className={`flex items-center justify-center gap-2 p-3 rounded-lg border-2 transition-all font-bold text-sm ${formState.address.residenceZone === 'Urbana' ? 'bg-blue-600 text-white border-blue-600 shadow-md' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100'}`}
+                        >
+                            <Home className="h-4 w-4" /> Urbana
+                        </button>
+                        <button 
+                            type="button"
+                            onClick={() => handleInputChange('address', 'residenceZone', 'Rural')}
+                            className={`flex items-center justify-center gap-2 p-3 rounded-lg border-2 transition-all font-bold text-sm ${formState.address.residenceZone === 'Rural' ? 'bg-indigo-600 text-white border-indigo-600 shadow-md' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100'}`}
+                        >
+                            <Navigation className="h-4 w-4" /> Rural
+                        </button>
+                     </div>
                   </div>
 
                   {/* Campos de Endereço Automáticos */}
