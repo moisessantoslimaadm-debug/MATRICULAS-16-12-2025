@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from '../router';
 import { useData } from '../contexts/DataContext';
@@ -11,16 +12,13 @@ import { RegistryStudent, TeacherNote, PerformanceRow } from '../types';
 // --- Components Gráficos SVG Leves ---
 
 const LineChart = ({ data }: { data: PerformanceRow[] }) => {
-    // Process data to get simplified numeric averages for charting
     const chartData = data.map(row => {
-        // Safe check for arrays to prevent crashes on legacy data or incomplete records
         const g1 = row.g1 || [];
         const g2 = row.g2 || [];
         const g3 = row.g3 || [];
         const g4 = row.g4 || [];
         const g5 = row.g5 || [];
 
-        // Converte notas '8.0' ou '8,0' para numbers. Ignora strings vazias.
         const grades = [...g1, ...g2, ...g3, ...g4, ...g5]
             .map(v => parseFloat(v?.replace(',', '.') || '0'))
             .filter(n => !isNaN(n) && n > 0);
@@ -41,7 +39,7 @@ const LineChart = ({ data }: { data: PerformanceRow[] }) => {
 
     const padding = 40;
     const height = 300;
-    const width = 600; // SVG coordinate system width
+    const width = 600; 
     const maxY = 10;
     const stepX = (width - padding * 2) / (Math.max(chartData.length - 1, 1));
 
@@ -55,7 +53,6 @@ const LineChart = ({ data }: { data: PerformanceRow[] }) => {
         <div className="w-full overflow-x-auto pb-2">
             <div className="min-w-[500px]">
                 <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-auto drop-shadow-sm">
-                    {/* Background Grid */}
                     {[0, 2.5, 5, 7.5, 10].map((val) => {
                         const y = height - padding - (val / maxY) * (height - padding * 2);
                         return (
@@ -66,7 +63,6 @@ const LineChart = ({ data }: { data: PerformanceRow[] }) => {
                         );
                     })}
 
-                    {/* Area Gradient */}
                     <defs>
                         <linearGradient id="gradeGradient" x1="0" x2="0" y1="0" y2="1">
                             <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.3" />
@@ -80,21 +76,16 @@ const LineChart = ({ data }: { data: PerformanceRow[] }) => {
                         />
                     )}
 
-                    {/* The Line */}
                     <polyline fill="none" stroke="#3b82f6" strokeWidth="3" points={points} strokeLinecap="round" strokeLinejoin="round" />
 
-                    {/* Data Points */}
                     {chartData.map((d, i) => {
                         const x = padding + i * stepX;
                         const y = height - padding - (d.value / maxY) * (height - padding * 2);
                         return (
                             <g key={i} className="group">
-                                {/* Interactive Hit Area */}
                                 <circle cx={x} cy={y} r="15" fill="transparent" className="cursor-pointer" />
-                                {/* Visible Dot */}
                                 <circle cx={x} cy={y} r="5" fill="white" stroke="#3b82f6" strokeWidth="2.5" className="transition-all duration-300 group-hover:r-6 group-hover:stroke-blue-700" />
                                 
-                                {/* Label (Subject) */}
                                 <text 
                                     x={x} 
                                     y={height - 10} 
@@ -107,7 +98,6 @@ const LineChart = ({ data }: { data: PerformanceRow[] }) => {
                                     {d.subject.length > 12 ? d.subject.substring(0, 10) + '.' : d.subject}
                                 </text>
                                 
-                                {/* Tooltip on Hover */}
                                 <g className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
                                     <rect x={x - 24} y={y - 45} width="48" height="30" rx="6" fill="#1e293b" />
                                     <path d={`M${x - 6},${y - 15} L${x},${y - 9} L${x + 6},${y - 15}`} fill="#1e293b" />
@@ -139,9 +129,9 @@ const AttendanceDonut = ({ present, total }: { present: number, total: number })
     const circumference = 2 * Math.PI * radius;
     const offset = circumference - (percentage / 100) * circumference;
     
-    let color = '#22c55e'; // Green
-    if (percentage < 75) color = '#ef4444'; // Red
-    else if (percentage < 85) color = '#eab308'; // Yellow
+    let color = '#22c55e'; 
+    if (percentage < 75) color = '#ef4444'; 
+    else if (percentage < 85) color = '#eab308'; 
 
     return (
         <div className="relative w-32 h-32 flex items-center justify-center group">
@@ -178,7 +168,6 @@ export const StudentMonitoring: React.FC = () => {
     const [student, setStudent] = useState<RegistryStudent | null>(null);
     const [activeTab, setActiveTab] = useState<'overview' | 'notes'>('overview');
     
-    // Note Form State
     const [noteContent, setNoteContent] = useState('');
     const [noteType, setNoteType] = useState<TeacherNote['type']>('Pedagógico');
     const [isAdmin, setIsAdmin] = useState(false);
@@ -199,8 +188,6 @@ export const StudentMonitoring: React.FC = () => {
             </div>
         </div>
     );
-
-    // --- Actions ---
 
     const handleAddNote = async () => {
         if (!noteContent.trim()) return;
@@ -240,7 +227,6 @@ export const StudentMonitoring: React.FC = () => {
         ? student.performanceHistory 
         : []; 
 
-    // Use NULL if no attendance data exists to show empty state instead of fake data
     const attendanceStats = student.attendance || null;
 
     const getNoteColor = (type: TeacherNote['type']) => {
@@ -263,9 +249,8 @@ export const StudentMonitoring: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-slate-50 py-8">
-            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-6xl auto px-4 sm:px-6 lg:px-8">
                 
-                {/* Header Profile */}
                 <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-6">
                     <div className="h-32 bg-gradient-to-r from-blue-600 to-indigo-600 relative overflow-hidden">
                         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
@@ -276,8 +261,12 @@ export const StudentMonitoring: React.FC = () => {
                     <div className="px-8 pb-6 relative">
                         <div className="flex flex-col md:flex-row items-start md:items-end -mt-12 mb-6 gap-6">
                             <div className="w-24 h-24 bg-white rounded-2xl p-1.5 shadow-lg rotate-1">
-                                <div className="w-full h-full bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 border border-slate-200">
-                                    <User className="h-10 w-10" />
+                                <div className="w-full h-full bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 border border-slate-200 overflow-hidden">
+                                    {student.photo ? (
+                                        <img src={student.photo} alt={student.name} className="w-full h-full object-cover" />
+                                    ) : (
+                                        <User className="h-10 w-10" />
+                                    )}
                                 </div>
                             </div>
                             <div className="flex-1 min-w-0">
@@ -301,7 +290,6 @@ export const StudentMonitoring: React.FC = () => {
                             </div>
                         </div>
 
-                        {/* Navigation Tabs */}
                         <div className="flex border-b border-slate-200 gap-6">
                             <button 
                                 onClick={() => setActiveTab('overview')}
@@ -320,15 +308,10 @@ export const StudentMonitoring: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Content Area */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                    
-                    {/* LEFT COLUMN (2/3) */}
                     <div className="lg:col-span-2 space-y-6">
-                        
                         {activeTab === 'overview' && (
                             <>
-                                {/* Academic Performance Chart */}
                                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 relative overflow-hidden">
                                     <div className="flex justify-between items-center mb-6 relative z-10">
                                         <h3 className="font-bold text-slate-800 flex items-center gap-2 text-lg">
@@ -348,7 +331,6 @@ export const StudentMonitoring: React.FC = () => {
                                     <LineChart data={performanceData} />
                                 </div>
 
-                                {/* Attendance Stats Row */}
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                      <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between group hover:border-indigo-200 transition-colors">
                                         <div>
@@ -425,7 +407,6 @@ export const StudentMonitoring: React.FC = () => {
                                     ) : (
                                         (student.teacherNotes || []).map((note) => (
                                             <div key={note.id} className="relative pl-12 group animate-in slide-in-from-left-2 duration-300">
-                                                {/* Timeline Dot */}
                                                 <div className={`absolute left-[9px] top-0 w-4 h-4 rounded-full border-2 border-white shadow-sm z-10 transition-transform group-hover:scale-125 ${
                                                     note.type === 'Elogio' ? 'bg-green-500' :
                                                     note.type === 'Ocorrência' ? 'bg-red-500' :
@@ -468,10 +449,7 @@ export const StudentMonitoring: React.FC = () => {
                         )}
                     </div>
 
-                    {/* RIGHT COLUMN (1/3) - Sidebar Stats */}
                     <div className="space-y-6">
-                        
-                        {/* Attendance Card */}
                         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col items-center text-center">
                             <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wide mb-6 flex items-center gap-2">
                                 <Clock className="h-4 w-4" /> Frequência
@@ -492,7 +470,6 @@ export const StudentMonitoring: React.FC = () => {
                             </div>
                         </div>
 
-                        {/* Guardian Info Mini Card */}
                         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
                              <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wide mb-4 flex items-center gap-2">
                                 <User className="h-4 w-4" /> Responsável
@@ -518,7 +495,6 @@ export const StudentMonitoring: React.FC = () => {
                              </div>
                         </div>
 
-                        {/* Quick Actions */}
                         {isAdmin && (
                              <div className="bg-gradient-to-br from-slate-800 to-slate-900 p-6 rounded-2xl shadow-lg text-white">
                                 <h3 className="font-bold mb-4 flex items-center gap-2 text-sm uppercase tracking-wide text-slate-400">
@@ -527,7 +503,6 @@ export const StudentMonitoring: React.FC = () => {
                                 <div className="space-y-2">
                                     <button 
                                         onClick={() => {
-                                            // Open Admin Modal equivalent logic via navigation or context
                                             addToast("Use o menu Gestão de Dados para editar detalhes cadastrais.", "info");
                                             navigate('/admin/data');
                                         }} 

@@ -31,6 +31,7 @@ export interface StudentData {
   specialEducationDetails?: string;
   medicalReport?: string; // Base64 string for PDF/Image
   needsTransport: boolean; // Added field
+  photo?: string; // Foto do aluno em base64
 }
 
 export interface GuardianData {
@@ -132,6 +133,7 @@ export interface RegistryStudent {
   classId?: string; // Código da Turma
   specialNeeds?: boolean; // Atendimento AEE
   medicalReport?: string; // Laudo médico em Base64
+  photo?: string; // Foto do aluno em base64
   lat?: number; // Latitude exata da residência
   lng?: number; // Longitude exata da residência
   residenceZone?: 'Urbana' | 'Rural'; // Nova propriedade

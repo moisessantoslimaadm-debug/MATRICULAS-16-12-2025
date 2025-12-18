@@ -14,7 +14,7 @@ const INITIAL_PERFORMANCE: PerformanceRow[] = [
   { subject: 'GEOGRAFIA', g1: ['','','','',''], g2: ['','','','',''], g3: ['','',''], g4: ['','',''], g5: ['','',''] },
   { subject: 'CIÊNCIAS', g1: ['','','','',''], g2: ['','','','',''], g3: ['','',''], g4: ['','',''], g5: ['','',''] },
   { subject: 'EDUCAÇÃO FÍSICA', g1: ['','','','',''], g2: ['','','','',''], g3: ['','',''], g4: ['','',''], g5: ['','',''] },
-  { subject: 'ARTE', g1: ['','','','',''], g2: ['','','','',''], g3: ['','',''], g4: ['','',''], g5: ['','',''] },
+  { subject: 'ARTE', g1: ['','','','',''], g2: ['','','','',''], g3: ['','',''], g4: ['','',''], g5: ['','',''] }
 ];
 
 const INITIAL_MOVEMENT: MovementRow[] = [
@@ -22,14 +22,14 @@ const INITIAL_MOVEMENT: MovementRow[] = [
   { grade: '2º ANO', initial: 0, abandon: '-', transfer: 0, admitted: 0, current: 0 },
   { grade: '3º ANO', initial: 0, abandon: '-', transfer: 0, admitted: 0, current: 0 },
   { grade: '4º ANO', initial: 0, abandon: '-', transfer: 0, admitted: 0, current: 0 },
-  { grade: '5º ANO', initial: 0, abandon: '-', transfer: 0, admitted: 0, current: 0 },
+  { grade: '5º ANO', initial: 0, abandon: '-', transfer: 0, admitted: 0, current: 0 }
 ];
 
 const INITIAL_HEADER: PerformanceHeader = {
     unit: 'II TRIMESTRE',
     year: new Date().getFullYear() + 1,
     shift: '',
-    director: '', // Nome vazio por padrão conforme solicitado
+    director: '',
     coordinator: 'DABRINA SENA GOMES MOURA FIGUEREDO',
     dateDay: new Date().getDate().toString().padStart(2, '0'),
     dateMonth: (new Date().getMonth() + 1).toString().padStart(2, '0'),
@@ -38,7 +38,6 @@ const INITIAL_HEADER: PerformanceHeader = {
 
 // --- Helper Components ---
 
-// InputCell defined OUTSIDE to prevent focus loss re-rendering issues
 const InputCell = React.memo(({ 
     value, 
     onChange, 
@@ -76,14 +75,12 @@ export const PerformanceIndicators: React.FC = () => {
   const [currentStudent, setCurrentStudent] = useState<RegistryStudent | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
-  // Local State
   const [headerInfo, setHeaderInfo] = useState<PerformanceHeader>(INITIAL_HEADER);
   const [performanceData, setPerformanceData] = useState<PerformanceRow[]>(INITIAL_PERFORMANCE);
   const [movementData, setMovementData] = useState<MovementRow[]>(INITIAL_MOVEMENT);
   const [tempSchoolName, setTempSchoolName] = useState('');
   const [tempStudentName, setTempStudentName] = useState('');
 
-  // Load Student Data
   useEffect(() => {
       if (studentId) {
           const student = students.find(s => s.id === studentId);
@@ -92,7 +89,6 @@ export const PerformanceIndicators: React.FC = () => {
               setTempStudentName(student.name);
               setTempSchoolName(student.school || '');
               
-              // Load saved history if exists
               if (student.performanceHistory?.length) {
                   setPerformanceData(student.performanceHistory);
               }
@@ -100,14 +96,12 @@ export const PerformanceIndicators: React.FC = () => {
                   setMovementData(student.movementHistory);
               }
               
-              // Load Saved Header Info or Merge with Defaults
               if (student.performanceHeader) {
                   setHeaderInfo(prev => ({
                       ...prev,
                       ...student.performanceHeader
                   }));
               } else {
-                  // If no saved header, try to populate from student basic data
                   setHeaderInfo(prev => ({
                       ...prev,
                       shift: student.shift || prev.shift
@@ -117,10 +111,9 @@ export const PerformanceIndicators: React.FC = () => {
               addToast("Aluno não encontrado.", 'error');
           }
       }
-  }, [studentId, students]);
+  }, [studentId, students, addToast]);
 
   const handlePrint = () => {
-    // Muda o título temporariamente para que o arquivo PDF salvo tenha um nome útil
     const originalTitle = document.title;
     if (currentStudent) {
         document.title = `Boletim_${currentStudent.name.replace(/\s+/g, '_')}_${headerInfo.year}`;
@@ -154,13 +147,12 @@ export const PerformanceIndicators: React.FC = () => {
           ...currentStudent,
           performanceHistory: performanceData,
           movementHistory: movementData,
-          performanceHeader: headerInfo, // Save the header fields too
-          shift: headerInfo.shift // Update main shift as well
+          performanceHeader: headerInfo,
+          shift: headerInfo.shift
       };
 
       try {
           await updateStudents([updatedStudent]);
-          // Short delay to show the spinner/feedback
           setTimeout(() => {
              setIsSaving(false);
              addToast("Boletim salvo com sucesso!", 'success');
@@ -183,14 +175,11 @@ export const PerformanceIndicators: React.FC = () => {
       addToast('Totais recalculados.', 'success');
   };
 
-  // --- Dynamic Rows Handlers ---
-
   const handleAddSubject = () => {
       setPerformanceData(prev => [
           ...prev,
           { subject: '', g1: ['','','','',''], g2: ['','','','',''], g3: ['','',''], g4: ['','',''], g5: ['','',''] }
       ]);
-      // Optional: scroll to bottom logic could be added here
   };
 
   const handleRemoveSubject = (index: number) => {
@@ -212,7 +201,6 @@ export const PerformanceIndicators: React.FC = () => {
       }
   };
 
-  // Totals Calculation
   const movementTotal = useMemo(() => {
       return movementData.reduce((acc, row) => {
           const abVal = String(row.abandon);
@@ -239,7 +227,6 @@ export const PerformanceIndicators: React.FC = () => {
     <div className="min-h-screen bg-slate-100 py-8 print:bg-white print:py-0">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 print:px-0">
         
-        {/* Navigation & Toolbar (Hidden on Print) */}
         <div className="flex flex-col gap-4 mb-6 print:hidden">
             <div className="flex justify-between items-center">
                 <div>
@@ -265,7 +252,7 @@ export const PerformanceIndicators: React.FC = () => {
                             className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium shadow-sm disabled:opacity-70 disabled:cursor-wait"
                         >
                             {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                            {isSaving ? 'Salvando...' : 'Salvar Alterações'}
+                            {isSaving ? 'Salvando...' : 'Salvar'}
                         </button>
                     )}
                     <button onClick={handlePrint} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium shadow-sm">
@@ -274,13 +261,12 @@ export const PerformanceIndicators: React.FC = () => {
                 </div>
             </div>
 
-            {/* Context Selectors */}
             <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-wrap gap-4 items-end">
                 {!currentStudent && (
                     <div className="flex-1 min-w-[300px]">
                         <label className="block text-xs font-bold text-slate-500 mb-1">Carregar Dados da Escola</label>
                         <select onChange={handleSchoolSelect} className="w-full p-2 border border-slate-300 rounded-lg text-sm">
-                            <option value="">-- Selecione uma Escola para Preencher o Cabeçalho --</option>
+                            <option value="">-- Selecione uma Escola --</option>
                             {schools.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                         </select>
                     </div>
@@ -313,10 +299,8 @@ export const PerformanceIndicators: React.FC = () => {
             </div>
         </div>
 
-        {/* Report Paper - A4 Simulation */}
         <div className="bg-white p-8 shadow-2xl mx-auto print:shadow-none print:p-0 print:m-0 print:w-full max-w-[297mm] min-h-[210mm] print:landscape origin-top transform scale-100 sm:scale-[0.85] md:scale-100 transition-transform">
             
-            {/* Report Header */}
             <div className="border border-black mb-1">
                 <div className="flex items-center gap-4 p-2 border-b border-black">
                     <img 
@@ -365,7 +349,6 @@ export const PerformanceIndicators: React.FC = () => {
                 </div>
             </div>
 
-            {/* Performance Table */}
             <div className="border border-black mb-1">
                 <div className="bg-gray-100 border-b border-black text-center font-bold text-sm p-1 uppercase print:bg-gray-200">
                     Desempenho
@@ -381,27 +364,22 @@ export const PerformanceIndicators: React.FC = () => {
                             <th className="p-1" colSpan={3}>5º ANO</th>
                         </tr>
                         <tr className="bg-gray-50 border-b border-black print:bg-gray-100">
-                            {/* 1º ANO */}
                             <th className="border-r border-black w-8">DI</th>
                             <th className="border-r border-black w-8">EP</th>
                             <th className="border-r border-black w-8">DB</th>
                             <th className="border-r border-black w-8">DE</th>
                             <th className="border-r border-black w-8">NA</th>
-                            {/* 2º ANO */}
                             <th className="border-r border-black w-8">DI</th>
                             <th className="border-r border-black w-8">EP</th>
                             <th className="border-r border-black w-8">DB</th>
                             <th className="border-r border-black w-8">DE</th>
                             <th className="border-r border-black w-8">NA</th>
-                            {/* 3º ANO */}
                             <th className="border-r border-black">APROV</th>
                             <th className="border-r border-black">REPROV</th>
                             <th className="border-r border-black w-8">NA</th>
-                            {/* 4º ANO */}
                             <th className="border-r border-black">APROV</th>
                             <th className="border-r border-black">REPROV</th>
                             <th className="border-r border-black w-8">NA</th>
-                            {/* 5º ANO */}
                             <th className="border-r border-black">APROV</th>
                             <th className="border-r border-black">REPROV</th>
                             <th className="w-8">NA</th>
@@ -421,7 +399,6 @@ export const PerformanceIndicators: React.FC = () => {
                                         placeholder="DISCIPLINA"
                                         className="font-bold text-left pl-1 w-full h-full"
                                     />
-                                    {/* Delete Button (Hidden on Print) */}
                                     <button 
                                         onClick={() => handleRemoveSubject(rIdx)}
                                         className="absolute right-1 top-1/2 -translate-y-1/2 text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 print:hidden p-1 bg-white/50 rounded"
@@ -431,8 +408,6 @@ export const PerformanceIndicators: React.FC = () => {
                                         <Trash2 className="h-3 w-3" />
                                     </button>
                                 </td>
-                                
-                                {/* 1º ANO */}
                                 {row.g1.map((val, cIdx) => (
                                     <td key={`g1-${cIdx}`} className="border-r border-black p-0">
                                         <InputCell value={val} onChange={(e) => {
@@ -442,8 +417,6 @@ export const PerformanceIndicators: React.FC = () => {
                                         }} />
                                     </td>
                                 ))}
-
-                                {/* 2º ANO */}
                                 {row.g2.map((val, cIdx) => (
                                     <td key={`g2-${cIdx}`} className="border-r border-black p-0">
                                         <InputCell value={val} onChange={(e) => {
@@ -453,8 +426,6 @@ export const PerformanceIndicators: React.FC = () => {
                                         }} />
                                     </td>
                                 ))}
-
-                                {/* 3º ANO */}
                                 {row.g3.map((val, cIdx) => (
                                     <td key={`g3-${cIdx}`} className="border-r border-black p-0">
                                         <InputCell value={val} onChange={(e) => {
@@ -464,8 +435,6 @@ export const PerformanceIndicators: React.FC = () => {
                                         }} />
                                     </td>
                                 ))}
-
-                                {/* 4º ANO */}
                                 {row.g4.map((val, cIdx) => (
                                     <td key={`g4-${cIdx}`} className="border-r border-black p-0">
                                         <InputCell value={val} onChange={(e) => {
@@ -475,8 +444,6 @@ export const PerformanceIndicators: React.FC = () => {
                                         }} />
                                     </td>
                                 ))}
-
-                                {/* 5º ANO */}
                                 {row.g5.map((val, cIdx) => (
                                     <td key={`g5-${cIdx}`} className={`p-0 ${cIdx < 2 ? 'border-r border-black' : ''}`}>
                                         <InputCell value={val} onChange={(e) => {
@@ -490,7 +457,6 @@ export const PerformanceIndicators: React.FC = () => {
                         ))}
                     </tbody>
                 </table>
-                {/* Button to Add New Line */}
                 <div className="print:hidden bg-slate-50 border-t border-black p-1.5 text-center">
                     <button 
                         onClick={handleAddSubject} 
@@ -501,9 +467,7 @@ export const PerformanceIndicators: React.FC = () => {
                 </div>
             </div>
 
-            {/* Bottom Grid: Movement & Legend */}
             <div className="flex border border-black flex-col md:flex-row">
-                {/* Movement Table */}
                 <div className="flex-1 border-b md:border-b-0 md:border-r border-black">
                     <div className="bg-gray-100 border-b border-black text-center font-bold text-xs p-1 uppercase print:bg-gray-200">
                         Movimento da Matrícula
@@ -576,7 +540,6 @@ export const PerformanceIndicators: React.FC = () => {
                     </table>
                 </div>
 
-                {/* Legend */}
                 <div className="flex-1 flex flex-col">
                     <div className="bg-gray-100 border-b border-black text-center font-bold text-xs p-1 uppercase print:bg-gray-200">
                         Legenda
@@ -591,7 +554,6 @@ export const PerformanceIndicators: React.FC = () => {
                         </div>
                     </div>
                     
-                    {/* Signatures */}
                     <div className="mt-4 p-4 flex justify-around items-end text-[10px]">
                         <div className="text-center w-1/2">
                              <div className="mb-1 font-script text-xl transform -rotate-2 relative h-8 flex items-end justify-center">

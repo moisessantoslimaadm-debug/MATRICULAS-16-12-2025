@@ -92,7 +92,7 @@ const InteractiveBarChart: React.FC<{ data: { label: string; value: number }[]; 
             <div className="flex justify-between text-xs font-semibold text-slate-600 mb-1.5"><span className="group-hover:text-blue-600 transition-colors">{item.label}</span><span className="group-hover:text-slate-900 transition-colors">{item.value}</span></div>
             <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden shadow-inner"><div className={`h-full rounded-full transition-all duration-1000 ease-out relative ${colorClass}`} style={{ width: mounted ? `${percent}%` : '0%', opacity: hoveredIndex !== null && hoveredIndex !== index ? 0.6 : 1, backgroundColor: hoveredIndex === index ? undefined : barColor }}><div className="absolute inset-0 bg-white/20 w-full h-full opacity-0 group-hover:opacity-100 transition-opacity"></div></div></div>
           </div>
-        )
+        );
       })}
     </div>
   );
@@ -107,7 +107,7 @@ const StudentDensityMap: React.FC = () => {
     const schoolMarkersLayerRef = useRef<any>(null);
     const [viewType, setViewType] = useState<'all' | 'pending'>('all');
 
-    // Initialize Map - Strict cleanup to prevent memory leaks
+    // Initialize Map
     useEffect(() => {
         if (!mapContainerRef.current) return;
         
@@ -128,7 +128,6 @@ const StudentDensityMap: React.FC = () => {
         }
 
         return () => {
-            // Cleanup on unmount
             if (mapRef.current) {
                 mapRef.current.remove();
                 mapRef.current = null;
@@ -136,7 +135,6 @@ const StudentDensityMap: React.FC = () => {
         };
     }, []);
 
-    // Update Layers - Optimization: useMemo for points generation
     const points = useMemo(() => {
         const generatedPoints: any[] = [];
         const targetStudents = viewType === 'all' 
@@ -163,19 +161,14 @@ const StudentDensityMap: React.FC = () => {
 
     useEffect(() => {
         if (!mapRef.current) return;
-
         const map = mapRef.current;
-        
-        // Force layout update safely
         setTimeout(() => map.invalidateSize(), 100);
 
-        // Update Heatmap Layer
         if (heatLayerRef.current) {
             map.removeLayer(heatLayerRef.current);
             heatLayerRef.current = null;
         }
 
-        // Defensive check: Ensure L.heatLayer is available (it comes from an external script)
         if (typeof L.heatLayer === 'function' && points.length > 0) {
             try {
                 heatLayerRef.current = L.heatLayer(points, {
@@ -183,16 +176,15 @@ const StudentDensityMap: React.FC = () => {
                     blur: 15,
                     maxZoom: 17,
                     gradient: viewType === 'all' 
-                        ? {0.4: 'blue', 0.65: 'lime', 1: 'red'}
-                        : {0.4: 'yellow', 0.65: 'orange', 1: 'red'}
+                        ? {"0.4": 'blue', "0.65": 'lime', "1.0": 'red'}
+                        : {"0.4": 'yellow', "0.65": 'orange', "1.0": 'red'}
                 });
                 heatLayerRef.current.addTo(map);
             } catch (err) {
-                console.warn("Could not add heatmap layer. Library might not be loaded.", err);
+                console.warn("Heatmap layer failed", err);
             }
         }
 
-        // Update School Markers
         if (schoolMarkersLayerRef.current) {
             schoolMarkersLayerRef.current.clearLayers();
             const schoolIcon = L.icon({
@@ -208,21 +200,12 @@ const StudentDensityMap: React.FC = () => {
             schools.forEach((school) => {
                 if (school.lat && school.lng) {
                     const marker = L.marker([school.lat, school.lng], { icon: schoolIcon });
-                    const popupContent = `
-                        <div class="p-1 min-w-[150px] text-center">
-                            <h3 class="font-bold text-sm mb-1 text-slate-800">${school.name}</h3>
-                            <div class="flex flex-wrap gap-1 justify-center mb-1">
-                                ${school.types.map(t => `<span class="bg-blue-100 text-blue-800 text-[10px] px-1.5 py-0.5 rounded border border-blue-200">${t}</span>`).join('')}
-                            </div>
-                        </div>
-                    `;
-                    marker.bindPopup(popupContent);
+                    marker.bindPopup(`<div class="text-center font-bold text-sm">${school.name}</div>`);
                     marker.addTo(schoolMarkersLayerRef.current);
                 }
             });
         }
-
-    }, [points, schools]); // Dependencies simplified
+    }, [points, schools, viewType]);
 
     return (
         <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
@@ -232,47 +215,15 @@ const StudentDensityMap: React.FC = () => {
                         <MapIcon className="h-5 w-5 text-blue-600" />
                         Mapa de Calor e Escolas
                     </h2>
-                    <p className="text-sm text-slate-500 mt-1">
-                        Visualize a demanda de alunos (manchas) em relação à localização das escolas (pinos).
-                    </p>
+                    <p className="text-sm text-slate-500 mt-1">Visualize a demanda demográfica.</p>
                 </div>
                 <div className="flex bg-slate-100 p-1 rounded-lg">
-                    <button 
-                        onClick={() => setViewType('all')}
-                        className={`px-3 py-1.5 text-xs font-bold rounded-md transition flex items-center gap-2 ${viewType === 'all' ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-                    >
-                        <Users className="h-3 w-3" />
-                        Todos os Alunos
-                    </button>
-                    <button 
-                         onClick={() => setViewType('pending')}
-                         className={`px-3 py-1.5 text-xs font-bold rounded-md transition flex items-center gap-2 ${viewType === 'pending' ? 'bg-white text-red-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-                    >
-                        <AlertTriangle className="h-3 w-3" />
-                        Demanda Reprimida
-                    </button>
+                    <button onClick={() => setViewType('all')} className={`px-3 py-1.5 text-xs font-bold rounded-md transition ${viewType === 'all' ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-500'}`}>Todos</button>
+                    <button onClick={() => setViewType('pending')} className={`px-3 py-1.5 text-xs font-bold rounded-md transition ${viewType === 'pending' ? 'bg-white text-red-600 shadow-sm' : 'text-slate-500'}`}>Pendentes</button>
                 </div>
             </div>
             <div className="h-[400px] w-full relative">
                 <div ref={mapContainerRef} className="h-full w-full z-10" />
-                
-                {/* Overlay Legend */}
-                <div className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm p-3 rounded-lg shadow-lg z-[400] text-xs border border-slate-200">
-                    <h4 className="font-bold mb-2 text-slate-700">Legenda</h4>
-                    <div className="flex items-center gap-2 mb-3">
-                        <img src="https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png" className="h-4" alt="School" />
-                        <span>Escola</span>
-                    </div>
-                    <div className="border-t border-slate-300 my-2"></div>
-                    <h4 className="font-bold mb-1 text-slate-700">Densidade de Alunos</h4>
-                    <div className="flex items-center gap-2 mb-1">
-                        <div className="w-24 h-2 bg-gradient-to-r from-blue-500 via-lime-500 to-red-500 rounded-full"></div>
-                    </div>
-                    <div className="flex justify-between text-[10px] text-slate-500">
-                        <span>Baixa</span>
-                        <span>Alta</span>
-                    </div>
-                </div>
             </div>
         </div>
     );
@@ -282,310 +233,132 @@ export const Dashboard: React.FC = () => {
   const { students, schools, lastBackupDate } = useData();
   const navigate = useNavigate();
 
-  // --- Calculations ---
-
   const totalStudents = students.length;
   const totalSchools = schools.length;
   
   const backupNeeded = useMemo(() => {
     if (!lastBackupDate) return true;
     const last = new Date(lastBackupDate).getTime();
-    const now = new Date().getTime();
-    const hoursSince = (now - last) / (1000 * 60 * 60);
+    const hoursSince = (Date.now() - last) / (1000 * 60 * 60);
     return hoursSince > 24;
   }, [lastBackupDate]);
 
-  const statusStats = useMemo(() => {
-    return {
+  const statusStats = useMemo(() => ({
       matriculado: students.filter(s => s.status === 'Matriculado').length,
       pendente: students.filter(s => s.status === 'Pendente').length,
-      analise: students.filter(s => s.status === 'Em Análise').length,
-    };
-  }, [students]);
+      analise: students.filter(s => s.status === 'Em Análise').length
+  }), [students]);
 
   const schoolTypeStats = useMemo(() => {
     const counts: Record<string, number> = {
       [SchoolType.INFANTIL]: 0,
       [SchoolType.FUNDAMENTAL_1]: 0,
       [SchoolType.FUNDAMENTAL_2]: 0,
-      [SchoolType.EJA]: 0,
+      [SchoolType.EJA]: 0
     };
-
-    schools.forEach(s => {
-      s.types.forEach(t => {
-        if (counts[t] !== undefined) counts[t]++;
-      });
-    });
-
+    schools.forEach(s => s.types.forEach(t => { if (counts[t] !== undefined) counts[t]++; }));
     return [
-      { label: 'Infantil (Creche/Pré)', value: counts[SchoolType.INFANTIL] },
+      { label: 'Infantil', value: counts[SchoolType.INFANTIL] },
       { label: 'Fundamental I', value: counts[SchoolType.FUNDAMENTAL_1] },
       { label: 'Fundamental II', value: counts[SchoolType.FUNDAMENTAL_2] },
-      { label: 'EJA', value: counts[SchoolType.EJA] },
+      { label: 'EJA', value: counts[SchoolType.EJA] }
     ].filter(i => i.value > 0);
   }, [schools]);
 
-  const specialNeedsCount = useMemo(() => students.filter(s => s.specialNeeds).length, [students]);
-  const transportCount = useMemo(() => students.filter(s => s.transportRequest).length, [students]);
+  const transportCount = students.filter(s => s.transportRequest).length;
+  const totalCapacity = schools.reduce((acc, s) => acc + (s.availableSlots || 0), 0);
+  const occupancyRate = totalCapacity > 0 ? (totalStudents / totalCapacity) * 100 : 0;
 
   const topSchools = useMemo(() => {
     const schoolCounts: Record<string, number> = {};
-    students.forEach(s => {
-      if (s.school && s.school !== 'Não alocada') {
-        schoolCounts[s.school] = (schoolCounts[s.school] || 0) + 1;
-      }
-    });
-
-    return Object.entries(schoolCounts)
-      .sort(([, a], [, b]) => b - a)
-      .slice(0, 5)
-      .map(([name, count]) => ({ name, count }));
+    students.forEach(s => { if (s.school && s.school !== 'Não alocada') schoolCounts[s.school] = (schoolCounts[s.school] || 0) + 1; });
+    return Object.entries(schoolCounts).sort(([, a], [, b]) => b - a).slice(0, 5).map(([name, count]) => ({ name, count }));
   }, [students]);
-
-  // Risk Monitoring Logic
-  const studentsAtRisk = useMemo(() => {
-    return students.filter(s => {
-        const notes = s.teacherNotes || [];
-        const alerts = notes.filter(n => n.type === 'Alerta' || n.type === 'Ocorrência');
-        return alerts.length > 0;
-    }).map(s => ({
-        ...s,
-        alertCount: (s.teacherNotes || []).filter(n => n.type === 'Alerta' || n.type === 'Ocorrência').length
-    })).sort((a, b) => b.alertCount - a.alertCount).slice(0, 5);
-  }, [students]);
-
-  const totalCapacity = useMemo(() => schools.reduce((acc, s) => acc + (s.availableSlots || 0), 0), [schools]);
-  const occupancyRate = totalCapacity > 0 ? (totalStudents / totalCapacity) * 100 : 0;
 
   return (
-    <div className="min-h-screen bg-slate-50 py-8 md:py-12 animate-in fade-in duration-500">
+    <div className="min-h-screen bg-slate-50 py-8 animate-in fade-in duration-500">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
           <div>
             <h1 className="text-3xl font-bold text-slate-900">Dashboard Gerencial</h1>
-            <p className="text-slate-600 mt-1">Visão geral dos indicadores da rede municipal de ensino.</p>
+            <p className="text-slate-600 mt-1">Indicadores da rede municipal.</p>
           </div>
           <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg border border-slate-200 text-sm text-slate-500 shadow-sm">
-            <Clock className="h-4 w-4" />
-            Atualizado em: {new Date().toLocaleDateString()}
+            <Clock className="h-4 w-4" /> Atualizado: {new Date().toLocaleDateString()}
           </div>
         </div>
 
-        {/* Security Alert - Backup Needed */}
         {backupNeeded && (
-          <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-8 flex items-start sm:items-center gap-4 animate-in slide-in-from-top-4">
-             <div className="p-2 bg-red-100 rounded-full text-red-600 shrink-0">
-               <Save className="h-6 w-6" />
-             </div>
+          <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-8 flex items-center gap-4">
+             <div className="p-2 bg-red-100 rounded-full text-red-600 shrink-0"><Save className="h-6 w-6" /></div>
              <div className="flex-1">
-               <h3 className="font-bold text-red-800">Atenção: Backup Necessário</h3>
-               <p className="text-sm text-red-700">
-                 Seu último backup externo foi há mais de 24 horas (ou nunca foi feito). Para garantir a segurança dos dados em caso de falha no computador, baixe uma cópia agora.
-               </p>
+               <h3 className="font-bold text-red-800">Backup Pendente</h3>
+               <p className="text-sm text-red-700">Garanta a segurança dos dados agora.</p>
              </div>
-             <Link 
-               to="/admin/data" 
-               className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-red-700 transition flex items-center gap-2 shadow-sm whitespace-nowrap"
-             >
-               <Download className="h-4 w-4" />
-               Fazer Backup
-             </Link>
+             <Link to="/admin/data" className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-red-700 transition">Baixar CSV</Link>
           </div>
         )}
 
-        {/* KPI Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
-            <div className="flex justify-between items-start mb-4">
-              <div className="p-3 bg-blue-50 rounded-xl">
-                <Users className="h-6 w-6 text-blue-600" />
-              </div>
-              <span className={`text-xs font-bold px-2 py-1 rounded-full ${occupancyRate > 90 ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-600'}`}>
-                {occupancyRate.toFixed(1)}% Ocupação
-              </span>
-            </div>
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+            <div className="flex justify-between items-start mb-4"><div className="p-3 bg-blue-50 rounded-xl"><Users className="h-6 w-6 text-blue-600" /></div></div>
             <h3 className="text-3xl font-bold text-slate-800">{totalStudents}</h3>
-            <p className="text-sm text-slate-500">Alunos Matriculados</p>
-            <div className="mt-4 h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-               <div className="h-full bg-blue-600 rounded-full transition-all duration-1000 ease-out" style={{ width: `${Math.min(occupancyRate, 100)}%` }}></div>
-            </div>
-             <p className="text-xs text-slate-400 mt-1">Capacidade Total Estimada: {totalCapacity}</p>
+            <p className="text-sm text-slate-500">Alunos Ativos</p>
           </div>
-
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
-             <div className="flex justify-between items-start mb-4">
-              <div className="p-3 bg-indigo-50 rounded-xl">
-                <School className="h-6 w-6 text-indigo-600" />
-              </div>
-            </div>
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+             <div className="p-3 bg-indigo-50 rounded-xl w-fit mb-4"><School className="h-6 w-6 text-indigo-600" /></div>
             <h3 className="text-3xl font-bold text-slate-800">{totalSchools}</h3>
             <p className="text-sm text-slate-500">Unidades Escolares</p>
-            <p className="text-xs text-slate-400 mt-4 flex items-center gap-1">
-               <Activity className="h-3 w-3" />
-               Ativas no sistema
-            </p>
           </div>
-
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
-             <div className="flex justify-between items-start mb-4">
-              <div className="p-3 bg-yellow-50 rounded-xl">
-                <AlertTriangle className="h-6 w-6 text-yellow-600" />
-              </div>
-              {statusStats.pendente > 0 && (
-                <span className="text-xs font-bold px-2 py-1 rounded-full bg-yellow-100 text-yellow-700 animate-pulse">
-                    Ação Necessária
-                </span>
-              )}
-            </div>
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+             <div className="p-3 bg-yellow-50 rounded-xl w-fit mb-4"><AlertTriangle className="h-6 w-6 text-yellow-600" /></div>
             <h3 className="text-3xl font-bold text-slate-800">{statusStats.pendente + statusStats.analise}</h3>
-            <p className="text-sm text-slate-500">Pendências / Em Análise</p>
-            <p className="text-xs text-slate-400 mt-4">
-                Solicitações aguardando deferimento
-            </p>
+            <p className="text-sm text-slate-500">Ações Pendentes</p>
           </div>
-
-           <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
-             <div className="flex justify-between items-start mb-4">
-              <div className="p-3 bg-green-50 rounded-xl">
-                <Bus className="h-6 w-6 text-green-600" />
-              </div>
-            </div>
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+             <div className="p-3 bg-green-50 rounded-xl w-fit mb-4"><Bus className="h-6 w-6 text-green-600" /></div>
             <h3 className="text-3xl font-bold text-slate-800">{transportCount}</h3>
-            <p className="text-sm text-slate-500">Solicitações de Transporte</p>
-             <p className="text-xs text-slate-400 mt-4">
-                {((transportCount / totalStudents) * 100 || 0).toFixed(1)}% do total de alunos
-            </p>
+            <p className="text-sm text-slate-500">Solic. Transporte</p>
           </div>
-
         </div>
 
-        {/* Heatmap Section */}
-        <div className="mb-8">
-            <StudentDensityMap />
-        </div>
+        <div className="mb-8"><StudentDensityMap /></div>
 
-        {/* Main Charts Section */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-            
-            {/* Status Chart */}
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 lg:col-span-2">
-                <div className="flex items-center justify-between mb-8">
-                    <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                        <PieChart className="h-5 w-5 text-blue-600" />
-                        Situação das Matrículas
-                    </h2>
-                    <div className="p-1.5 bg-blue-50 rounded-full cursor-help group relative">
-                        <Info className="h-4 w-4 text-blue-500" />
-                        <div className="absolute right-0 top-8 w-48 bg-slate-800 text-white text-xs p-2 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                            Passe o mouse sobre o gráfico para ver detalhes por categoria.
-                        </div>
-                    </div>
-                </div>
-                
-                <InteractiveDonutChart 
-                    data={[
-                        { label: 'Matriculados', value: statusStats.matriculado, color: '#16a34a' }, // green-600
-                        { label: 'Em Análise', value: statusStats.analise, color: '#3b82f6' }, // blue-500
-                        { label: 'Pendentes', value: statusStats.pendente, color: '#eab308' }, // yellow-500
-                    ].filter(d => d.value > 0)}
+                <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2 mb-8"><PieChart className="h-5 w-5 text-blue-600" /> Situação das Matrículas</h2>
+                <InteractiveDonutChart data={[
+                        { label: 'Matriculados', value: statusStats.matriculado, color: '#16a34a' },
+                        { label: 'Análise', value: statusStats.analise, color: '#3b82f6' },
+                        { label: 'Pendentes', value: statusStats.pendente, color: '#eab308' }
+                    ].filter(d => d.value > 0)} 
                 />
             </div>
-
-            {/* School Types Chart */}
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                        <GraduationCap className="h-5 w-5 text-indigo-600" />
-                        Modalidades
-                    </h2>
-                </div>
-                <InteractiveBarChart 
-                    data={schoolTypeStats}
-                    colorClass="bg-indigo-500"
-                    barColor="#6366f1"
-                />
+                <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2 mb-6"><GraduationCap className="h-5 w-5 text-indigo-600" /> Modalidades</h2>
+                <InteractiveBarChart data={schoolTypeStats} colorClass="bg-indigo-500" barColor="#6366f1" />
             </div>
         </div>
 
-        {/* Detailed Stats Row */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            
-            {/* Top Schools */}
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2 mb-6">
-                    <TrendingUp className="h-5 w-5 text-blue-600" />
-                    Escolas com Maior Demanda
-                </h2>
+                <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2 mb-6"><TrendingUp className="h-5 w-5 text-blue-600" /> Top Demandas</h2>
                 <div className="space-y-4">
                     {topSchools.map((school, idx) => (
-                        <div key={idx} className="flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 transition border border-transparent hover:border-slate-100 group">
-                            <div className="flex items-center gap-3">
-                                <span className={`flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold transition-all group-hover:scale-110 ${idx < 3 ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600'}`}>
-                                    {idx + 1}
-                                </span>
-                                <span className="font-medium text-slate-700 text-sm group-hover:text-blue-700 transition-colors">{school.name}</span>
-                            </div>
-                            <span className="font-bold text-slate-900">{school.count} <span className="text-xs font-normal text-slate-500">alunos</span></span>
+                        <div key={idx} className="flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 transition border border-transparent">
+                            <span className="font-medium text-slate-700 text-sm">{school.name}</span>
+                            <span className="font-bold text-slate-900">{school.count} alunos</span>
                         </div>
                     ))}
-                    {topSchools.length === 0 && <p className="text-slate-500 text-sm">Nenhum dado de alocação disponível.</p>}
                 </div>
             </div>
-
-            {/* Risk / Attention Card (NEW) */}
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col">
-                <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2 mb-6">
-                    <AlertTriangle className="h-5 w-5 text-orange-500" />
-                    Monitoramento de Risco (Alertas)
-                </h2>
-                
-                <div className="flex-1">
-                    {studentsAtRisk.length > 0 ? (
-                        <div className="space-y-3">
-                            {studentsAtRisk.map((student) => (
-                                <div key={student.id} className="flex items-center justify-between p-3 bg-orange-50 rounded-lg border border-orange-100 hover:bg-orange-100 transition">
-                                    <div className="flex items-center gap-3 overflow-hidden">
-                                        <div className="bg-white p-1.5 rounded-full text-orange-500 shrink-0">
-                                            <AlertCircle className="h-4 w-4" />
-                                        </div>
-                                        <div className="min-w-0">
-                                            <p className="text-sm font-bold text-slate-800 truncate">{student.name}</p>
-                                            <p className="text-xs text-slate-500 truncate">{student.school}</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-xs font-bold bg-orange-200 text-orange-800 px-2 py-0.5 rounded-full">
-                                            {student.alertCount} ocorrências
-                                        </span>
-                                        <button 
-                                            onClick={() => navigate(`/student/monitoring?id=${student.id}`)}
-                                            className="p-1 text-slate-400 hover:text-blue-600 transition"
-                                            title="Ver Detalhes"
-                                        >
-                                            <Eye className="h-4 w-4" />
-                                        </button>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <div className="h-full flex flex-col items-center justify-center text-slate-400 py-8">
-                            <CheckCircle className="h-10 w-10 mb-2 opacity-20 text-green-500" />
-                            <p>Nenhum aluno em situação de alerta.</p>
-                        </div>
-                    )}
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2 mb-6"><AlertTriangle className="h-5 w-5 text-orange-500" /> Alertas Recentes</h2>
+                <div className="h-full flex flex-col items-center justify-center text-slate-400 py-8">
+                    <CheckCircle className="h-10 w-10 mb-2 opacity-20 text-green-500" />
+                    <p>Sem alertas pendentes no momento.</p>
                 </div>
-                
-                {studentsAtRisk.length > 0 && (
-                    <div className="mt-4 pt-4 border-t border-slate-100 text-center">
-                        <Link to="/admin/data" className="text-xs font-bold text-blue-600 hover:underline flex items-center justify-center gap-1">
-                            Ver todos os alunos <ArrowRight className="h-3 w-3" />
-                        </Link>
-                    </div>
-                )}
             </div>
         </div>
       </div>

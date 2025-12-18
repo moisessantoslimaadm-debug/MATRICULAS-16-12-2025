@@ -1,3 +1,4 @@
+
 import { GoogleGenAI, Chat, GenerateContentResponse } from "@google/genai";
 import { MUNICIPALITY_NAME } from '../constants';
 import { School } from '../types';
@@ -32,7 +33,6 @@ let chatSession: Chat | null = null;
 let ai: GoogleGenAI | null = null;
 
 const getAiClient = () => {
-  // Fixed: Always use new GoogleGenAI({apiKey: process.env.API_KEY}); directly
   if (!ai) {
     if (!process.env.API_KEY) {
         console.error("API Key is missing for GoogleGenAI");
@@ -49,7 +49,6 @@ const formatSchoolsData = (schools: School[]): string => {
 
     return schools.map(s => {
         const types = s.types.join(", ");
-        // Lógica simples de status para a IA entender
         const status = s.availableSlots > 20 ? "Muitas vagas" : s.availableSlots > 0 ? "Últimas vagas" : "Lotada (Lista de Espera)";
         
         return `
@@ -70,8 +69,6 @@ export const getChatSession = (schools: School[] = [], forceReset = false): Chat
 
   try {
       const client = getAiClient();
-      
-      // Injeta os dados ATUALIZADOS das escolas no prompt (RAG)
       const schoolsContext = formatSchoolsData(schools);
 
       const dynamicInstruction = `
@@ -84,13 +81,12 @@ export const getChatSession = (schools: School[] = [], forceReset = false): Chat
         Se perguntarem sobre uma escola específica, forneça o endereço e as modalidades.
       `;
 
-      // Fixed: Use gemini-3-flash-preview for general assistant tasks
       chatSession = client.chats.create({
         model: 'gemini-3-flash-preview',
         config: {
           systemInstruction: dynamicInstruction,
-          temperature: 0.4, // Baixa temperatura para respostas mais factuais
-        },
+          temperature: 0.4
+        }
       });
       
       return chatSession;
@@ -101,8 +97,6 @@ export const getChatSession = (schools: School[] = [], forceReset = false): Chat
 };
 
 export const sendMessageToGemini = async (message: string, currentSchools: School[]): Promise<AsyncIterable<string>> => {
-  // Sempre reinicia a sessão se a lista de escolas mudar drasticamente ou para garantir contexto fresco,
-  // mas aqui optamos por manter a sessão e apenas garantir que ela exista.
   const chat = getChatSession(currentSchools);
   
   async function* streamGenerator() {

@@ -4,7 +4,7 @@ import { INITIAL_REGISTRATION_STATE } from '../constants';
 import { useData } from '../contexts/DataContext';
 import { useToast } from '../contexts/ToastContext';
 import { RegistrationFormState, RegistryStudent } from '../types';
-import { Check, ChevronRight, ChevronLeft, Upload, School as SchoolIcon, Bus, FileText, ListChecks, MapPin, Navigation, AlertCircle, Loader2, Search, RefreshCw, Crosshair, AlertTriangle, Move, Trash2, Paperclip, Home } from 'lucide-react';
+import { Check, ChevronRight, ChevronLeft, Upload, School as SchoolIcon, Bus, FileText, ListChecks, MapPin, Navigation, AlertCircle, Loader2, Search, RefreshCw, Crosshair, AlertTriangle, Move, Trash2, Paperclip, Home, Camera, User, X } from 'lucide-react';
 import { useNavigate } from '../router';
 
 // Declare Leaflet globally
@@ -44,6 +44,7 @@ export const Registration: React.FC = () => {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [fileName, setFileName] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const photoInputRef = useRef<HTMLInputElement>(null);
   
   const navigate = useNavigate();
   const mapRef = useRef<any>(null);
@@ -88,14 +89,12 @@ export const Registration: React.FC = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validation: PDF or Images only
     if (file.type !== 'application/pdf' && !file.type.startsWith('image/')) {
       addToast('Formato inválido. Apenas PDF ou Imagens (JPG/PNG) são permitidos.', 'error');
       if (fileInputRef.current) fileInputRef.current.value = '';
       return;
     }
 
-    // Validation: Max Size 5MB
     if (file.size > 5 * 1024 * 1024) {
       addToast('O arquivo deve ter no máximo 5MB.', 'error');
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -117,6 +116,30 @@ export const Registration: React.FC = () => {
     reader.readAsDataURL(file);
   };
 
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      addToast('Por favor, selecione um arquivo de imagem.', 'error');
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      addToast('A foto deve ter no máximo 2MB.', 'error');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setFormState(prev => ({
+        ...prev,
+        student: { ...prev.student, photo: reader.result as string }
+      }));
+    };
+    reader.readAsDataURL(file);
+  };
+
   const removeFile = () => {
       setFormState(prev => ({
         ...prev,
@@ -125,6 +148,14 @@ export const Registration: React.FC = () => {
       setFileName(null);
       if (fileInputRef.current) fileInputRef.current.value = '';
       addToast('Anexo removido.', 'info');
+  };
+
+  const removePhoto = () => {
+      setFormState(prev => ({
+        ...prev,
+        student: { ...prev.student, photo: undefined }
+      }));
+      if (photoInputRef.current) photoInputRef.current.value = '';
   };
 
   const fetchAddressByCep = async (cep: string) => {
@@ -147,7 +178,6 @@ export const Registration: React.FC = () => {
                   }
               }));
               addToast('Endereço encontrado!', 'success');
-              // Tenta geocodificar o endereço encontrado para mover o pino
               geocodeAddress(true);
           } else {
              addToast('CEP não encontrado.', 'warning');
@@ -215,7 +245,6 @@ export const Registration: React.FC = () => {
       if (data && data.address) {
         const addr = data.address;
         
-        // Mapeamento inteligente dos campos do OpenStreetMap para o formulário
         setFormState(prev => ({
           ...prev,
           address: {
@@ -322,7 +351,6 @@ export const Registration: React.FC = () => {
 
         marker.on('dragend', (e: any) => {
              const newPos = e.target.getLatLng();
-             // Ao soltar o pino, chama a geocodificação reversa para preencher o form
              updatePosition(newPos.lat, newPos.lng);
         });
 
@@ -338,17 +366,15 @@ export const Registration: React.FC = () => {
   }, [formState.step]); 
 
   const nextStep = async () => {
-    // Validate Step 1
     if (formState.step === 1) {
          if (!formState.student.fullName.trim() || !formState.student.birthDate) {
              addToast('Por favor, preencha o nome completo e a data de nascimento do aluno.', 'warning');
              return;
          }
 
-         // Validate Birth Date
          const birthDate = new Date(formState.student.birthDate);
          const today = new Date();
-         today.setHours(0, 0, 0, 0); // Reset time for accurate date comparison
+         today.setHours(0, 0, 0, 0); 
 
          if (birthDate > today) {
             addToast('A data de nascimento não pode ser no futuro.', 'warning');
@@ -361,14 +387,12 @@ export const Registration: React.FC = () => {
             return;
          }
 
-         // Validate Special Needs Report
          if (formState.student.needsSpecialEducation && !formState.student.specialEducationDetails) {
             addToast('Por favor, descreva a necessidade especial.', 'warning');
             return;
          }
     }
 
-    // Validate Step 2
     if (formState.step === 2) {
         if (!formState.guardian.fullName.trim()) {
             addToast('O nome do responsável é obrigatório.', 'warning');
@@ -384,14 +408,12 @@ export const Registration: React.FC = () => {
         }
     }
 
-    // Validate Step 3 (Address & Geo)
     if (formState.step === 3) {
       if (!formState.address.lat || !formState.address.lng || formState.address.lat === 0) {
           addToast('Por favor, confirme a localização exata no mapa.', 'error');
-          return; // Prevent progression without valid coords
+          return; 
       }
       
-      // Basic address check
       if(!formState.address.street || !formState.address.city) {
           addToast('Preencha os campos obrigatórios de endereço (Rua e Cidade).', 'warning');
           return;
@@ -399,7 +421,6 @@ export const Registration: React.FC = () => {
     }
     
     setFormState(prev => ({ ...prev, step: prev.step + 1 }));
-    // Scroll to top for better UX
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -410,13 +431,12 @@ export const Registration: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isSubmitting) return; // Prevention double click
+    if (isSubmitting) return; 
     
     setIsSubmitting(true);
     
     const selectedSchool = schools.find(s => s.id === formState.selectedSchoolId);
     
-    // Constrói o objeto do aluno para persistência
     const newStudent: RegistryStudent = {
         id: Date.now().toString(),
         name: formState.student.fullName.toUpperCase(),
@@ -429,17 +449,17 @@ export const Registration: React.FC = () => {
         transportRequest: formState.student.needsTransport,
         transportType: formState.student.needsTransport ? 'Solicitado na Matrícula' : undefined,
         specialNeeds: formState.student.needsSpecialEducation,
-        medicalReport: formState.student.medicalReport, // Include the file
+        medicalReport: formState.student.medicalReport, 
+        photo: formState.student.photo, // Adicionando a foto
         enrollmentId: `PROT-${Math.floor(Math.random() * 100000)}`,
         lat: formState.address.lat, 
         lng: formState.address.lng,
         residenceZone: formState.address.residenceZone,
-        guardianName: formState.guardian.fullName, // Persist guardian name
-        guardianContact: formState.guardian.phone, // Persist guardian contact
-        guardianCpf: formState.guardian.cpf // Persist guardian CPF
+        guardianName: formState.guardian.fullName, 
+        guardianContact: formState.guardian.phone, 
+        guardianCpf: formState.guardian.cpf 
     };
 
-    // Usa o Contexto de Dados que agora lida com o Supabase
     try {
         await addStudent(newStudent);
         addToast('Solicitação de matrícula enviada com sucesso!', 'success');
@@ -454,7 +474,6 @@ export const Registration: React.FC = () => {
     if (formState.step !== 4 || !formState.address.lat || !formState.address.lng) return schools;
 
     const schoolsWithDistance = schools.map(school => {
-        // Haversine Simples
         const R = 6371; 
         const dLat = (school.lat - formState.address.lat!) * (Math.PI / 180);
         const dLon = (school.lng - formState.address.lng!) * (Math.PI / 180);
@@ -503,6 +522,38 @@ export const Registration: React.FC = () => {
              {formState.step === 1 && (
               <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
                 <h3 className="text-lg font-semibold text-slate-800 border-b pb-2">Dados do Aluno</h3>
+                
+                {/* Carregamento de Foto */}
+                <div className="flex flex-col items-center gap-4 py-4">
+                    <div className="relative group">
+                        <div className="w-32 h-32 rounded-full border-4 border-slate-100 bg-slate-50 flex items-center justify-center overflow-hidden shadow-inner relative transition-all group-hover:border-blue-200">
+                            {formState.student.photo ? (
+                                <img src={formState.student.photo} alt="Preview" className="w-full h-full object-cover" />
+                            ) : (
+                                <User className="w-16 h-16 text-slate-300" />
+                            )}
+                            <label className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                                <Camera className="w-6 h-6 mb-1" />
+                                <span className="text-[10px] font-bold uppercase">Alterar</span>
+                                <input type="file" ref={photoInputRef} accept="image/*" className="hidden" onChange={handlePhotoUpload} />
+                            </label>
+                        </div>
+                        {formState.student.photo && (
+                            <button 
+                                type="button" 
+                                onClick={removePhoto}
+                                className="absolute -top-1 -right-1 bg-red-500 text-white p-1 rounded-full shadow-lg hover:bg-red-600 transition"
+                            >
+                                <X className="w-4 h-4" />
+                            </button>
+                        )}
+                    </div>
+                    <div className="text-center">
+                        <p className="text-sm font-bold text-slate-700">Foto do Aluno</p>
+                        <p className="text-xs text-slate-400 mt-1">Opcional, mas ajuda na identificação escolar.</p>
+                    </div>
+                </div>
+
                 <div className="grid gap-6">
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-1">Nome Completo</label>
@@ -531,7 +582,6 @@ export const Registration: React.FC = () => {
                             <input type="text" value={formState.student.specialEducationDetails || ''} onChange={(e) => handleInputChange('student', 'specialEducationDetails', e.target.value)} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ex: Autismo, Cadeirante, Baixa Visão..." />
                          </div>
                          
-                         {/* File Upload for Medical Report */}
                          <div>
                             <label className="block text-sm font-medium text-slate-700 mb-1">Anexar Laudo Médico (PDF ou Imagem)</label>
                             <div className="flex items-center gap-2">
@@ -612,13 +662,11 @@ export const Registration: React.FC = () => {
               </div>
             )}
 
-            {/* Step 3: Address (Enhanced with Map and Residence Zone) */}
             {formState.step === 3 && (
               <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
                 <h3 className="text-lg font-semibold text-slate-800 border-b pb-2">Endereço Residencial</h3>
                 
                 <div className="grid gap-6">
-                  {/* Map Picker */}
                   <div className="border border-slate-300 rounded-xl overflow-hidden shadow-sm relative">
                       <div className="bg-slate-100 p-3 border-b border-slate-200 flex justify-between items-center">
                           <span className="text-sm font-bold text-slate-700 flex items-center gap-2">
@@ -635,7 +683,6 @@ export const Registration: React.FC = () => {
                                    <Loader2 className="h-8 w-8 animate-spin" />
                                </div>
                            )}
-                           {/* Visual Feedback Overlay */}
                            {isGeocoding && (
                              <div className="absolute inset-0 z-[400] bg-white/50 backdrop-blur-[1px] flex flex-col items-center justify-center">
                                <div className="bg-white px-4 py-2 rounded-full shadow-lg flex items-center gap-2 text-sm font-bold text-blue-600 animate-in zoom-in-95">
@@ -656,7 +703,6 @@ export const Registration: React.FC = () => {
                       </div>
                   </div>
 
-                  {/* Residence Zone Selection (NEW) */}
                   <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
                      <label className="block text-xs font-bold text-slate-500 uppercase mb-3">Zona de Residência</label>
                      <div className="grid grid-cols-2 gap-4">
@@ -677,7 +723,6 @@ export const Registration: React.FC = () => {
                      </div>
                   </div>
 
-                  {/* Campos de Endereço Automáticos */}
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-1 flex justify-between">
                         Rua / Logradouro
@@ -710,7 +755,6 @@ export const Registration: React.FC = () => {
                     </div>
                   </div>
                   
-                  {/* Transport Request */}
                   <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
                     <div className="flex items-center gap-3">
                       <input type="checkbox" id="transport" checked={formState.student.needsTransport} onChange={(e) => handleInputChange('student', 'needsTransport', e.target.checked)} className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
@@ -724,7 +768,6 @@ export const Registration: React.FC = () => {
               </div>
             )}
 
-            {/* Step 4: School Selection */}
             {formState.step === 4 && (
               <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
                 <h3 className="text-lg font-semibold text-slate-800 border-b pb-2">Seleção de Preferência</h3>
@@ -780,7 +823,6 @@ export const Registration: React.FC = () => {
               </div>
             )}
 
-            {/* Navigation Buttons */}
             <div className="flex justify-between mt-8 pt-6 border-t border-slate-200">
               <button
                 type="button"
