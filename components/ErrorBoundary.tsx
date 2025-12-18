@@ -1,5 +1,5 @@
 
-import React, { Component, ErrorInfo, ReactNode } from 'react';
+import React, { ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle, RefreshCw, Home, Copy } from 'lucide-react';
 import { useLog } from '../contexts/LogContext';
 
@@ -14,8 +14,8 @@ interface ErrorBoundaryState {
   errorInfo: ErrorInfo | null;
 }
 
-// Fixed ErrorBoundaryInner to correctly inherit from Component and resolve state/props/setState errors
-class ErrorBoundaryInner extends Component<InnerProps, ErrorBoundaryState> {
+// Explicitly extending React.Component to ensure the compiler recognizes state, props and setState
+class ErrorBoundaryInner extends React.Component<InnerProps, ErrorBoundaryState> {
   constructor(props: InnerProps) {
     super(props);
     // Initialize state properly
