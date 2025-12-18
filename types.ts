@@ -7,100 +7,68 @@ export enum SchoolType {
   EJA = 'EJA'
 }
 
+export enum UserRole {
+  ADMIN_SME = 'Secretaria de Educação',
+  DIRECTOR = 'Diretor Escolar',
+  TEACHER = 'Professor',
+  PUBLIC = 'Público'
+}
+
+export interface User {
+  id: string;
+  name: string;
+  role: UserRole;
+  schoolId?: string; // Para Diretores e Professores
+  email: string;
+}
+
 export interface School {
   id: string;
-  inep?: string; // Added INEP/Admin code
+  inep?: string;
   name: string;
   address: string;
   types: SchoolType[];
   image: string;
-  gallery?: string[]; // New property for carousel
+  gallery?: string[];
   rating: number;
   availableSlots: number;
   lat: number;
   lng: number;
-  distance?: number; // Property for calculated distance
-  hasAEE?: boolean; // Indicates Special Education Support
+  distance?: number;
+  hasAEE?: boolean;
 }
 
-export interface StudentData {
-  fullName: string;
+export interface RegistryStudent {
+  id: string;
+  enrollmentId?: string;
+  name: string;
   birthDate: string;
-  cpf: string; // Optional for children, mandatory if exists
-  needsSpecialEducation: boolean;
-  specialEducationDetails?: string;
-  medicalReport?: string; // Base64 string for PDF/Image
-  needsTransport: boolean; // Added field
-  photo?: string; // Foto do aluno em base64
-}
-
-export interface GuardianData {
-  fullName: string;
   cpf: string;
-  email: string;
-  phone: string;
-  relationship: string;
-}
-
-export interface AddressData {
-  street: string;
-  number: string;
-  complement?: string;
-  neighborhood: string;
-  city: string; // Defaults to the municipality
-  zipCode: string;
+  status: 'Matriculado' | 'Pendente' | 'Em Análise';
+  school?: string;
+  schoolId?: string;
+  shift?: string;
+  transportRequest?: boolean;
+  transportType?: string;
+  grade?: string;
+  className?: string;
+  classId?: string;
+  specialNeeds?: boolean;
+  medicalReport?: string;
+  photo?: string;
   lat?: number;
   lng?: number;
-  residenceZone?: 'Urbana' | 'Rural'; // Nova propriedade
+  residenceZone?: 'Urbana' | 'Rural';
+  guardianName?: string;
+  guardianContact?: string;
+  guardianCpf?: string;
+  performanceHistory?: PerformanceRow[];
+  movementHistory?: MovementRow[];
+  performanceHeader?: PerformanceHeader;
+  teacherNotes?: TeacherNote[];
+  attendance?: AttendanceData;
 }
 
-export interface RegistrationFormState {
-  step: number;
-  student: StudentData;
-  guardian: GuardianData;
-  address: AddressData;
-  selectedSchoolId: string | null;
-}
-
-export interface ChatMessage {
-  id: string;
-  role: 'user' | 'model';
-  text: string;
-  isLoading?: boolean;
-}
-
-// Data structures for Performance Table
-export type PerformanceRow = {
-  subject: string;
-  g1: string[];
-  g2: string[];
-  g3: string[];
-  g4: string[];
-  g5: string[];
-};
-
-export type MovementRow = {
-  grade: string;
-  initial: number;
-  abandon: number | string;
-  transfer: number;
-  admitted: number;
-  current: number;
-};
-
-// Data structure for Performance Header persistence
-export type PerformanceHeader = {
-  unit: string;
-  year: number;
-  shift: string;
-  director: string;
-  coordinator: string;
-  dateDay: string;
-  dateMonth: string;
-  dateYear: string;
-};
-
-// --- NEW: Pedagogical Notes & Attendance ---
 export interface TeacherNote {
     id: string;
     date: string;
@@ -116,37 +84,71 @@ export interface AttendanceData {
     unjustifiedAbsences: number;
 }
 
-// Updated interface for data extracted from PDF
-export interface RegistryStudent {
-  id: string; // ID único do aluno
-  enrollmentId?: string; // Código da Matrícula (PDF)
-  name: string;
-  birthDate: string;
-  cpf: string;
-  status: 'Matriculado' | 'Pendente' | 'Em Análise';
-  school?: string;
-  shift?: string; // Turno (Matutino/Vespertino)
-  transportRequest?: boolean; // Matches 'Transporte escolar' from PDF
-  transportType?: string; // Detalhe do transporte (Vans/Kombis/Ônibus)
-  grade?: string; // Etapa de ensino
-  className?: string; // Nome da Turma (ex: GRUPO 4 F)
-  classId?: string; // Código da Turma
-  specialNeeds?: boolean; // Atendimento AEE
-  medicalReport?: string; // Laudo médico em Base64
-  photo?: string; // Foto do aluno em base64
-  lat?: number; // Latitude exata da residência
-  lng?: number; // Longitude exata da residência
-  residenceZone?: 'Urbana' | 'Rural'; // Nova propriedade
-  guardianName?: string; // Nome do Responsável
-  guardianContact?: string; // Telefone do Responsável
-  guardianCpf?: string; // CPF do Responsável
-  
-  // New fields for Individual Performance Report
-  performanceHistory?: PerformanceRow[];
-  movementHistory?: MovementRow[];
-  performanceHeader?: PerformanceHeader; // Persist header info
-  
-  // Monitoring Fields
-  teacherNotes?: TeacherNote[];
-  attendance?: AttendanceData;
+export interface PerformanceRow {
+  subject: string;
+  g1: string[];
+  g2: string[];
+  g3: string[];
+  g4: string[];
+  g5: string[];
+}
+
+export interface MovementRow {
+  grade: string;
+  initial: number;
+  abandon: number | string;
+  transfer: number;
+  admitted: number;
+  current: number;
+}
+
+export interface PerformanceHeader {
+  unit: string;
+  year: number;
+  shift: string;
+  director: string;
+  coordinator: string;
+  dateDay: string;
+  dateMonth: string;
+  dateYear: string;
+}
+
+export interface RegistrationFormState {
+  step: number;
+  student: {
+    fullName: string;
+    birthDate: string;
+    cpf: string;
+    needsSpecialEducation: boolean;
+    specialEducationDetails?: string;
+    medicalReport?: string;
+    needsTransport: boolean;
+    photo?: string;
+  };
+  guardian: {
+    fullName: string;
+    cpf: string;
+    email: string;
+    phone: string;
+    relationship: string;
+  };
+  address: {
+    street: string;
+    number: string;
+    complement?: string;
+    neighborhood: string;
+    city: string;
+    zipCode: string;
+    lat?: number;
+    lng?: number;
+    residenceZone?: 'Urbana' | 'Rural';
+  };
+  selectedSchoolId: string | null;
+}
+
+export interface ChatMessage {
+  id: string;
+  role: 'user' | 'model';
+  text: string;
+  isLoading?: boolean;
 }

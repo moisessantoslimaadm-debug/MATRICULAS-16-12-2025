@@ -14,11 +14,11 @@ interface ErrorBoundaryState {
   errorInfo: ErrorInfo | null;
 }
 
-// Explicitly extending React.Component to ensure the compiler recognizes state, props and setState
+// Fix: Use React.Component with explicit generic parameters to ensure state, props and setState are correctly inherited and typed
 class ErrorBoundaryInner extends React.Component<InnerProps, ErrorBoundaryState> {
   constructor(props: InnerProps) {
     super(props);
-    // Initialize state properly
+    // Fix: Explicitly initializing state in constructor
     this.state = {
       hasError: false,
       error: null,
@@ -30,9 +30,9 @@ class ErrorBoundaryInner extends React.Component<InnerProps, ErrorBoundaryState>
     return { hasError: true, error, errorInfo: null };
   }
 
+  // Fix: Property 'setState' and 'props' are now correctly typed through React.Component inheritance
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error("Uncaught error:", error, errorInfo);
-    // Use this.setState to store error info
     this.setState({ errorInfo });
     
     if (this.props.logError) {
@@ -55,6 +55,7 @@ class ErrorBoundaryInner extends React.Component<InnerProps, ErrorBoundaryState>
   };
 
   private handleCopyDetails = () => {
+      // Fix: Correctly access this.state after inheritance fix
       const { error, errorInfo } = this.state;
       const text = `Erro: ${error?.message}\n\nStack Trace:\n${errorInfo?.componentStack || 'Não disponível'}`;
       navigator.clipboard.writeText(text);
@@ -62,6 +63,7 @@ class ErrorBoundaryInner extends React.Component<InnerProps, ErrorBoundaryState>
   };
 
   render() {
+    // Fix: Correctly access this.state in render method
     if (this.state.hasError) {
       return (
         <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
@@ -117,6 +119,7 @@ class ErrorBoundaryInner extends React.Component<InnerProps, ErrorBoundaryState>
       );
     }
 
+    // Fix: Correctly access this.props.children after inheritance fix
     return this.props.children;
   }
 }

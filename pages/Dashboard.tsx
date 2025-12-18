@@ -1,363 +1,219 @@
+
 import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { useData } from '../contexts/DataContext';
 import { Link, useNavigate } from '../router';
 import { 
   Users, School, AlertTriangle, Bus, TrendingUp, PieChart, 
-  Activity, CheckCircle, Clock, Baby, GraduationCap, Info, Map as MapIcon, Save, Download, ArrowRight, Eye, AlertCircle
+  Activity, CheckCircle, Clock, GraduationCap, Map as MapIcon, 
+  ArrowRight, UserCheck, BookOpen, Award, FileText, LayoutGrid, Calendar, LogOut,
+  // Fix: Added missing Info icon import
+  Info
 } from 'lucide-react';
-import { SchoolType } from '../types';
+import { SchoolType, UserRole } from '../types';
 
-// Declare Leaflet globally
-declare const L: any;
-
-// --- Interactive Donut Chart ---
-const InteractiveDonutChart: React.FC<{ data: { label: string; value: number; color: string }[] }> = React.memo(({ data }) => {
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-  const total = useMemo(() => data.reduce((acc, curr) => acc + curr.value, 0), [data]);
-  
-  let cumulativePercent = 0;
-
-  const getCoordinatesForPercent = (percent: number) => {
-    const x = Math.cos(2 * Math.PI * percent);
-    const y = Math.sin(2 * Math.PI * percent);
-    return [x, y];
-  };
-
-  const centerLabel = hoveredIndex !== null ? data[hoveredIndex].label : "Total";
-  const centerValue = hoveredIndex !== null ? data[hoveredIndex].value : total;
-  const centerPercent = hoveredIndex !== null ? ((data[hoveredIndex].value / total) * 100).toFixed(1) + "%" : "";
-
-  if (total === 0) return <div className="text-center text-slate-400 text-sm py-10">Sem dados para exibir</div>;
-
-  return (
-    <div className="flex flex-col sm:flex-row items-center gap-8 justify-center">
-      <div className="relative w-56 h-56 shrink-0 group" onMouseLeave={() => setHoveredIndex(null)}>
-        <svg viewBox="-1.1 -1.1 2.2 2.2" className="transform -rotate-90 w-full h-full drop-shadow-sm">
-          {data.map((slice, i) => {
-            const startPercent = cumulativePercent;
-            const slicePercent = slice.value / total;
-            cumulativePercent += slicePercent;
-            const [startX, startY] = getCoordinatesForPercent(startPercent);
-            const [endX, endY] = getCoordinatesForPercent(cumulativePercent);
-            const largeArcFlag = slicePercent > 0.5 ? 1 : 0;
-            if (slicePercent === 1) return <circle key={i} cx="0" cy="0" r="1" fill={slice.color} onMouseEnter={() => setHoveredIndex(i)} />;
-            const pathData = `M 0 0 L ${startX} ${startY} A 1 1 0 ${largeArcFlag} 1 ${endX} ${endY} Z`;
-            const isHovered = hoveredIndex === i;
-            const isDimmed = hoveredIndex !== null && hoveredIndex !== i;
-            return <path key={i} d={pathData} fill={slice.color} stroke="white" strokeWidth="0.02" className={`transition-all duration-300 ease-out cursor-pointer ${isDimmed ? 'opacity-40' : 'opacity-100'}`} style={{ transform: isHovered ? 'scale(1.08)' : 'scale(1)', transformOrigin: 'center', zIndex: isHovered ? 10 : 1 }} onMouseEnter={() => setHoveredIndex(i)} />;
-          })}
-          <circle cx="0" cy="0" r="0.65" fill="white" className="pointer-events-none" />
-        </svg>
-        <div className="absolute inset-0 flex items-center justify-center flex-col pointer-events-none transition-all duration-200 z-20">
-          <span className={`text-xs uppercase font-bold tracking-wider mb-0.5 transition-colors ${hoveredIndex !== null ? 'text-blue-600' : 'text-slate-400'}`}>{centerLabel}</span>
-          <span className="text-3xl font-extrabold text-slate-800 leading-none">{centerValue}</span>
-          {hoveredIndex !== null && <span className="text-sm font-medium text-slate-500 mt-1 animate-in fade-in slide-in-from-bottom-1">{centerPercent}</span>}
-        </div>
-      </div>
-      <div className="space-y-3 w-full sm:w-auto">
-        {data.map((item, i) => (
-          <div key={i} className={`flex items-center justify-between gap-6 w-full p-2 rounded-lg cursor-pointer transition-all duration-200 ${hoveredIndex === i ? 'bg-slate-50 shadow-sm ring-1 ring-slate-100' : 'hover:bg-slate-50/50'}`} onMouseEnter={() => setHoveredIndex(i)} onMouseLeave={() => setHoveredIndex(null)}>
-            <div className="flex items-center gap-3"><div className={`w-3 h-3 rounded-full transition-transform ${hoveredIndex === i ? 'scale-125' : ''}`} style={{ backgroundColor: item.color }}></div><span className={`text-sm font-medium ${hoveredIndex === i ? 'text-slate-900' : 'text-slate-600'}`}>{item.label}</span></div>
-            <div className="flex items-center gap-2"><span className="text-sm font-bold text-slate-900">{item.value}</span><span className="text-xs text-slate-400">({((item.value / total) * 100).toFixed(1)}%)</span></div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-});
-
-// --- Interactive Bar Chart ---
-const InteractiveBarChart: React.FC<{ data: { label: string; value: number }[]; colorClass: string; barColor: string }> = React.memo(({ data, colorClass, barColor }) => {
-  const [mounted, setMounted] = useState(false);
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-  
-  useEffect(() => { 
-      const timer = setTimeout(() => setMounted(true), 100); 
-      return () => clearTimeout(timer);
-  }, []);
-
-  const maxValue = Math.max(...data.map(d => d.value), 1);
-  const totalValue = data.reduce((acc, curr) => acc + curr.value, 0);
-  
-  if (totalValue === 0) return <div className="text-center text-slate-400 text-sm py-10">Sem dados para exibir</div>;
-
-  return (
-    <div className="space-y-5">
-      {data.map((item, index) => {
-        const percent = (item.value / maxValue) * 100;
-        const share = ((item.value / totalValue) * 100).toFixed(1);
-        return (
-          <div key={index} className="group relative" onMouseEnter={() => setHoveredIndex(index)} onMouseLeave={() => setHoveredIndex(null)}>
-            {hoveredIndex === index && <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-xs py-1 px-2 rounded shadow-lg z-20 whitespace-nowrap animate-in zoom-in-95 duration-150 pointer-events-none">{item.value} unidades ({share}%)<div className="absolute bottom-[-4px] left-1/2 -translate-x-1/2 w-2 h-2 bg-slate-800 rotate-45"></div></div>}
-            <div className="flex justify-between text-xs font-semibold text-slate-600 mb-1.5"><span className="group-hover:text-blue-600 transition-colors">{item.label}</span><span className="group-hover:text-slate-900 transition-colors">{item.value}</span></div>
-            <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden shadow-inner"><div className={`h-full rounded-full transition-all duration-1000 ease-out relative ${colorClass}`} style={{ width: mounted ? `${percent}%` : '0%', opacity: hoveredIndex !== null && hoveredIndex !== index ? 0.6 : 1, backgroundColor: hoveredIndex === index ? undefined : barColor }}><div className="absolute inset-0 bg-white/20 w-full h-full opacity-0 group-hover:opacity-100 transition-opacity"></div></div></div>
-          </div>
-        );
-      })}
-    </div>
-  );
-});
-
-// --- Student Density Heatmap ---
-const StudentDensityMap: React.FC = () => {
-    const { students, schools } = useData();
-    const mapContainerRef = useRef<HTMLDivElement>(null);
-    const mapRef = useRef<any>(null);
-    const heatLayerRef = useRef<any>(null);
-    const schoolMarkersLayerRef = useRef<any>(null);
-    const [viewType, setViewType] = useState<'all' | 'pending'>('all');
-
-    // Initialize Map
-    useEffect(() => {
-        if (!mapContainerRef.current) return;
-        
-        let mapInstance = mapRef.current;
-
-        if (!mapInstance) {
-            mapInstance = L.map(mapContainerRef.current, {
-                zoomControl: true,
-                attributionControl: false
-            }).setView([-12.5253, -40.2917], 13);
-            
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; OpenStreetMap contributors'
-            }).addTo(mapInstance);
-            
-            schoolMarkersLayerRef.current = L.layerGroup().addTo(mapInstance);
-            mapRef.current = mapInstance;
-        }
-
-        return () => {
-            if (mapRef.current) {
-                mapRef.current.remove();
-                mapRef.current = null;
-            }
-        };
-    }, []);
-
-    const points = useMemo(() => {
-        const generatedPoints: any[] = [];
-        const targetStudents = viewType === 'all' 
-            ? students 
-            : students.filter(s => s.status === 'Pendente' || s.status === 'Em Análise');
-
-        targetStudents.forEach(s => {
-            if (s.lat && s.lng) {
-                const intensity = viewType === 'pending' ? 0.9 : 0.6;
-                generatedPoints.push([s.lat, s.lng, intensity]);
-                return;
-            }
-            if (!s.school || s.school === 'Não alocada') return;
-            const school = schools.find(sc => sc.name === s.school);
-            if (school) {
-                const jitterLat = (Math.random() - 0.5) * 0.015;
-                const jitterLng = (Math.random() - 0.5) * 0.015;
-                const intensity = viewType === 'pending' ? 0.8 : 0.5;
-                generatedPoints.push([school.lat + jitterLat, school.lng + jitterLng, intensity]);
-            }
-        });
-        return generatedPoints;
-    }, [students, schools, viewType]);
-
-    useEffect(() => {
-        if (!mapRef.current) return;
-        const map = mapRef.current;
-        setTimeout(() => map.invalidateSize(), 100);
-
-        if (heatLayerRef.current) {
-            map.removeLayer(heatLayerRef.current);
-            heatLayerRef.current = null;
-        }
-
-        if (typeof L.heatLayer === 'function' && points.length > 0) {
-            try {
-                heatLayerRef.current = L.heatLayer(points, {
-                    radius: 25,
-                    blur: 15,
-                    maxZoom: 17,
-                    gradient: viewType === 'all' 
-                        ? {"0.4": 'blue', "0.65": 'lime', "1.0": 'red'}
-                        : {"0.4": 'yellow', "0.65": 'orange', "1.0": 'red'}
-                });
-                heatLayerRef.current.addTo(map);
-            } catch (err) {
-                console.warn("Heatmap layer failed", err);
-            }
-        }
-
-        if (schoolMarkersLayerRef.current) {
-            schoolMarkersLayerRef.current.clearLayers();
-            const schoolIcon = L.icon({
-                iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-                iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-                shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-                iconSize: [25, 41],
-                iconAnchor: [12, 41],
-                popupAnchor: [1, -34],
-                shadowSize: [41, 41]
-            });
-
-            schools.forEach((school) => {
-                if (school.lat && school.lng) {
-                    const marker = L.marker([school.lat, school.lng], { icon: schoolIcon });
-                    marker.bindPopup(`<div class="text-center font-bold text-sm">${school.name}</div>`);
-                    marker.addTo(schoolMarkersLayerRef.current);
-                }
-            });
-        }
-    }, [points, schools, viewType]);
-
-    return (
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-            <div className="p-6 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div>
-                    <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                        <MapIcon className="h-5 w-5 text-blue-600" />
-                        Mapa de Calor e Escolas
-                    </h2>
-                    <p className="text-sm text-slate-500 mt-1">Visualize a demanda demográfica.</p>
-                </div>
-                <div className="flex bg-slate-100 p-1 rounded-lg">
-                    <button onClick={() => setViewType('all')} className={`px-3 py-1.5 text-xs font-bold rounded-md transition ${viewType === 'all' ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-500'}`}>Todos</button>
-                    <button onClick={() => setViewType('pending')} className={`px-3 py-1.5 text-xs font-bold rounded-md transition ${viewType === 'pending' ? 'bg-white text-red-600 shadow-sm' : 'text-slate-500'}`}>Pendentes</button>
-                </div>
+// Reaproveitando os charts leves do arquivo anterior
+const SimpleCardStat = ({ title, value, icon: Icon, colorClass, subtext, onClick }: any) => (
+    <div 
+        onClick={onClick}
+        className={`bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between hover:shadow-md transition-all cursor-pointer group`}
+    >
+        <div className="flex justify-between items-start">
+            <div>
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">{title}</p>
+                <h3 className="text-3xl font-extrabold text-slate-800 mt-2">{value}</h3>
             </div>
-            <div className="h-[400px] w-full relative">
-                <div ref={mapContainerRef} className="h-full w-full z-10" />
+            <div className={`p-3 rounded-xl transition-transform group-hover:scale-110 ${colorClass}`}>
+                <Icon className="h-6 w-6" />
             </div>
         </div>
-    );
-};
+        {subtext && <p className="text-[10px] font-bold text-slate-400 mt-4 uppercase flex items-center gap-1.5">
+            <Activity className="h-3 w-3" /> {subtext}
+        </p>}
+    </div>
+);
 
 export const Dashboard: React.FC = () => {
-  const { students, schools, lastBackupDate } = useData();
+  const { students, schools } = useData();
   const navigate = useNavigate();
-
-  const totalStudents = students.length;
-  const totalSchools = schools.length;
   
-  const backupNeeded = useMemo(() => {
-    if (!lastBackupDate) return true;
-    const last = new Date(lastBackupDate).getTime();
-    const hoursSince = (Date.now() - last) / (1000 * 60 * 60);
-    return hoursSince > 24;
-  }, [lastBackupDate]);
+  const [role, setRole] = useState<UserRole | null>(null);
+  const [userData, setUserData] = useState<any>(null);
 
-  const statusStats = useMemo(() => ({
-      matriculado: students.filter(s => s.status === 'Matriculado').length,
-      pendente: students.filter(s => s.status === 'Pendente').length,
-      analise: students.filter(s => s.status === 'Em Análise').length
-  }), [students]);
+  useEffect(() => {
+    const savedRole = sessionStorage.getItem('user_role') as UserRole;
+    const data = JSON.parse(sessionStorage.getItem('user_data') || '{}');
+    setRole(savedRole);
+    setUserData(data);
+  }, []);
 
-  const schoolTypeStats = useMemo(() => {
-    const counts: Record<string, number> = {
-      [SchoolType.INFANTIL]: 0,
-      [SchoolType.FUNDAMENTAL_1]: 0,
-      [SchoolType.FUNDAMENTAL_2]: 0,
-      [SchoolType.EJA]: 0
-    };
-    schools.forEach(s => s.types.forEach(t => { if (counts[t] !== undefined) counts[t]++; }));
-    return [
-      { label: 'Infantil', value: counts[SchoolType.INFANTIL] },
-      { label: 'Fundamental I', value: counts[SchoolType.FUNDAMENTAL_1] },
-      { label: 'Fundamental II', value: counts[SchoolType.FUNDAMENTAL_2] },
-      { label: 'EJA', value: counts[SchoolType.EJA] }
-    ].filter(i => i.value > 0);
-  }, [schools]);
+  const schoolStudents = useMemo(() => {
+    if (role === UserRole.ADMIN_SME) return students;
+    return students.filter(s => s.schoolId === userData?.schoolId || s.school === schools.find(sch => sch.id === userData?.schoolId)?.name);
+  }, [students, role, userData, schools]);
 
-  const transportCount = students.filter(s => s.transportRequest).length;
-  const totalCapacity = schools.reduce((acc, s) => acc + (s.availableSlots || 0), 0);
-  const occupancyRate = totalCapacity > 0 ? (totalStudents / totalCapacity) * 100 : 0;
+  const stats = useMemo(() => ({
+    total: schoolStudents.length,
+    matriculados: schoolStudents.filter(s => s.status === 'Matriculado').length,
+    pendentes: schoolStudents.filter(s => s.status === 'Pendente' || s.status === 'Em Análise').length,
+    aee: schoolStudents.filter(s => s.specialNeeds).length,
+    transporte: schoolStudents.filter(s => s.transportRequest).length
+  }), [schoolStudents]);
 
-  const topSchools = useMemo(() => {
-    const schoolCounts: Record<string, number> = {};
-    students.forEach(s => { if (s.school && s.school !== 'Não alocada') schoolCounts[s.school] = (schoolCounts[s.school] || 0) + 1; });
-    return Object.entries(schoolCounts).sort(([, a], [, b]) => b - a).slice(0, 5).map(([name, count]) => ({ name, count }));
-  }, [students]);
+  if (!role) return null;
 
   return (
-    <div className="min-h-screen bg-slate-50 py-8 animate-in fade-in duration-500">
+    <div className="min-h-screen bg-slate-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-slate-900">Dashboard Gerencial</h1>
-            <p className="text-slate-600 mt-1">Indicadores da rede municipal.</p>
-          </div>
-          <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg border border-slate-200 text-sm text-slate-500 shadow-sm">
-            <Clock className="h-4 w-4" /> Atualizado: {new Date().toLocaleDateString()}
-          </div>
+        {/* Header de Boas Vindas Personalizado */}
+        <div className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+                <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Painel de {role}</h1>
+                <p className="text-slate-500 mt-1">Olá, {userData?.name}. Veja o que temos para hoje.</p>
+            </div>
+            <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-sm text-sm font-bold text-slate-600">
+                <Calendar className="h-4 w-4 text-blue-500" />
+                Letivo {new Date().getFullYear() + 1}
+            </div>
         </div>
 
-        {backupNeeded && (
-          <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-8 flex items-center gap-4">
-             <div className="p-2 bg-red-100 rounded-full text-red-600 shrink-0"><Save className="h-6 w-6" /></div>
-             <div className="flex-1">
-               <h3 className="font-bold text-red-800">Backup Pendente</h3>
-               <p className="text-sm text-red-700">Garanta a segurança dos dados agora.</p>
-             </div>
-             <Link to="/admin/data" className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-red-700 transition">Baixar CSV</Link>
-          </div>
-        )}
-
+        {/* Estatísticas Rápidas baseadas no Perfil */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-            <div className="flex justify-between items-start mb-4"><div className="p-3 bg-blue-50 rounded-xl"><Users className="h-6 w-6 text-blue-600" /></div></div>
-            <h3 className="text-3xl font-bold text-slate-800">{totalStudents}</h3>
-            <p className="text-sm text-slate-500">Alunos Ativos</p>
-          </div>
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-             <div className="p-3 bg-indigo-50 rounded-xl w-fit mb-4"><School className="h-6 w-6 text-indigo-600" /></div>
-            <h3 className="text-3xl font-bold text-slate-800">{totalSchools}</h3>
-            <p className="text-sm text-slate-500">Unidades Escolares</p>
-          </div>
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-             <div className="p-3 bg-yellow-50 rounded-xl w-fit mb-4"><AlertTriangle className="h-6 w-6 text-yellow-600" /></div>
-            <h3 className="text-3xl font-bold text-slate-800">{statusStats.pendente + statusStats.analise}</h3>
-            <p className="text-sm text-slate-500">Ações Pendentes</p>
-          </div>
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-             <div className="p-3 bg-green-50 rounded-xl w-fit mb-4"><Bus className="h-6 w-6 text-green-600" /></div>
-            <h3 className="text-3xl font-bold text-slate-800">{transportCount}</h3>
-            <p className="text-sm text-slate-500">Solic. Transporte</p>
-          </div>
+            <SimpleCardStat 
+                title="Total Alunos" 
+                value={stats.total} 
+                icon={Users} 
+                colorClass="bg-blue-100 text-blue-600" 
+                subtext="Sob sua gestão"
+                onClick={() => navigate('/admin/data')}
+            />
+            <SimpleCardStat 
+                title="Matrículas" 
+                value={stats.matriculados} 
+                icon={CheckCircle} 
+                colorClass="bg-green-100 text-green-600" 
+                subtext={`${((stats.matriculados/stats.total)*100).toFixed(1)}% Efetivados`}
+            />
+            <SimpleCardStat 
+                title="Pendentes" 
+                value={stats.pendentes} 
+                icon={AlertTriangle} 
+                colorClass="bg-yellow-100 text-yellow-600" 
+                subtext="Aguardando Ação"
+                onClick={() => navigate('/status')}
+            />
+            <SimpleCardStat 
+                title="Necess. Especiais" 
+                value={stats.aee} 
+                icon={Award} 
+                colorClass="bg-pink-100 text-pink-600" 
+                subtext="Atendimento AEE"
+            />
         </div>
 
-        <div className="mb-8"><StudentDensityMap /></div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Seção Principal: Tarefas do Dia */}
+            <div className="lg:col-span-2 space-y-6">
+                <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div className="p-6 border-b border-slate-100 flex justify-between items-center">
+                        <h3 className="font-bold text-slate-800 flex items-center gap-2">
+                            <Activity className="h-5 w-5 text-blue-600" /> Atividades Pendentes
+                        </h3>
+                    </div>
+                    <div className="p-2">
+                        {role === UserRole.TEACHER ? (
+                            <div className="space-y-1">
+                                <Link to="/performance" className="flex items-center gap-4 p-4 hover:bg-slate-50 rounded-2xl transition group">
+                                    <div className="bg-indigo-50 p-3 rounded-xl text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-all"><TrendingUp className="h-6 w-6" /></div>
+                                    <div className="flex-1"><h4 className="font-bold text-slate-800">Lançar Notas - II Trimestre</h4><p className="text-xs text-slate-500">2 turmas aguardando fechamento</p></div>
+                                    <ArrowRight className="h-5 w-5 text-slate-300 group-hover:text-indigo-600" />
+                                </Link>
+                                <div className="flex items-center gap-4 p-4 hover:bg-slate-50 rounded-2xl transition group cursor-pointer">
+                                    <div className="bg-emerald-50 p-3 rounded-xl text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-all"><UserCheck className="h-6 w-6" /></div>
+                                    <div className="flex-1"><h4 className="font-bold text-slate-800">Chamada do Dia</h4><p className="text-xs text-slate-500">Registre a frequência dos alunos agora</p></div>
+                                    <ArrowRight className="h-5 w-5 text-slate-300 group-hover:text-emerald-600" />
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="space-y-1">
+                                <Link to="/status" className="flex items-center gap-4 p-4 hover:bg-slate-50 rounded-2xl transition group">
+                                    <div className="bg-yellow-50 p-3 rounded-xl text-yellow-600 group-hover:bg-yellow-600 group-hover:text-white transition-all"><FileText className="h-6 w-6" /></div>
+                                    <div className="flex-1"><h4 className="font-bold text-slate-800">Validar Pré-Matrículas</h4><p className="text-xs text-slate-500">{stats.pendentes} solicitações aguardando análise de documentos</p></div>
+                                    <ArrowRight className="h-5 w-5 text-slate-300 group-hover:text-yellow-600" />
+                                </Link>
+                                <Link to="/reports" className="flex items-center gap-4 p-4 hover:bg-slate-50 rounded-2xl transition group">
+                                    <div className="bg-blue-50 p-3 rounded-xl text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all"><PieChart className="h-6 w-6" /></div>
+                                    <div className="flex-1"><h4 className="font-bold text-slate-800">Consolidado da Rede</h4><p className="text-xs text-slate-500">Gere o relatório para a reunião de gestão</p></div>
+                                    <ArrowRight className="h-5 w-5 text-slate-300 group-hover:text-blue-600" />
+                                </Link>
+                            </div>
+                        )}
+                    </div>
+                </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 lg:col-span-2">
-                <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2 mb-8"><PieChart className="h-5 w-5 text-blue-600" /> Situação das Matrículas</h2>
-                <InteractiveDonutChart data={[
-                        { label: 'Matriculados', value: statusStats.matriculado, color: '#16a34a' },
-                        { label: 'Análise', value: statusStats.analise, color: '#3b82f6' },
-                        { label: 'Pendentes', value: statusStats.pendente, color: '#eab308' }
-                    ].filter(d => d.value > 0)} 
-                />
-            </div>
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2 mb-6"><GraduationCap className="h-5 w-5 text-indigo-600" /> Modalidades</h2>
-                <InteractiveBarChart data={schoolTypeStats} colorClass="bg-indigo-500" barColor="#6366f1" />
-            </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2 mb-6"><TrendingUp className="h-5 w-5 text-blue-600" /> Top Demandas</h2>
-                <div className="space-y-4">
-                    {topSchools.map((school, idx) => (
-                        <div key={idx} className="flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 transition border border-transparent">
-                            <span className="font-medium text-slate-700 text-sm">{school.name}</span>
-                            <span className="font-bold text-slate-900">{school.count} alunos</span>
-                        </div>
-                    ))}
+                {/* Notificações / Avisos */}
+                <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl p-8 text-white shadow-xl relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16 blur-3xl"></div>
+                    <div className="relative z-10">
+                        <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                            <Info className="h-6 w-6 text-blue-400" /> Informe da Secretaria
+                        </h3>
+                        <p className="text-slate-300 text-sm leading-relaxed mb-6">
+                            O prazo para fechamento do II Trimestre foi prorrogado até o dia 15/07. Certifique-se de que todos os diários de classe estejam sincronizados para evitar inconsistências no boletim online dos alunos.
+                        </p>
+                        <button className="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded-xl text-sm font-bold transition shadow-lg shadow-blue-500/20">
+                            Entendido
+                        </button>
+                    </div>
                 </div>
             </div>
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2 mb-6"><AlertTriangle className="h-5 w-5 text-orange-500" /> Alertas Recentes</h2>
-                <div className="h-full flex flex-col items-center justify-center text-slate-400 py-8">
-                    <CheckCircle className="h-10 w-10 mb-2 opacity-20 text-green-500" />
-                    <p>Sem alertas pendentes no momento.</p>
+
+            {/* Coluna Lateral: Atalhos e Utilitários */}
+            <div className="space-y-6">
+                <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+                    <h3 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <LayoutGrid className="h-5 w-5 text-indigo-600" /> Ferramentas
+                    </h3>
+                    <div className="grid grid-cols-2 gap-3">
+                        <Link to="/performance" className="p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:bg-indigo-50 hover:border-indigo-100 transition-all text-center group">
+                            <Award className="h-6 w-6 text-indigo-500 mx-auto mb-2 group-hover:scale-110 transition-transform" />
+                            <span className="text-[10px] font-bold text-slate-600 uppercase">Boletins</span>
+                        </Link>
+                        <Link to="/admin/data" className="p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:bg-blue-50 hover:border-blue-100 transition-all text-center group">
+                            <Users className="h-6 w-6 text-blue-500 mx-auto mb-2 group-hover:scale-110 transition-transform" />
+                            <span className="text-[10px] font-bold text-slate-600 uppercase">Alunos</span>
+                        </Link>
+                        <Link to="/schools" className="p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:bg-emerald-50 hover:border-emerald-100 transition-all text-center group">
+                            <School className="h-6 w-6 text-emerald-500 mx-auto mb-2 group-hover:scale-110 transition-transform" />
+                            <span className="text-[10px] font-bold text-slate-600 uppercase">Rede</span>
+                        </Link>
+                        <Link to="/external" className="p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:bg-purple-50 hover:border-purple-100 transition-all text-center group">
+                            <LayoutGrid className="h-6 w-6 text-purple-500 mx-auto mb-2 group-hover:scale-110 transition-transform" />
+                            <span className="text-[10px] font-bold text-slate-600 uppercase">Apps</span>
+                        </Link>
+                    </div>
+                </div>
+
+                <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+                    <h3 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <Activity className="h-5 w-5 text-orange-500" /> Status da Sessão
+                    </h3>
+                    <div className="space-y-3">
+                        <div className="flex justify-between items-center text-xs">
+                            <span className="text-slate-500">Último Acesso</span>
+                            <span className="font-mono text-slate-700">Hoje, 08:42</span>
+                        </div>
+                        <div className="flex justify-between items-center text-xs">
+                            <span className="text-slate-500">IP de Origem</span>
+                            <span className="font-mono text-slate-700">177.34.XX.XX</span>
+                        </div>
+                        <button 
+                            onClick={() => { sessionStorage.clear(); navigate('/'); }}
+                            className="w-full mt-2 py-2 border border-slate-200 rounded-xl text-xs font-bold text-red-500 hover:bg-red-50 transition flex items-center justify-center gap-2"
+                        >
+                            <LogOut className="h-3 w-3" /> Encerrar Conexão
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
