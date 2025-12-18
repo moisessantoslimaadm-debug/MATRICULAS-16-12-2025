@@ -482,13 +482,13 @@ export const SchoolList: React.FC = () => {
         {/* Legends for availability */}
         <div className="mb-6 flex flex-wrap gap-4 px-2">
             <div className="flex items-center gap-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-                <div className="w-2.5 h-2.5 rounded-full bg-green-500"></div> >50% Vagas Livres
+                <div className="w-2.5 h-2.5 rounded-full bg-green-500"></div> &gt;50% Vagas Livres
             </div>
             <div className="flex items-center gap-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
                 <div className="w-2.5 h-2.5 rounded-full bg-yellow-500"></div> 10-50% Vagas Livres
             </div>
             <div className="flex items-center gap-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-                <div className="w-2.5 h-2.5 rounded-full bg-red-500"></div> <10% Vagas Livres
+                <div className="w-2.5 h-2.5 rounded-full bg-red-500"></div> &lt;10% Vagas Livres
             </div>
         </div>
 

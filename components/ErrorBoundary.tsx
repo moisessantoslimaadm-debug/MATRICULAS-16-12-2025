@@ -1,3 +1,4 @@
+
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle, RefreshCw, Home, Copy } from 'lucide-react';
 import { useLog } from '../contexts/LogContext';
@@ -13,30 +14,27 @@ interface ErrorBoundaryState {
   errorInfo: ErrorInfo | null;
 }
 
-/**
- * ErrorBoundaryInner class to correctly extend Component.
- * Using Component explicitly ensures that the TypeScript compiler recognizes
- * inheritance of setState, props, and state from the base Component class.
- */
+// Fixed ErrorBoundaryInner to correctly inherit from Component and resolve state/props/setState errors
 class ErrorBoundaryInner extends Component<InnerProps, ErrorBoundaryState> {
-  // Using class property for state initialization to avoid common TypeScript inheritance issues in constructors
-  state: ErrorBoundaryState = {
-    hasError: false,
-    error: null,
-    errorInfo: null
-  };
+  constructor(props: InnerProps) {
+    super(props);
+    // Initialize state properly
+    this.state = {
+      hasError: false,
+      error: null,
+      errorInfo: null
+    };
+  }
 
   static getDerivedStateFromError(error: Error): ErrorBoundaryState {
     return { hasError: true, error, errorInfo: null };
   }
 
-  // Correctly using setState and props from the Component base class
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error("Uncaught error:", error, errorInfo);
-    // Accessing setState from the inherited Component class
+    // Use this.setState to store error info
     this.setState({ errorInfo });
     
-    // Accessing props from the inherited Component class
     if (this.props.logError) {
         this.props.logError(
             `Erro Crítico de Interface: ${error.message}`, 
@@ -57,7 +55,6 @@ class ErrorBoundaryInner extends Component<InnerProps, ErrorBoundaryState> {
   };
 
   private handleCopyDetails = () => {
-      // Accessing state inherited from Component
       const { error, errorInfo } = this.state;
       const text = `Erro: ${error?.message}\n\nStack Trace:\n${errorInfo?.componentStack || 'Não disponível'}`;
       navigator.clipboard.writeText(text);
@@ -65,7 +62,6 @@ class ErrorBoundaryInner extends Component<InnerProps, ErrorBoundaryState> {
   };
 
   render() {
-    // Accessing state and props inherited from Component
     if (this.state.hasError) {
       return (
         <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
@@ -121,14 +117,10 @@ class ErrorBoundaryInner extends Component<InnerProps, ErrorBoundaryState> {
       );
     }
 
-    // Accessing props inherited from Component
     return this.props.children;
   }
 }
 
-/**
- * Wrapper component to bridge LogContext hooks into the class-based ErrorBoundaryInner.
- */
 export const ErrorBoundary: React.FC<{ children: ReactNode }> = ({ children }) => {
     let logError: ((message: string, details: string) => void) | undefined;
     try {
