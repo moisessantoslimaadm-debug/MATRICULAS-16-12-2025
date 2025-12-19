@@ -7,8 +7,7 @@ import {
   Search, Trash2, User, ChevronLeft, ChevronRight, 
   ChevronsLeft, ChevronsRight, Building, FileSpreadsheet,
   Edit3, X, Save, Loader2, Users, ArrowUp, ArrowDown, 
-  FileTerminal, LayoutGrid, CheckCircle2, ChevronDown, Award,
-  ShieldCheck, MapPin, Database, Zap
+  ChevronDown, ShieldCheck, Zap
 } from 'lucide-react';
 import { RegistryStudent, School, UserRole } from '../types';
 
@@ -34,7 +33,7 @@ const EditStudentModal: React.FC<{
 
     return (
         <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300">
-            <div className="bg-white rounded-[3.5rem] shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-300 border border-white/20">
+            <div className="bg-white rounded-[4rem] shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-300 border border-white/20">
                 <div className="bg-emerald-50 px-12 py-10 border-b border-emerald-100 flex justify-between items-center relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-600/5 rounded-full -mr-16 -mt-16"></div>
                     <div className="flex items-center gap-6 relative z-10">
@@ -46,7 +45,7 @@ const EditStudentModal: React.FC<{
                             <p className="text-[10px] font-black text-emerald-600 uppercase tracking-ultra">Protocolo: {student.enrollmentId || student.id}</p>
                         </div>
                     </div>
-                    <button onClick={onClose} className="p-3 hover:bg-white rounded-full transition text-slate-400 relative z-10">
+                    <button onClick={onClose} className="p-4 hover:bg-white rounded-full transition text-slate-400 relative z-10">
                         <X className="h-8 w-8" />
                     </button>
                 </div>
@@ -54,44 +53,44 @@ const EditStudentModal: React.FC<{
                 <form onSubmit={handleSubmit} className="p-12 space-y-10 max-h-[65vh] overflow-y-auto custom-scrollbar">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                         <div className="md:col-span-2">
-                            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-ultra mb-4 ml-1">Identificação Completa</label>
+                            <label className="block text-[11px] font-black text-slate-400 uppercase tracking-ultra mb-4 ml-2">Identificação Completa</label>
                             <input 
                                 type="text" 
                                 required
                                 value={formData.name}
                                 onChange={e => setFormData({ ...formData, name: e.target.value.toUpperCase() })}
-                                className="w-full px-8 py-5 bg-slate-50 border border-slate-200 rounded-[2rem] focus:ring-8 focus:ring-emerald-50 focus:border-emerald-600 outline-none transition-all font-black text-slate-700 text-lg"
+                                className="w-full px-8 py-6 bg-slate-50 border border-slate-200 rounded-[2.5rem] focus:ring-8 focus:ring-emerald-50 focus:border-emerald-600 outline-none transition-all font-black text-slate-700 text-xl"
                             />
                         </div>
 
                         <div>
-                            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-ultra mb-4 ml-1">Status de Rede</label>
+                            <label className="block text-[11px] font-black text-slate-400 uppercase tracking-ultra mb-4 ml-2">Status de Rede</label>
                             <div className="relative">
                                 <select 
                                     value={formData.status}
                                     onChange={e => setFormData({ ...formData, status: e.target.value as any })}
-                                    className="w-full px-8 py-5 bg-slate-50 border border-slate-200 rounded-[2rem] focus:ring-8 focus:ring-emerald-50 outline-none font-black text-slate-700 appearance-none cursor-pointer"
+                                    className="w-full px-8 py-6 bg-slate-50 border border-slate-200 rounded-[2.5rem] focus:ring-8 focus:ring-emerald-50 outline-none font-black text-slate-700 appearance-none cursor-pointer"
                                 >
                                     <option value="Matriculado">Matriculado</option>
                                     <option value="Pendente">Pendente</option>
                                     <option value="Em Análise">Em Análise</option>
                                 </select>
-                                <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 pointer-events-none" />
+                                <ChevronDown className="absolute right-8 top-1/2 -translate-y-1/2 h-6 w-6 text-slate-400 pointer-events-none" />
                             </div>
                         </div>
 
                         <div>
-                            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-ultra mb-4 ml-1">Lotação Escolar</label>
+                            <label className="block text-[11px] font-black text-slate-400 uppercase tracking-ultra mb-4 ml-2">Lotação Escolar</label>
                             <div className="relative">
                                 <select 
                                     value={formData.school}
                                     onChange={e => setFormData({ ...formData, school: e.target.value })}
-                                    className="w-full px-8 py-5 bg-slate-50 border border-slate-200 rounded-[2rem] focus:ring-8 focus:ring-emerald-50 outline-none font-black text-slate-700 cursor-pointer appearance-none"
+                                    className="w-full px-8 py-6 bg-slate-50 border border-slate-200 rounded-[2.5rem] focus:ring-8 focus:ring-emerald-50 outline-none font-black text-slate-700 cursor-pointer appearance-none"
                                 >
                                     <option value="Não alocada">Aguardando Unidade</option>
                                     {schools.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
                                 </select>
-                                <Building className="absolute right-6 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 pointer-events-none" />
+                                <Building className="absolute right-8 top-1/2 -translate-y-1/2 h-6 w-6 text-slate-400 pointer-events-none" />
                             </div>
                         </div>
                     </div>
@@ -105,8 +104,8 @@ const EditStudentModal: React.FC<{
                                 className="w-8 h-8 rounded-xl text-emerald-600 focus:ring-emerald-500 border-slate-300 transition-all"
                             />
                             <div className="flex flex-col">
-                                <span className="text-[11px] font-black text-slate-900 uppercase tracking-widest">AEE Ativo</span>
-                                <span className="text-[9px] font-bold text-slate-400 uppercase mt-1">Atendimento Especial</span>
+                                <span className="text-[12px] font-black text-slate-900 uppercase tracking-widest">AEE Ativo</span>
+                                <span className="text-[10px] font-bold text-slate-400 uppercase mt-1">Atendimento Especial</span>
                             </div>
                         </label>
                         <label className="flex items-center gap-6 p-8 bg-slate-50 rounded-[2.5rem] cursor-pointer hover:bg-blue-50 transition border border-slate-100 group">
@@ -117,8 +116,8 @@ const EditStudentModal: React.FC<{
                                 className="w-8 h-8 rounded-xl text-blue-600 focus:ring-blue-500 border-slate-300 transition-all"
                             />
                             <div className="flex flex-col">
-                                <span className="text-[11px] font-black text-slate-900 uppercase tracking-widest">Transporte</span>
-                                <span className="text-[9px] font-bold text-slate-400 uppercase mt-1">Zona Rural/Difícil Acesso</span>
+                                <span className="text-[12px] font-black text-slate-900 uppercase tracking-widest">Transporte</span>
+                                <span className="text-[10px] font-bold text-slate-400 uppercase mt-1">Zona Rural/Difícil Acesso</span>
                             </div>
                         </label>
                     </div>
@@ -128,17 +127,17 @@ const EditStudentModal: React.FC<{
                     <button 
                         type="button" 
                         onClick={onClose}
-                        className="flex-1 py-6 bg-white border border-slate-200 text-slate-400 font-black text-[11px] uppercase tracking-ultra rounded-[2.2rem] hover:text-slate-600 transition shadow-sm active:scale-95"
+                        className="flex-1 py-7 bg-white border border-slate-200 text-slate-400 font-black text-[11px] uppercase tracking-ultra rounded-[2.8rem] hover:text-slate-600 transition shadow-sm active:scale-95"
                     >
-                        Descartar Alterações
+                        Descartar
                     </button>
                     <button 
                         onClick={handleSubmit}
                         disabled={isSaving}
-                        className="flex-1 py-6 bg-slate-900 text-white font-black text-[11px] uppercase tracking-ultra rounded-[2.2rem] hover:bg-emerald-600 transition-all shadow-2xl shadow-slate-200 flex items-center justify-center gap-5 disabled:opacity-50 active:scale-95"
+                        className="flex-1 py-7 bg-slate-900 text-white font-black text-[11px] uppercase tracking-ultra rounded-[2.8rem] hover:bg-emerald-600 transition-all shadow-2xl shadow-slate-200 flex items-center justify-center gap-6 disabled:opacity-50 active:scale-95"
                     >
                         {isSaving ? <Loader2 className="h-6 w-6 animate-spin" /> : <Save className="h-6 w-6" />}
-                        Sincronizar com Rede
+                        Sincronizar Dados
                     </button>
                 </div>
             </div>
@@ -169,9 +168,9 @@ export const AdminData: React.FC = () => {
     const newStudents = students.map(s => s.id === updated.id ? updated : s);
     try {
         await updateStudents(newStudents);
-        addToast('Base nominal atualizada com sucesso.', 'success');
+        addToast('Base nominal sincronizada.', 'success');
     } catch (e) {
-        addToast('Falha na sincronização de dados.', 'error');
+        addToast('Falha na comunicação com a rede.', 'error');
     }
   };
 
@@ -219,53 +218,52 @@ export const AdminData: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen bg-[#FDFDFD] py-24">
-      <div className="max-w-7xl mx-auto px-10">
-        
+    <div className="min-h-screen bg-[#FDFDFD] py-24 px-6">
+      <div className="max-w-7xl mx-auto">
         <header className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-12 mb-20">
             <div className="animate-in fade-in slide-in-from-left-8 duration-1000">
-                <div className="flex items-center gap-4 mb-6">
-                    <span className="bg-emerald-600 text-white px-5 py-2 rounded-2xl text-[10px] font-black uppercase tracking-ultra shadow-lg shadow-emerald-100">Governança Digital</span>
-                    <span className="w-1.5 h-1.5 rounded-full bg-slate-200"></span>
+                <div className="flex items-center gap-5 mb-8">
+                    <span className="bg-emerald-600 text-white px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-ultra shadow-lg shadow-emerald-100">Governança Digital</span>
+                    <span className="w-2 h-2 rounded-full bg-slate-200"></span>
                     <span className="text-slate-400 text-[10px] font-black uppercase tracking-ultra">SME ITABERABA</span>
                 </div>
-                <h1 className="text-8xl font-black text-slate-900 tracking-tighter leading-none mb-6">Controle <br/> de <span className="text-emerald-600">Rede.</span></h1>
-                <p className="text-slate-500 font-medium text-2xl max-w-2xl leading-relaxed">Administração centralizada do fluxo escolar e monitoramento nominal de matrículas em tempo real.</p>
+                <h1 className="text-8xl font-black text-slate-900 tracking-tighter leading-none mb-8">Controle <br/> de <span className="text-emerald-600">Rede.</span></h1>
+                <p className="text-slate-500 font-medium text-2xl max-w-2xl leading-relaxed">Administração centralizada do fluxo escolar e monitoramento nominal em tempo real.</p>
             </div>
             <div className="flex flex-wrap gap-6 animate-in fade-in slide-in-from-right-8 duration-1000">
-                 <button className="flex items-center gap-5 px-10 py-7 bg-emerald-50 text-emerald-700 rounded-[2.5rem] font-black text-[11px] uppercase tracking-ultra border border-emerald-100 hover:bg-emerald-100 transition shadow-2xl shadow-emerald-50 active:scale-95">
-                    <FileSpreadsheet className="h-6 w-6" /> Exportar Dados Nominal
+                 <button className="flex items-center gap-6 px-12 py-8 bg-emerald-50 text-emerald-700 rounded-[3rem] font-black text-[11px] uppercase tracking-ultra border border-emerald-100 hover:bg-emerald-100 transition shadow-2xl shadow-emerald-50 active:scale-95">
+                    <FileSpreadsheet className="h-7 w-7" /> Exportar Dados
                  </button>
-                 <button onClick={() => setIsViewerOpen(true)} className="flex items-center gap-5 px-10 py-7 bg-white border border-slate-100 text-slate-400 rounded-[2.5rem] font-black text-[11px] uppercase tracking-ultra hover:text-emerald-600 transition shadow-2xl shadow-slate-50 active:scale-95">
-                    <Zap className="h-6 w-6" /> Sistema Debug
+                 <button onClick={() => setIsViewerOpen(true)} className="flex items-center gap-6 px-12 py-8 bg-white border border-slate-100 text-slate-400 rounded-[3rem] font-black text-[11px] uppercase tracking-ultra hover:text-emerald-600 transition shadow-2xl shadow-slate-50 active:scale-95">
+                    <Zap className="h-7 w-7" /> Sistema Debug
                  </button>
             </div>
         </header>
 
-        <div className="bg-white p-10 rounded-[4.5rem] shadow-2xl shadow-slate-100 border border-slate-100 mb-16 animate-in slide-in-from-bottom-8 duration-1000">
-            <div className="flex flex-col lg:flex-row gap-10 justify-between items-center">
-                <div className="flex p-3 bg-slate-50 rounded-[3rem] w-full lg:w-fit border border-slate-100">
+        <div className="bg-white p-12 rounded-[5rem] shadow-2xl shadow-slate-100 border border-slate-100 mb-16 animate-in slide-in-from-bottom-8 duration-1000">
+            <div className="flex flex-col lg:flex-row gap-12 justify-between items-center">
+                <div className="flex p-3 bg-slate-50 rounded-[3.5rem] w-full lg:w-fit border border-slate-100">
                     <button 
                         onClick={() => { setActiveTab('students'); setCurrentPage(1); setSortField('name'); }} 
-                        className={`flex-1 lg:px-16 py-5 rounded-[2.5rem] text-[11px] font-black uppercase tracking-ultra transition-all ${activeTab === 'students' ? 'bg-white text-emerald-600 shadow-2xl scale-105' : 'text-slate-400 hover:text-slate-600'}`}
+                        className={`flex-1 lg:px-20 py-6 rounded-[3rem] text-[11px] font-black uppercase tracking-ultra transition-all ${activeTab === 'students' ? 'bg-white text-emerald-600 shadow-2xl scale-105' : 'text-slate-400 hover:text-slate-600'}`}
                     >
                         Base de Alunos
                     </button>
                     <button 
                         onClick={() => { setActiveTab('schools'); setCurrentPage(1); setSortField('name'); }} 
-                        className={`flex-1 lg:px-16 py-5 rounded-[2.5rem] text-[11px] font-black uppercase tracking-ultra transition-all ${activeTab === 'schools' ? 'bg-white text-emerald-600 shadow-2xl scale-105' : 'text-slate-400 hover:text-slate-600'}`}
+                        className={`flex-1 lg:px-20 py-6 rounded-[3rem] text-[11px] font-black uppercase tracking-ultra transition-all ${activeTab === 'schools' ? 'bg-white text-emerald-600 shadow-2xl scale-105' : 'text-slate-400 hover:text-slate-600'}`}
                     >
                         Infraestrutura
                     </button>
                 </div>
                 <div className="relative w-full lg:w-[650px] group">
-                    <Search className="absolute left-8 top-1/2 -translate-y-1/2 h-7 w-7 text-slate-200 group-focus-within:text-emerald-600 transition-colors" />
+                    <Search className="absolute left-10 top-1/2 -translate-y-1/2 h-8 w-8 text-slate-200 group-focus-within:text-emerald-600 transition-colors" />
                     <input 
                         type="text" 
-                        placeholder="Pesquisar por Nome, CPF ou Protocolo..."
+                        placeholder="Pesquisar registro nominal..."
                         value={searchTerm}
                         onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
-                        className="w-full pl-20 pr-10 py-7 bg-slate-50 border border-transparent rounded-[3rem] focus:bg-white focus:border-emerald-600 focus:ring-8 focus:ring-emerald-50 outline-none transition-all font-black text-slate-700 text-xl shadow-inner"
+                        className="w-full pl-24 pr-12 py-8 bg-slate-50 border border-transparent rounded-[3.5rem] focus:bg-white focus:border-emerald-600 focus:ring-8 focus:ring-emerald-50 outline-none transition-all font-black text-slate-700 text-xl shadow-inner"
                     />
                 </div>
             </div>
@@ -278,17 +276,17 @@ export const AdminData: React.FC = () => {
                         <tr>
                             {activeTab === 'students' ? (
                                 <>
-                                    <th className="px-12 py-10 w-32 border-b border-slate-50"></th>
+                                    <th className="px-12 py-12 w-32 border-b border-slate-50"></th>
                                     <SortHeader label="Identificação" field="name" />
                                     <SortHeader label="Vínculo Escolar" field="school" />
-                                    <th className="px-12 py-10 text-[11px] font-black text-slate-400 uppercase tracking-ultra border-b border-slate-50">Status</th>
-                                    <th className="px-12 py-10 text-[11px] font-black text-slate-400 uppercase tracking-ultra text-right border-b border-slate-50">Gestão</th>
+                                    <th className="px-12 py-12 text-[11px] font-black text-slate-400 uppercase tracking-ultra border-b border-slate-50">Status</th>
+                                    <th className="px-12 py-12 text-[11px] font-black text-slate-400 uppercase tracking-ultra text-right border-b border-slate-50">Gestão</th>
                                 </>
                             ) : (
                                 <>
-                                    <th className="px-12 py-12 text-[11px] font-black text-slate-400 uppercase tracking-ultra border-b border-slate-50">Unidade de Ensino</th>
-                                    <th className="px-12 py-12 text-[11px] font-black text-slate-400 uppercase tracking-ultra text-center border-b border-slate-50">Ocupação</th>
-                                    <th className="px-12 py-12 text-[11px] font-black text-slate-400 uppercase tracking-ultra text-right border-b border-slate-50">Visualização</th>
+                                    <th className="px-12 py-14 text-[11px] font-black text-slate-400 uppercase tracking-ultra border-b border-slate-50">Unidade de Ensino</th>
+                                    <th className="px-12 py-14 text-[11px] font-black text-slate-400 uppercase tracking-ultra text-center border-b border-slate-50">Ocupação</th>
+                                    <th className="px-12 py-14 text-[11px] font-black text-slate-400 uppercase tracking-ultra text-right border-b border-slate-50">Visualização</th>
                                 </>
                             )}
                         </tr>
@@ -300,37 +298,37 @@ export const AdminData: React.FC = () => {
                                     {activeTab === 'students' ? (
                                         <>
                                             <td className="px-12 py-12">
-                                                <div className="w-20 h-20 rounded-[2.2rem] bg-white border-[6px] border-white shadow-2xl flex items-center justify-center overflow-hidden transition-transform group-hover:rotate-6">
-                                                    {item.photo ? <img src={item.photo} className="w-full h-full object-cover" /> : <User className="h-10 w-10 text-slate-200" />}
+                                                <div className="w-24 h-24 rounded-[2.5rem] bg-white border-[8px] border-white shadow-2xl flex items-center justify-center overflow-hidden transition-transform group-hover:rotate-6">
+                                                    {item.photo ? <img src={item.photo} className="w-full h-full object-cover" /> : <User className="h-12 w-12 text-slate-200" />}
                                                 </div>
                                             </td>
                                             <td className="px-12 py-12">
-                                                <p className="font-black text-slate-900 text-xl tracking-tighter leading-none mb-3 uppercase">{item.name}</p>
-                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-3">
-                                                    CPF: {item.cpf || '--'} <span className="w-1 h-1 rounded-full bg-slate-200"></span> ID: {item.enrollmentId || item.id}
+                                                <p className="font-black text-slate-900 text-2xl tracking-tighter leading-none mb-4 uppercase">{item.name}</p>
+                                                <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-4">
+                                                    CPF: {item.cpf || '--'} <span className="w-2 h-2 rounded-full bg-slate-200"></span> ID: {item.enrollmentId || item.id}
                                                 </p>
                                             </td>
                                             <td className="px-12 py-12">
-                                                <div className="flex items-center gap-4">
-                                                    <div className="bg-emerald-50 p-2.5 rounded-xl text-emerald-600">
-                                                        <Building className="h-5 w-5" />
+                                                <div className="flex items-center gap-5">
+                                                    <div className="bg-emerald-50 p-3 rounded-2xl text-emerald-600 shadow-sm border border-emerald-100">
+                                                        <Building className="h-6 w-6" />
                                                     </div>
-                                                    <span className="text-sm font-black text-slate-600 uppercase tracking-tight">{item.school || 'AGUARDANDO ALOCAÇÃO'}</span>
+                                                    <span className="text-base font-black text-slate-600 uppercase tracking-tight">{item.school || 'AGUARDANDO ALOCAÇÃO'}</span>
                                                 </div>
                                             </td>
                                             <td className="px-12 py-12">
-                                                <span className={`px-6 py-2.5 rounded-full text-[9px] font-black uppercase tracking-ultra border shadow-xl shadow-slate-100 ${item.status === 'Matriculado' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : item.status === 'Pendente' ? 'bg-amber-50 text-amber-700 border-amber-100' : 'bg-blue-50 text-blue-700 border-blue-100'}`}>{item.status}</span>
+                                                <span className={`px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-ultra border shadow-xl shadow-slate-100 ${item.status === 'Matriculado' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : item.status === 'Pendente' ? 'bg-amber-50 text-amber-700 border-amber-100' : 'bg-blue-50 text-blue-700 border-blue-100'}`}>{item.status}</span>
                                             </td>
                                             <td className="px-12 py-12 text-right">
-                                                <div className="flex justify-end gap-4 opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-x-4 group-hover:translate-x-0">
+                                                <div className="flex justify-end gap-5 opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-x-4 group-hover:translate-x-0">
                                                     {canEdit && (
-                                                        <button onClick={() => setEditingStudent(item)} className="p-5 bg-white border border-slate-100 text-slate-400 hover:text-emerald-600 hover:border-emerald-200 rounded-[1.5rem] transition-all hover:shadow-2xl active:scale-90">
-                                                            <Edit3 className="h-6 w-6" />
+                                                        <button onClick={() => setEditingStudent(item)} className="p-6 bg-white border border-slate-100 text-slate-400 hover:text-emerald-600 hover:border-emerald-200 rounded-[1.8rem] transition-all hover:shadow-2xl active:scale-90">
+                                                            <Edit3 className="h-7 w-7" />
                                                         </button>
                                                     )}
                                                     {userData.role === UserRole.ADMIN_SME && (
-                                                        <button onClick={() => {if(window.confirm('Excluir registro permanentemente?')) removeStudent(item.id)}} className="p-5 bg-white border border-slate-100 text-slate-400 hover:text-red-600 hover:border-red-200 rounded-[1.5rem] transition-all hover:shadow-2xl active:scale-90">
-                                                            <Trash2 className="h-6 w-6" />
+                                                        <button onClick={() => {if(window.confirm('Excluir registro permanentemente?')) removeStudent(item.id)}} className="p-6 bg-white border border-slate-100 text-slate-400 hover:text-red-600 hover:border-red-200 rounded-[1.8rem] transition-all hover:shadow-2xl active:scale-90">
+                                                            <Trash2 className="h-7 w-7" />
                                                         </button>
                                                     )}
                                                 </div>
@@ -338,31 +336,31 @@ export const AdminData: React.FC = () => {
                                         </>
                                     ) : (
                                         <>
-                                            <td className="px-12 py-14">
-                                                <div className="flex items-center gap-10">
-                                                    <div className="w-20 h-20 rounded-[2.5rem] bg-emerald-50 flex items-center justify-center text-emerald-600 shadow-inner group-hover:rotate-12 transition-transform">
-                                                        <Building className="h-10 w-10" />
+                                            <td className="px-12 py-16">
+                                                <div className="flex items-center gap-12">
+                                                    <div className="w-24 h-24 rounded-[3rem] bg-emerald-50 flex items-center justify-center text-emerald-600 shadow-inner group-hover:rotate-12 transition-transform border border-emerald-100">
+                                                        <Building className="h-12 w-12" />
                                                     </div>
                                                     <div>
-                                                        <p className="font-black text-slate-900 tracking-tighter text-3xl leading-none mb-3 uppercase">{item.name}</p>
-                                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest truncate max-w-md">{item.address}</p>
+                                                        <p className="font-black text-slate-900 tracking-tighter text-4xl leading-none mb-4 uppercase">{item.name}</p>
+                                                        <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest truncate max-w-lg">{item.address}</p>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="px-12 py-14 text-center">
+                                            <td className="px-12 py-16 text-center">
                                                 <div className="inline-flex flex-col items-center">
-                                                    <span className="font-black text-slate-900 text-3xl tracking-tighter mb-2">{students.filter(s => s.school === item.name).length} <span className="text-slate-200 mx-2">/</span> {item.availableSlots}</span>
-                                                    <div className="w-32 h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                                                        <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${(students.filter(s => s.school === item.name).length / item.availableSlots) * 100}%` }}></div>
+                                                    <span className="font-black text-slate-900 text-4xl tracking-tighter mb-4">{students.filter(s => s.school === item.name).length} <span className="text-slate-200 mx-3">/</span> {item.availableSlots}</span>
+                                                    <div className="w-48 h-2.5 bg-slate-100 rounded-full overflow-hidden shadow-inner">
+                                                        <div className="h-full bg-emerald-500 rounded-full glow-emerald" style={{ width: `${(students.filter(s => s.school === item.name).length / item.availableSlots) * 100}%` }}></div>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="px-12 py-14 text-right">
+                                            <td className="px-12 py-16 text-right">
                                                 <button 
                                                     onClick={() => setExpandedSchoolId(expandedSchoolId === item.id ? null : item.id)}
-                                                    className={`flex items-center gap-5 ml-auto px-12 py-6 rounded-[2.5rem] font-black text-[11px] uppercase tracking-ultra transition-all ${expandedSchoolId === item.id ? 'bg-slate-900 text-white shadow-2xl scale-105' : 'bg-slate-100 text-slate-600 hover:bg-emerald-600 hover:text-white active:scale-95'}`}
+                                                    className={`flex items-center gap-6 ml-auto px-16 py-7 rounded-[3rem] font-black text-[11px] uppercase tracking-ultra transition-all ${expandedSchoolId === item.id ? 'bg-slate-900 text-white shadow-2xl scale-105' : 'bg-slate-100 text-slate-600 hover:bg-emerald-600 hover:text-white active:scale-95'}`}
                                                 >
-                                                    <Users className="h-6 w-6" />
+                                                    <Users className="h-7 w-7" />
                                                     {expandedSchoolId === item.id ? 'Fechar Quadro' : 'Quadro Nominal'}
                                                 </button>
                                             </td>
@@ -374,49 +372,47 @@ export const AdminData: React.FC = () => {
                                     <tr className="animate-in slide-in-from-top-12 duration-1000">
                                         <td colSpan={3} className="p-0">
                                             <div className="bg-slate-50/70 p-24 border-y border-slate-100">
-                                                <div className="flex justify-between items-end mb-20">
+                                                <div className="flex justify-between items-end mb-24">
                                                     <div>
-                                                        <div className="flex items-center gap-4 mb-6">
-                                                            <div className="h-3 w-3 rounded-full bg-emerald-500 glow-primary"></div>
-                                                            <h4 className="text-[12px] font-black text-emerald-600 uppercase tracking-[0.5em]">Censo Nominal Ativo</h4>
+                                                        <div className="flex items-center gap-5 mb-8">
+                                                            <div className="h-4 w-4 rounded-full bg-emerald-500 glow-primary"></div>
+                                                            <h4 className="text-[14px] font-black text-emerald-600 uppercase tracking-[0.5em]">Censo Nominal Ativo</h4>
                                                         </div>
-                                                        <h5 className="text-6xl font-black text-slate-900 tracking-tighter leading-none">{item.name}</h5>
+                                                        <h5 className="text-7xl font-black text-slate-900 tracking-tighter leading-none">{item.name}</h5>
                                                     </div>
-                                                    <div className="flex gap-4">
-                                                        <div className="bg-white p-8 rounded-[2.5rem] shadow-xl shadow-slate-100 border border-slate-100 text-center min-w-[200px]">
-                                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Total Alunos</p>
-                                                            <p className="text-4xl font-black text-slate-900">{students.filter(s => s.school === item.name).length}</p>
-                                                        </div>
+                                                    <div className="bg-white p-10 rounded-[3.5rem] shadow-2xl shadow-slate-100 border border-slate-100 text-center min-w-[250px]">
+                                                        <p className="text-[12px] font-black text-slate-400 uppercase tracking-widest mb-4">Total Alunos</p>
+                                                        <p className="text-5xl font-black text-slate-900">{students.filter(s => s.school === item.name).length}</p>
                                                     </div>
                                                 </div>
 
-                                                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-10">
+                                                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-12">
                                                     {students.filter(s => s.school === item.name).map(studentInSchool => (
-                                                        <div key={studentInSchool.id} className="bg-white p-10 rounded-[3.5rem] shadow-2xl shadow-slate-100 border border-slate-100 flex justify-between items-center group/card hover:border-emerald-500 hover:-translate-y-2 transition-all duration-700">
-                                                            <div className="flex items-center gap-8">
-                                                                <div className="w-20 h-20 rounded-[2rem] bg-slate-50 flex items-center justify-center text-slate-300 overflow-hidden shadow-inner border border-slate-100 group-hover/card:rotate-6 transition-transform">
-                                                                    {studentInSchool.photo ? <img src={studentInSchool.photo} className="w-full h-full object-cover" /> : <User className="h-8 w-8" />}
+                                                        <div key={studentInSchool.id} className="bg-white p-12 rounded-[4rem] shadow-2xl shadow-slate-100 border border-slate-100 flex justify-between items-center group/card hover:border-emerald-500 hover:-translate-y-3 transition-all duration-700">
+                                                            <div className="flex items-center gap-10">
+                                                                <div className="w-24 h-24 rounded-[2.5rem] bg-slate-50 flex items-center justify-center text-slate-300 overflow-hidden shadow-inner border border-slate-100 group-hover/card:rotate-6 transition-transform">
+                                                                    {studentInSchool.photo ? <img src={studentInSchool.photo} className="w-full h-full object-cover" /> : <User className="h-10 w-10" />}
                                                                 </div>
                                                                 <div>
-                                                                    <p className="font-black text-slate-800 text-xl tracking-tighter truncate max-w-[180px] leading-none mb-3 uppercase">{studentInSchool.name}</p>
-                                                                    <div className="flex items-center gap-3">
-                                                                         <span className="bg-slate-100 text-slate-500 px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest">{studentInSchool.className || 'Sem Turma'}</span>
-                                                                         {studentInSchool.specialNeeds && <Zap className="h-4 w-4 text-emerald-500" />}
+                                                                    <p className="font-black text-slate-800 text-2xl tracking-tighter truncate max-w-[200px] leading-none mb-4 uppercase">{studentInSchool.name}</p>
+                                                                    <div className="flex items-center gap-4">
+                                                                         <span className="bg-slate-100 text-slate-500 px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest">{studentInSchool.className || 'Sem Turma'}</span>
+                                                                         {studentInSchool.specialNeeds && <Zap className="h-5 w-5 text-emerald-500" />}
                                                                     </div>
                                                                 </div>
                                                             </div>
                                                             {canEdit && (
                                                                 <button 
                                                                     onClick={() => setEditingStudent(studentInSchool)}
-                                                                    className="p-5 bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white rounded-[1.5rem] transition-all opacity-0 group-hover/card:opacity-100 shadow-xl hover:scale-110 active:scale-90"
+                                                                    className="p-6 bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white rounded-[2rem] transition-all opacity-0 group-hover/card:opacity-100 shadow-xl hover:scale-110 active:scale-90"
                                                                 >
-                                                                    <Edit3 className="h-6 w-6" />
+                                                                    <Edit3 className="h-7 w-7" />
                                                                 </button>
                                                             )}
                                                         </div>
                                                     ))}
                                                     {students.filter(s => s.school === item.name).length === 0 && (
-                                                        <div className="col-span-full py-32 text-center border-4 border-dashed border-slate-200 rounded-[5rem] text-slate-300 font-black uppercase tracking-[0.5em] animate-pulse">
+                                                        <div className="col-span-full py-40 text-center border-4 border-dashed border-slate-200 rounded-[6rem] text-slate-300 font-black uppercase tracking-[0.5em] animate-pulse">
                                                             Nenhum registro acadêmico localizado
                                                         </div>
                                                     )}
@@ -433,18 +429,18 @@ export const AdminData: React.FC = () => {
 
             <div className="bg-slate-50/50 px-16 py-12 border-t border-slate-100 flex flex-col md:flex-row items-center justify-between gap-12">
                 <div className="flex items-center gap-8">
-                    <div className="w-4 h-4 rounded-full bg-emerald-500 glow-primary shadow-[0_0_15px_rgba(16,185,129,0.5)]"></div>
-                    <span className="text-[11px] font-black text-slate-400 uppercase tracking-ultra">
+                    <div className="w-5 h-5 rounded-full bg-emerald-500 glow-primary shadow-[0_0_15px_rgba(16,185,129,0.5)]"></div>
+                    <span className="text-[12px] font-black text-slate-400 uppercase tracking-ultra">
                         Exibindo {paginatedData.length} de {sortedData.length} Registros • Página {currentPage} de {totalPages || 1}
                     </span>
                 </div>
 
-                <div className="flex items-center gap-5">
-                    <button onClick={() => {setCurrentPage(1); window.scrollTo({top: 400, behavior:'smooth'})}} disabled={currentPage === 1} className="p-5 bg-white border border-slate-100 text-slate-400 rounded-2xl hover:text-emerald-600 disabled:opacity-20 transition shadow-xl active:scale-90"><ChevronsLeft className="h-7 w-7" /></button>
-                    <button onClick={() => {setCurrentPage(p => Math.max(1, p - 1)); window.scrollTo({top: 400, behavior:'smooth'})}} disabled={currentPage === 1} className="p-5 bg-white border border-slate-100 text-slate-400 rounded-2xl hover:text-emerald-600 disabled:opacity-20 transition shadow-xl active:scale-90"><ChevronLeft className="h-7 w-7" /></button>
-                    <div className="bg-slate-900 text-white px-10 py-5 rounded-[1.8rem] font-black text-2xl shadow-2xl shadow-slate-200 mx-2">{currentPage}</div>
-                    <button onClick={() => {setCurrentPage(p => Math.min(totalPages, p + 1)); window.scrollTo({top: 400, behavior:'smooth'})}} disabled={currentPage >= totalPages} className="p-5 bg-white border border-slate-100 text-slate-400 rounded-2xl hover:text-emerald-600 disabled:opacity-20 transition shadow-xl active:scale-90"><ChevronRight className="h-7 w-7" /></button>
-                    <button onClick={() => {setCurrentPage(totalPages); window.scrollTo({top: 400, behavior:'smooth'})}} disabled={currentPage >= totalPages} className="p-5 bg-white border border-slate-100 text-slate-400 rounded-2xl hover:text-emerald-600 disabled:opacity-20 transition shadow-xl active:scale-90"><ChevronsRight className="h-7 w-7" /></button>
+                <div className="flex items-center gap-6">
+                    <button onClick={() => {setCurrentPage(1); window.scrollTo({top: 400, behavior:'smooth'})}} disabled={currentPage === 1} className="p-6 bg-white border border-slate-100 text-slate-400 rounded-2xl hover:text-emerald-600 disabled:opacity-20 transition shadow-xl active:scale-90"><ChevronsLeft className="h-8 w-8" /></button>
+                    <button onClick={() => {setCurrentPage(p => Math.max(1, p - 1)); window.scrollTo({top: 400, behavior:'smooth'})}} disabled={currentPage === 1} className="p-6 bg-white border border-slate-100 text-slate-400 rounded-2xl hover:text-emerald-600 disabled:opacity-20 transition shadow-xl active:scale-90"><ChevronLeft className="h-8 w-8" /></button>
+                    <div className="bg-slate-900 text-white px-12 py-6 rounded-[2rem] font-black text-3xl shadow-2xl shadow-slate-200 mx-4">{currentPage}</div>
+                    <button onClick={() => {setCurrentPage(p => Math.min(totalPages, p + 1)); window.scrollTo({top: 400, behavior:'smooth'})}} disabled={currentPage >= totalPages} className="p-6 bg-white border border-slate-100 text-slate-400 rounded-2xl hover:text-emerald-600 disabled:opacity-20 transition shadow-xl active:scale-90"><ChevronRight className="h-8 w-8" /></button>
+                    <button onClick={() => {setCurrentPage(totalPages); window.scrollTo({top: 400, behavior:'smooth'})}} disabled={currentPage >= totalPages} className="p-6 bg-white border border-slate-100 text-slate-400 rounded-2xl hover:text-emerald-600 disabled:opacity-20 transition shadow-xl active:scale-90"><ChevronsRight className="h-8 w-8" /></button>
                 </div>
             </div>
         </div>
