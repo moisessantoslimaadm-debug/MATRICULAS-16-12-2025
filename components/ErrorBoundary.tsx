@@ -1,4 +1,3 @@
-
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle, RefreshCw, Home, Copy } from 'lucide-react';
 import { useLog } from '../contexts/LogContext';
@@ -14,7 +13,7 @@ interface ErrorBoundaryState {
   errorInfo: ErrorInfo | null;
 }
 
-// Fix: Use the 'Component' named import directly to ensure proper recognition of inherited properties like setState and props
+// Fixed: Explicitly extending Component from the named import to ensure the compiler recognizes setState and props properties correctly
 class ErrorBoundaryInner extends Component<InnerProps, ErrorBoundaryState> {
   public state: ErrorBoundaryState = {
     hasError: false,
@@ -28,10 +27,10 @@ class ErrorBoundaryInner extends Component<InnerProps, ErrorBoundaryState> {
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error("Uncaught error:", error, errorInfo);
-    // Fix: Access setState from the Component base class
+    // Fixed: Accessing setState correctly as inherited from the Component base class
     this.setState({ errorInfo });
     
-    // Fix: Access props from the Component base class
+    // Fixed: Accessing props correctly as inherited from the Component base class
     if (this.props.logError) {
         this.props.logError(
             `Erro Crítico de Interface: ${error.message}`, 
@@ -115,7 +114,7 @@ class ErrorBoundaryInner extends Component<InnerProps, ErrorBoundaryState> {
       );
     }
 
-    // Fix: Access children through this.props which is correctly inherited from the Component base class
+    // Fixed: Correctly access children through the inherited props property
     return this.props.children;
   }
 }
