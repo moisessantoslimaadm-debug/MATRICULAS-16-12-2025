@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Printer, ArrowLeft, TrendingUp, Save, 
   Loader2, Award, ShieldCheck, Activity,
-  Calendar, BookOpen, Target, Sparkles,
-  ChevronRight, ArrowUpRight, CheckCircle2, Zap
+  BookOpen, Target, Sparkles,
+  ChevronRight, ArrowUpRight, Zap
 } from 'lucide-react';
 import { useSearchParams, useNavigate } from '../router';
 import { useData } from '../contexts/DataContext';
@@ -18,7 +18,6 @@ const CONCEPTS = {
   '': { label: 'Pendente', color: 'bg-slate-200', text: 'text-slate-400', bg: 'bg-slate-50', val: 0 }
 };
 
-// Componente de Dashboard Visual de Progressão
 const ProgressionDashboard = ({ data }: { data: PerformanceRow[] }) => {
     const units = ['Unidade I', 'Unidade II', 'Unidade III'];
     const scores = units.map((_, idx) => {
@@ -37,7 +36,6 @@ const ProgressionDashboard = ({ data }: { data: PerformanceRow[] }) => {
     const height = 140;
     const width = 500;
     const padding = 40;
-    
     const points = scores.map((s, i) => {
         const x = padding + (i * (width - padding * 2) / (units.length - 1));
         const y = height - padding - (s * (height - padding * 2) / 4);
@@ -92,7 +90,6 @@ const ProgressionDashboard = ({ data }: { data: PerformanceRow[] }) => {
                     <div className="h-3 w-3 rounded-full bg-emerald-500 animate-pulse"></div>
                     <span className="text-2xl font-black tracking-tight">Sincronizado</span>
                 </div>
-                <p className="text-[9px] font-bold text-slate-500 mt-4 uppercase tracking-widest">Base SME Itaberaba 2025</p>
             </div>
         </div>
     );
@@ -153,8 +150,6 @@ export const PerformanceIndicators: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#fcfdfe] py-16 px-6">
       <div className="max-w-6xl mx-auto">
-        
-        {/* Header Ultra-Clean */}
         <header className="flex flex-col lg:flex-row justify-between items-start lg:items-end mb-16 gap-8">
             <div className="animate-in fade-in slide-in-from-left-6 duration-700">
                 <button onClick={() => navigate(-1)} className="flex items-center gap-3 text-[10px] font-black text-slate-400 uppercase tracking-ultra mb-8 hover:text-emerald-600 transition group">
@@ -189,12 +184,10 @@ export const PerformanceIndicators: React.FC = () => {
             </div>
         </header>
 
-        {/* Dashboard de Progressão Premium */}
         <div className="mb-16 animate-in slide-in-from-bottom-8 duration-1000 delay-200">
             <ProgressionDashboard data={performanceData} />
         </div>
 
-        {/* Matriz Pedagógica de Itaberaba */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
             <div className="lg:col-span-8">
                 <div className="card-requinte overflow-hidden">
@@ -222,7 +215,7 @@ export const PerformanceIndicators: React.FC = () => {
                             </thead>
                             <tbody className="divide-y divide-slate-50">
                                 {performanceData.map((row, rIdx) => (
-                                    <tr key={row.subject} className="group hover:bg-slate-50/50 transition-colors">
+                                    <tr key={row.subject} className="tr-premium group">
                                         <td className="px-12 py-12">
                                             <p className="font-black text-slate-800 text-lg tracking-tight uppercase">{row.subject}</p>
                                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">BNCC Referencial</p>
@@ -280,10 +273,6 @@ export const PerformanceIndicators: React.FC = () => {
                 </div>
             </div>
         </div>
-
-        <footer className="mt-24 text-center py-12 border-t border-slate-100">
-            <p className="text-[11px] font-black text-slate-300 uppercase tracking-ultra">EducaMunicípio • Inteligência Pedagógica Aplicada</p>
-        </footer>
       </div>
     </div>
   );

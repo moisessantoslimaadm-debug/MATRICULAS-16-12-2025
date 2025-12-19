@@ -1,3 +1,4 @@
+
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle, RefreshCw, Home, Copy } from 'lucide-react';
 import { useLog } from '../contexts/LogContext';
@@ -13,7 +14,7 @@ interface ErrorBoundaryState {
   errorInfo: ErrorInfo | null;
 }
 
-// Fixed: Explicitly extending Component from the named import to ensure the compiler recognizes setState and props properties correctly
+// Fix: Explicitly extending Component from React to ensure props and setState are available for the class instance
 class ErrorBoundaryInner extends Component<InnerProps, ErrorBoundaryState> {
   public state: ErrorBoundaryState = {
     hasError: false,
@@ -27,10 +28,10 @@ class ErrorBoundaryInner extends Component<InnerProps, ErrorBoundaryState> {
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error("Uncaught error:", error, errorInfo);
-    // Fixed: Accessing setState correctly as inherited from the Component base class
+    // Fix: Accessing setState correctly as part of the Component class
     this.setState({ errorInfo });
     
-    // Fixed: Accessing props correctly as inherited from the Component base class
+    // Fix: Accessing props correctly as part of the Component class
     if (this.props.logError) {
         this.props.logError(
             `Erro Crítico de Interface: ${error.message}`, 
@@ -54,67 +55,59 @@ class ErrorBoundaryInner extends Component<InnerProps, ErrorBoundaryState> {
       const { error, errorInfo } = this.state;
       const text = `Erro: ${error?.message}\n\nStack Trace:\n${errorInfo?.componentStack || 'Não disponível'}`;
       navigator.clipboard.writeText(text);
-      alert('Detalhes do erro copiados para a área de transferência.');
+      alert('Detalhes do erro copiados.');
   };
 
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-[2.5rem] shadow-2xl border border-red-100 p-12 max-w-md w-full text-center animate-in zoom-in-95 duration-500">
-            <div className="w-24 h-24 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-8 glow-red">
-              <AlertTriangle className="h-12 w-12 text-red-500" />
+        <div className="min-h-screen bg-slate-50 flex items-center justify-center p-8">
+          <div className="bg-white rounded-[4rem] shadow-2xl border border-red-100 p-16 max-w-2xl w-full text-center animate-in zoom-in-95 duration-700">
+            <div className="w-32 h-32 bg-red-50 rounded-[2.5rem] flex items-center justify-center mx-auto mb-12 shadow-xl shadow-red-50">
+              <AlertTriangle className="h-16 w-16 text-red-500" />
             </div>
-            <h1 className="text-3xl font-black text-slate-900 mb-3 tracking-tighter">Ops! Algo falhou.</h1>
-            <p className="text-slate-500 mb-8 font-medium">
-              Ocorreu uma interrupção inesperada no núcleo da aplicação.
+            <h1 className="text-5xl font-black text-slate-900 mb-6 tracking-tighter">Interrupção de Sistema.</h1>
+            <p className="text-slate-500 mb-12 text-xl font-medium leading-relaxed">
+              Ocorreu uma falha inesperada no núcleo de processamento da rede. Por favor, reinicie o módulo.
             </p>
             
-            <div className="bg-slate-50 p-6 rounded-2xl text-left mb-10 overflow-hidden border border-slate-200">
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Mensagem do Sistema</p>
-                <p className="text-xs font-mono text-slate-600 break-words line-clamp-3">
-                    {this.state.error?.message || "Erro de execução não catalogado"}
+            <div className="bg-slate-50 p-10 rounded-[2.5rem] text-left mb-14 overflow-hidden border border-slate-200 font-mono">
+                <p className="text-[11px] font-black text-slate-400 uppercase tracking-ultra mb-4">Protocolo de Diagnóstico</p>
+                <p className="text-sm text-slate-600 break-words line-clamp-3">
+                    {this.state.error?.message || "Código de erro não catalogado"}
                 </p>
             </div>
 
-            <div className="space-y-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <button
                 onClick={this.handleReload}
-                className="w-full flex items-center justify-center px-6 py-4 bg-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-indigo-700 transition shadow-xl shadow-indigo-100"
+                className="flex items-center justify-center px-10 py-6 bg-slate-900 text-white rounded-[2rem] font-black text-[12px] uppercase tracking-ultra hover:bg-emerald-600 transition shadow-2xl shadow-slate-200"
               >
-                <RefreshCw className="h-4 w-4 mr-2" />
+                <RefreshCw className="h-5 w-5 mr-3" />
                 Reiniciar Módulo
               </button>
               
               <button
                 onClick={this.handleCopyDetails}
-                className="w-full flex items-center justify-center px-6 py-4 bg-white border border-slate-200 text-slate-700 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-50 transition"
+                className="flex items-center justify-center px-10 py-6 bg-white border border-slate-200 text-slate-700 rounded-[2rem] font-black text-[12px] uppercase tracking-ultra hover:bg-slate-50 transition"
               >
-                <Copy className="h-4 w-4 mr-2 text-slate-400" />
-                Copiar Diagnóstico
-              </button>
-
-              <button
-                onClick={() => window.location.hash = '#/'}
-                className="w-full flex items-center justify-center px-6 py-4 bg-transparent text-slate-500 rounded-2xl font-black text-xs uppercase tracking-widest hover:text-slate-700 transition"
-              >
-                <Home className="h-4 w-4 mr-2" />
-                Portal Início
-              </button>
-              
-               <button
-                onClick={this.handleReset}
-                className="text-[10px] font-black uppercase tracking-widest text-red-400 hover:text-red-600 underline mt-8 block mx-auto opacity-50 hover:opacity-100 transition"
-              >
-                Limpeza Total de Emergência
+                <Copy className="h-5 w-5 mr-3 text-slate-400" />
+                Copiar Log
               </button>
             </div>
+
+            <button
+                onClick={this.handleReset}
+                className="text-[11px] font-black uppercase tracking-ultra text-red-400 hover:text-red-600 underline mt-14 block mx-auto transition"
+            >
+                Redefinição de Emergência de Rede
+            </button>
           </div>
         </div>
       );
     }
 
-    // Fixed: Correctly access children through the inherited props property
+    // Fix: Accessing children from props correctly
     return this.props.children;
   }
 }
@@ -124,9 +117,7 @@ export const ErrorBoundary: React.FC<{ children: ReactNode }> = ({ children }) =
     try {
         const { addLog } = useLog();
         logError = (msg: string, details: string) => addLog(msg, 'error', details);
-    } catch (e) {
-        console.warn("LogProvider indisponível");
-    }
+    } catch (e) {}
 
     return <ErrorBoundaryInner logError={logError}>{children}</ErrorBoundaryInner>;
 };

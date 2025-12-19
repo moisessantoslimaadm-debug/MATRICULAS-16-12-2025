@@ -99,3 +99,12 @@ body {
 .glow-emerald {
   box-shadow: 0 0 40px -10px rgba(16, 185, 129, 0.4);
 }
+
+/* Efeito Hover em Tabelas */
+.tr-premium {
+  transition: all 0.3s ease;
+}
+.tr-premium:hover {
+  background-color: rgba(16, 185, 129, 0.03);
+  transform: scale(1.002);
+}
