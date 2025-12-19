@@ -34,6 +34,15 @@ const formatCEP = (value: string) => {
     .substring(0, 9);
 };
 
+// Regex para validação de e-mail
+const validateEmail = (email: string) => {
+  return String(email)
+    .toLowerCase()
+    .match(
+      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+    );
+};
+
 export const Registration: React.FC = () => {
   const { schools, addStudent } = useData();
   const { addToast } = useToast();
@@ -63,6 +72,17 @@ export const Registration: React.FC = () => {
             return newErrors;
         });
       }
+    }
+
+    // Limpa erro de email ao digitar
+    if (section === 'guardian' && field === 'email') {
+        if (errors.guardianEmail) {
+            setErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors.guardianEmail;
+                return newErrors;
+            });
+        }
     }
 
     if (section === 'guardian' && field === 'phone') {
@@ -406,6 +426,12 @@ export const Registration: React.FC = () => {
              addToast('Digite um telefone válido.', 'warning');
              return;
         }
+        // Validação de formato de e-mail (se fornecido)
+        if (formState.guardian.email && !validateEmail(formState.guardian.email)) {
+            setErrors(prev => ({ ...prev, guardianEmail: 'Formato de e-mail inválido.' }));
+            addToast('Por favor, insira um e-mail válido.', 'warning');
+            return;
+        }
     }
 
     if (formState.step === 3) {
@@ -655,7 +681,14 @@ export const Registration: React.FC = () => {
                         </div>
                         <div>
                            <label className="block text-sm font-medium text-slate-700 mb-1">Email (Opcional)</label>
-                           <input type="email" value={formState.guardian.email} onChange={(e) => handleInputChange('guardian', 'email', e.target.value)} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
+                           <input 
+                            type="email" 
+                            value={formState.guardian.email} 
+                            onChange={(e) => handleInputChange('guardian', 'email', e.target.value)} 
+                            className={`w-full px-4 py-2 border rounded-lg focus:ring-2 outline-none transition-colors ${errors.guardianEmail ? 'border-red-500 focus:ring-red-200' : 'border-slate-300 focus:ring-blue-500'}`} 
+                            placeholder="email@exemplo.com"
+                           />
+                           {errors.guardianEmail && <p className="text-red-500 text-[10px] mt-1 font-bold uppercase tracking-tight">{errors.guardianEmail}</p>}
                         </div>
                      </div>
                  </div>

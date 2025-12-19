@@ -1,5 +1,5 @@
 
-import React, { ErrorInfo, ReactNode } from 'react';
+import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle, RefreshCw, Home, Copy } from 'lucide-react';
 import { useLog } from '../contexts/LogContext';
 
@@ -14,23 +14,23 @@ interface ErrorBoundaryState {
   errorInfo: ErrorInfo | null;
 }
 
-// Fix: Use React.Component with explicit generic parameters to ensure state, props and setState are correctly inherited and typed
+// Fixed: Explicitly inherit from React.Component to ensure type-safe access to setState and props
 class ErrorBoundaryInner extends React.Component<InnerProps, ErrorBoundaryState> {
+  public state: ErrorBoundaryState = {
+    hasError: false,
+    error: null,
+    errorInfo: null
+  };
+
   constructor(props: InnerProps) {
     super(props);
-    // Fix: Explicitly initializing state in constructor
-    this.state = {
-      hasError: false,
-      error: null,
-      errorInfo: null
-    };
   }
 
   static getDerivedStateFromError(error: Error): ErrorBoundaryState {
     return { hasError: true, error, errorInfo: null };
   }
 
-  // Fix: Property 'setState' and 'props' are now correctly typed through React.Component inheritance
+  // Properly handles error state updates and logging via inherited class methods
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error("Uncaught error:", error, errorInfo);
     this.setState({ errorInfo });
@@ -55,7 +55,6 @@ class ErrorBoundaryInner extends React.Component<InnerProps, ErrorBoundaryState>
   };
 
   private handleCopyDetails = () => {
-      // Fix: Correctly access this.state after inheritance fix
       const { error, errorInfo } = this.state;
       const text = `Erro: ${error?.message}\n\nStack Trace:\n${errorInfo?.componentStack || 'Não disponível'}`;
       navigator.clipboard.writeText(text);
@@ -63,7 +62,6 @@ class ErrorBoundaryInner extends React.Component<InnerProps, ErrorBoundaryState>
   };
 
   render() {
-    // Fix: Correctly access this.state in render method
     if (this.state.hasError) {
       return (
         <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
@@ -119,7 +117,6 @@ class ErrorBoundaryInner extends React.Component<InnerProps, ErrorBoundaryState>
       );
     }
 
-    // Fix: Correctly access this.props.children after inheritance fix
     return this.props.children;
   }
 }
