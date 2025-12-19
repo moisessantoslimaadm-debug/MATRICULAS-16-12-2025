@@ -3,179 +3,188 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { useData } from '../contexts/DataContext';
 import { Link, useNavigate } from '../router';
 import { 
-  Users, School, AlertTriangle, TrendingUp, PieChart, 
-  Activity, CheckCircle, ArrowRight, UserCheck, 
-  Award, FileText, LayoutGrid, Calendar, LogOut, Info, Loader2, BookOpen, ShieldCheck, Database, GraduationCap
+  Users, School, AlertTriangle, TrendingUp, CheckCircle, 
+  ArrowRight, UserCheck, Award, FileText, LayoutGrid, 
+  Calendar, Loader2, BookOpen, GraduationCap,
+  CloudLightning, Building, Map
 } from 'lucide-react';
 import { UserRole } from '../types';
 
 const PremiumStatCard = ({ title, value, icon: Icon, colorClass, subtext, onClick }: any) => (
     <div 
         onClick={onClick}
-        className="bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-sm flex flex-col justify-between hover:shadow-2xl hover:-translate-y-1 transition-all cursor-pointer group relative overflow-hidden"
+        className="group relative bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-sm flex flex-col justify-between hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 cursor-pointer overflow-hidden"
     >
-        <div className={`absolute top-0 right-0 w-32 h-32 opacity-5 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-150 ${colorClass}`}></div>
+        <div className={`absolute top-0 right-0 w-32 h-32 opacity-[0.03] rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-150 group-hover:opacity-10 ${colorClass}`}></div>
         <div className="flex justify-between items-start relative z-10">
             <div>
-                <p className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-3">{title}</p>
-                <h3 className="text-5xl font-black text-slate-900 leading-none">{value}</h3>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">{title}</p>
+                <h3 className="text-5xl font-black text-slate-900 leading-none tracking-tighter">{value}</h3>
             </div>
             <div className={`p-5 rounded-3xl transition-all group-hover:rotate-[15deg] group-hover:scale-110 shadow-lg ${colorClass} text-white`}>
                 <Icon className="h-7 w-7" />
             </div>
         </div>
-        {subtext && <p className="text-[10px] font-black text-slate-400 mt-8 uppercase flex items-center gap-2 tracking-widest">
-            <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-ping"></span> {subtext}
-        </p>}
+        {subtext && (
+            <div className="flex items-center gap-2 mt-8">
+                <div className="flex h-2 w-2 relative">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+                </div>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{subtext}</p>
+            </div>
+        )}
     </div>
 );
 
 export const Dashboard: React.FC = () => {
   const { students, schools, isLoading } = useData();
   const navigate = useNavigate();
-  
   const [role, setRole] = useState<UserRole | null>(null);
   const [userData, setUserData] = useState<any>(null);
 
   useEffect(() => {
     const savedRole = sessionStorage.getItem('user_role') as UserRole;
     const data = JSON.parse(sessionStorage.getItem('user_data') || '{}');
+    if (!savedRole) { navigate('/login'); return; }
     setRole(savedRole);
     setUserData(data);
-  }, []);
-
-  const schoolStudents = useMemo(() => {
-    if (!role || role === UserRole.ADMIN_SME) return students;
-    return students.filter(s => s.schoolId === userData?.schoolId || s.school?.includes(userData?.schoolId));
-  }, [students, role, userData]);
+  }, [navigate]);
 
   const stats = useMemo(() => ({
-    total: schoolStudents.length,
-    matriculados: schoolStudents.filter(s => s.status === 'Matriculado').length,
-    pendentes: schoolStudents.filter(s => s.status !== 'Matriculado').length,
-    aee: schoolStudents.filter(s => s.specialNeeds).length
-  }), [schoolStudents]);
+    total: students.length,
+    matriculados: students.filter(s => s.status === 'Matriculado').length,
+    pendentes: students.filter(s => s.status !== 'Matriculado').length,
+    aee: students.filter(s => s.specialNeeds).length
+  }), [students]);
 
   if (isLoading) return (
-    <div className="h-screen bg-white flex flex-col items-center justify-center gap-4">
+    <div className="h-screen bg-white flex flex-col items-center justify-center gap-6">
         <div className="relative">
-            <div className="w-20 h-20 border-4 border-indigo-100 border-t-indigo-600 rounded-full animate-spin"></div>
-            <GraduationCap className="h-8 w-8 text-indigo-600 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+            <div className="w-24 h-24 border-[6px] border-slate-100 border-t-indigo-600 rounded-full animate-spin"></div>
+            <GraduationCap className="h-10 w-10 text-indigo-600 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
         </div>
-        <p className="text-sm font-black text-slate-400 uppercase tracking-widest animate-pulse">Sincronizando Ecossistema...</p>
+        <div className="text-center">
+            <h2 className="text-lg font-black text-slate-900 uppercase tracking-widest">EducaMunicípio</h2>
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-[0.3em] mt-1 animate-pulse">Sincronizando Ecossistema...</p>
+        </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] py-12">
+    <div className="min-h-screen bg-[#FDFDFD] py-12">
       <div className="max-w-7xl mx-auto px-6">
         
-        <header className="mb-14 flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6">
-            <div className="animate-in fade-in slide-in-from-left-4 duration-700">
-                <div className="flex items-center gap-2 mb-3">
-                    <span className="px-3 py-1 bg-indigo-100 text-indigo-600 text-[10px] font-black uppercase rounded-full tracking-widest">Cloud Active</span>
-                    <span className="text-slate-300">•</span>
-                    <span className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">{new Date().toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+        <header className="mb-14 flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8">
+            <div className="animate-in fade-in slide-in-from-left-8 duration-1000">
+                <div className="flex items-center gap-3 mb-4">
+                    <span className="px-4 py-1.5 bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase rounded-full tracking-widest border border-indigo-100">Censo Escolar 2025</span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-slate-200"></span>
+                    <span className="text-slate-400 text-[10px] font-black uppercase tracking-widest">{new Date().toLocaleDateString('pt-BR', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
                 </div>
-                <h1 className="text-5xl font-black text-slate-900 tracking-tighter leading-none">Painel de {role}</h1>
-                <p className="text-slate-500 mt-4 text-lg font-medium">Bem-vindo(a) de volta, <span className="text-indigo-600 font-black">{userData?.name}</span>.</p>
+                <h1 className="text-6xl font-black text-slate-900 tracking-tighter leading-none mb-4">Painel de <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-blue-500">{role}</span></h1>
+                <p className="text-slate-500 text-xl font-medium flex items-center gap-2">
+                    Bem-vindo, <span className="text-slate-900 font-black">{userData?.name}</span>
+                    <span className="h-1 w-1 rounded-full bg-slate-300"></span>
+                    <span className="text-sm uppercase tracking-widest text-slate-400">{userData?.schoolName || 'Gestão SME'}</span>
+                </p>
             </div>
             
-            <div className="flex items-center gap-4 animate-in fade-in slide-in-from-right-4 duration-700">
-                <div className="bg-white p-4 rounded-[2rem] border border-slate-200 shadow-sm flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400">
-                        <Database className="h-6 w-6" />
+            <div className="flex items-center gap-4 animate-in fade-in slide-in-from-right-8 duration-1000">
+                <div className="bg-slate-900 p-6 rounded-[2.5rem] shadow-2xl shadow-slate-200 text-white flex items-center gap-6 group hover:scale-105 transition-transform duration-500">
+                    <div className="bg-indigo-600 p-4 rounded-3xl group-hover:rotate-12 transition-transform shadow-lg">
+                        <CloudLightning className="h-8 w-8" />
                     </div>
                     <div>
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Servidor Regional</p>
-                        <p className="text-sm font-black text-emerald-500">Conectado • Supabase</p>
+                        <p className="text-[10px] font-black uppercase opacity-50 tracking-widest">Status da Rede</p>
+                        <p className="text-2xl font-black">100% Online</p>
                     </div>
                 </div>
             </div>
         </header>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-14 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-14 animate-in fade-in slide-in-from-bottom-8 duration-1000">
             <PremiumStatCard 
-                title="Rede de Alunos" 
-                value={stats.total} 
+                title="Total Matriculados" 
+                value={stats.matriculados} 
                 icon={Users} 
                 colorClass="bg-indigo-600" 
-                subtext="Dados Atualizados"
+                subtext="Base Educacenso"
                 onClick={() => navigate('/admin/data')}
             />
             <PremiumStatCard 
-                title="Taxa de Ocupação" 
-                value={`${((stats.matriculados/Math.max(stats.total, 1))*100).toFixed(0)}%`} 
-                icon={CheckCircle} 
-                colorClass="bg-emerald-500" 
-                subtext={`${stats.matriculados} Vagas Ativas`}
-            />
-            <PremiumStatCard 
-                title="Pré-Matrículas" 
-                value={stats.pendentes} 
-                icon={AlertTriangle} 
-                colorClass="bg-amber-500" 
-                subtext="Análise Documental"
-                onClick={() => navigate('/status')}
-            />
-            <PremiumStatCard 
-                title="AEE Atendimento" 
+                title="Pessoas com Deficiência" 
                 value={stats.aee} 
                 icon={Award} 
                 colorClass="bg-pink-600" 
-                subtext="Educação Inclusiva"
+                subtext="Suporte AEE Ativo"
+            />
+            <PremiumStatCard 
+                title="Novas Solicitações" 
+                value={stats.pendentes} 
+                icon={AlertTriangle} 
+                colorClass="bg-amber-500" 
+                subtext="Aguardando Vaga"
+                onClick={() => navigate('/status')}
+            />
+            <PremiumStatCard 
+                title="Escolas Ativas" 
+                value={schools.length} 
+                icon={School} 
+                colorClass="bg-emerald-500" 
+                subtext="Unidades Municipais"
             />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
             <div className="lg:col-span-8 space-y-10">
-                <div className="bg-white rounded-[3rem] shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden">
-                    <div className="p-10 border-b border-slate-50 flex justify-between items-center bg-slate-50/30">
+                <div className="bg-white rounded-[3.5rem] shadow-xl shadow-slate-100 border border-slate-100 overflow-hidden group">
+                    <div className="p-12 border-b border-slate-50 flex justify-between items-center bg-slate-50/30">
                         <div>
-                            <h3 className="font-black text-slate-900 flex items-center gap-4 text-2xl tracking-tight">
-                                <LayoutGrid className="h-8 w-8 text-indigo-600" /> Ações do Dia
+                            <h3 className="font-black text-slate-900 flex items-center gap-4 text-3xl tracking-tight">
+                                <LayoutGrid className="h-9 w-9 text-indigo-600" /> Atalhos de Gestão
                             </h3>
-                            <p className="text-slate-400 text-sm mt-1">Sincronização em tempo real com a Secretaria</p>
+                            <p className="text-slate-400 text-sm mt-2 font-medium">Acesse rapidamente as ferramentas do seu perfil</p>
                         </div>
                     </div>
-                    <div className="p-8 grid md:grid-cols-2 gap-6">
+                    <div className="p-10 grid md:grid-cols-2 gap-8">
                         {role === UserRole.TEACHER && (
                             <>
-                                <Link to="/journal" className="flex flex-col gap-6 p-8 bg-indigo-50/50 rounded-[2.5rem] border border-indigo-100 hover:bg-indigo-600 group transition-all duration-500">
-                                    <div className="bg-indigo-600 p-5 rounded-3xl text-white shadow-xl group-hover:bg-white group-hover:text-indigo-600 transition-colors self-start"><UserCheck className="h-8 w-8" /></div>
+                                <Link to="/journal" className="group/card flex flex-col gap-8 p-10 bg-indigo-50/50 rounded-[3rem] border border-indigo-100 hover:bg-indigo-600 transition-all duration-700">
+                                    <div className="bg-indigo-600 p-6 rounded-[2rem] text-white shadow-xl group-hover/card:bg-white group-hover/card:text-indigo-600 transition-colors self-start"><UserCheck className="h-8 w-8" /></div>
                                     <div>
-                                        <h4 className="font-black text-slate-900 group-hover:text-white text-xl">Frequência Digital</h4>
-                                        <p className="text-sm text-slate-500 group-hover:text-indigo-100 mt-2">Chamada e registro de faltas integrados.</p>
+                                        <h4 className="font-black text-slate-900 group-hover/card:text-white text-2xl tracking-tight">Diário Digital</h4>
+                                        <p className="text-slate-500 group-hover/card:text-indigo-100 mt-2 font-medium">Lançamento de frequência e notas por turma.</p>
                                     </div>
-                                    <ArrowRight className="h-8 w-8 text-indigo-600 group-hover:text-white transition-all group-hover:translate-x-2" />
+                                    <ArrowRight className="h-8 w-8 text-indigo-600 group-hover/card:text-white transition-all group-hover/card:translate-x-4" />
                                 </Link>
-                                <Link to="/performance" className="flex flex-col gap-6 p-8 bg-emerald-50/50 rounded-[2.5rem] border border-emerald-100 hover:bg-emerald-500 group transition-all duration-500">
-                                    <div className="bg-emerald-500 p-5 rounded-3xl text-white shadow-xl group-hover:bg-white group-hover:text-emerald-600 transition-colors self-start"><TrendingUp className="h-8 w-8" /></div>
+                                <Link to="/performance" className="group/card flex flex-col gap-8 p-10 bg-emerald-50/50 rounded-[3rem] border border-emerald-100 hover:bg-emerald-600 transition-all duration-700">
+                                    <div className="bg-emerald-600 p-6 rounded-[2rem] text-white shadow-xl group-hover/card:bg-white group-hover/card:text-emerald-600 transition-colors self-start"><TrendingUp className="h-8 w-8" /></div>
                                     <div>
-                                        <h4 className="font-black text-slate-900 group-hover:text-white text-xl">Lançamento de Notas</h4>
-                                        <p className="text-sm text-slate-500 group-hover:text-emerald-100 mt-2">Avaliações oficiais e boletim municipal.</p>
+                                        <h4 className="font-black text-slate-900 group-hover/card:text-white text-2xl tracking-tight">Avaliações</h4>
+                                        <p className="text-slate-500 group-hover/card:text-emerald-100 mt-2 font-medium">Histórico acadêmico e indicadores de ensino.</p>
                                     </div>
-                                    <ArrowRight className="h-8 w-8 text-emerald-500 group-hover:text-white transition-all group-hover:translate-x-2" />
+                                    <ArrowRight className="h-8 w-8 text-emerald-600 group-hover/card:text-white transition-all group-hover/card:translate-x-4" />
                                 </Link>
                             </>
                         )}
                         {(role === UserRole.DIRECTOR || role === UserRole.ADMIN_SME) && (
                             <>
-                                <Link to="/status" className="flex flex-col gap-6 p-8 bg-amber-50/50 rounded-[2.5rem] border border-amber-100 hover:bg-amber-500 group transition-all duration-500">
-                                    <div className="bg-amber-500 p-5 rounded-3xl text-white shadow-xl group-hover:bg-white group-hover:text-amber-500 transition-colors self-start"><FileText className="h-8 w-8" /></div>
+                                <Link to="/admin/map" className="group/card flex flex-col gap-8 p-10 bg-blue-50/50 rounded-[3rem] border border-blue-100 hover:bg-blue-600 transition-all duration-700">
+                                    <div className="bg-blue-600 p-6 rounded-[2rem] text-white shadow-xl group-hover/card:bg-white group-hover/card:text-blue-600 transition-colors self-start"><Map className="h-8 w-8" /></div>
                                     <div>
-                                        <h4 className="font-black text-slate-900 group-hover:text-white text-xl">Validar Documentos</h4>
-                                        <p className="text-sm text-slate-500 group-hover:text-amber-100 mt-2">{stats.pendentes} solicitações aguardando conferência.</p>
+                                        <h4 className="font-black text-slate-900 group-hover/card:text-white text-2xl tracking-tight">Geoprocessamento</h4>
+                                        <p className="text-slate-500 group-hover/card:text-blue-100 mt-2 font-medium">Mapa de calor e radar de proximidade de alunos.</p>
                                     </div>
-                                    <ArrowRight className="h-8 w-8 text-amber-500 group-hover:text-white transition-all group-hover:translate-x-2" />
+                                    <ArrowRight className="h-8 w-8 text-blue-600 group-hover/card:text-white transition-all group-hover/card:translate-x-4" />
                                 </Link>
-                                <Link to="/admin/data" className="flex flex-col gap-6 p-8 bg-slate-900 rounded-[2.5rem] border border-slate-800 hover:bg-slate-800 group transition-all duration-500">
-                                    <div className="bg-white p-5 rounded-3xl text-slate-900 shadow-xl self-start"><LayoutGrid className="h-8 w-8" /></div>
+                                <Link to="/admin/data" className="group/card flex flex-col gap-8 p-10 bg-slate-900 rounded-[3rem] border border-slate-800 hover:bg-slate-800 transition-all duration-700">
+                                    <div className="bg-white p-6 rounded-[2rem] text-slate-900 shadow-xl self-start group-hover/card:scale-110 transition-transform"><Building className="h-8 w-8" /></div>
                                     <div>
-                                        <h4 className="font-black text-white text-xl">Gestão de Turmas</h4>
-                                        <p className="text-sm text-slate-400 group-hover:text-slate-300 mt-2">Criação de classes, enturmação e censo.</p>
+                                        <h4 className="font-black text-white text-2xl tracking-tight">Base de Dados</h4>
+                                        <p className="text-slate-400 group-hover/card:text-slate-200 mt-2 font-medium">Gestão integral de alunos e unidades escolares.</p>
                                     </div>
-                                    <ArrowRight className="h-8 w-8 text-white transition-all group-hover:translate-x-2" />
+                                    <ArrowRight className="h-8 w-8 text-white transition-all group-hover/card:translate-x-4" />
                                 </Link>
                             </>
                         )}
@@ -184,40 +193,36 @@ export const Dashboard: React.FC = () => {
             </div>
 
             <div className="lg:col-span-4 space-y-8">
-                <div className="bg-white p-10 rounded-[3rem] shadow-xl shadow-slate-200/50 border border-slate-100">
-                    <h3 className="font-black text-slate-900 mb-8 flex items-center gap-4 text-xl tracking-tight">
-                        <Calendar className="h-6 w-6 text-indigo-600" /> Agenda Letiva
+                <div className="bg-white p-12 rounded-[3.5rem] shadow-xl shadow-slate-100 border border-slate-100">
+                    <h3 className="font-black text-slate-900 mb-10 flex items-center gap-4 text-2xl tracking-tight">
+                        <Calendar className="h-7 w-7 text-indigo-600" /> Agenda 2025
                     </h3>
-                    <div className="space-y-6">
+                    <div className="space-y-8">
                         {[
-                            { day: '15', month: 'OUT', title: 'Conselho Pedagógico', type: 'Reunião' },
-                            { day: '20', month: 'NOV', title: 'Fechamento II Unid.', type: 'Sistema' }
+                            { day: '30', month: 'NOV', title: 'Matrículas Regulares', type: 'Prazo Limite', color: 'bg-red-50 text-red-600' },
+                            { day: '15', month: 'DEZ', title: 'Renovação Interna', type: 'SME / Escolas', color: 'bg-indigo-50 text-indigo-600' }
                         ].map((event, i) => (
-                            <div key={i} className="flex items-center gap-6 p-5 rounded-[2rem] bg-slate-50 border border-slate-100 hover:border-indigo-200 transition-colors">
-                                <div className="bg-white p-3 rounded-2xl text-center w-16 border border-slate-200">
-                                    <p className="text-[10px] font-black text-slate-300 uppercase leading-none mb-1">{event.month}</p>
-                                    <p className="text-2xl font-black text-indigo-600 leading-none">{event.day}</p>
+                            <div key={i} className="flex items-center gap-8 group cursor-pointer">
+                                <div className="bg-white p-4 rounded-3xl text-center w-20 border border-slate-100 shadow-sm group-hover:shadow-md transition-shadow">
+                                    <p className="text-[10px] font-black text-slate-300 uppercase mb-1">{event.month}</p>
+                                    <p className="text-3xl font-black text-slate-900">{event.day}</p>
                                 </div>
-                                <div>
-                                    <p className="font-black text-slate-800 leading-tight">{event.title}</p>
-                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">{event.type}</p>
+                                <div className="flex-1">
+                                    <p className="font-black text-slate-800 text-lg leading-tight group-hover:text-indigo-600 transition-colors">{event.title}</p>
+                                    <p className={`inline-block px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest mt-2 ${event.color}`}>{event.type}</p>
                                 </div>
                             </div>
                         ))}
                     </div>
-                </div>
-
-                <div className="bg-slate-900 p-10 rounded-[3rem] shadow-2xl relative overflow-hidden group">
-                    <div className="absolute inset-0 bg-indigo-600 opacity-0 group-hover:opacity-10 transition-opacity"></div>
-                    <button 
-                        onClick={() => { sessionStorage.clear(); navigate('/'); }}
-                        className="w-full py-5 bg-white/10 hover:bg-white text-sm font-black text-white hover:text-red-600 rounded-3xl transition-all flex items-center justify-center gap-3 border border-white/20 hover:border-white shadow-lg"
-                    >
-                        <LogOut className="h-5 w-5" /> Encerrar Sessão
-                    </button>
-                    <div className="mt-8 flex items-center justify-center gap-3 text-[10px] text-slate-500 font-black uppercase tracking-widest">
-                        <ShieldCheck className="h-4 w-4 text-emerald-500" /> 
-                        Security: Verified
+                    
+                    <div className="mt-12 p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100">
+                        <h4 className="font-black text-slate-900 text-sm uppercase tracking-widest mb-4 flex items-center gap-2">
+                            <CloudLightning className="h-4 w-4 text-amber-500" /> Info Rápida
+                        </h4>
+                        <p className="text-xs text-slate-500 leading-relaxed font-medium">
+                            A base do Educacenso foi sincronizada há <span className="text-slate-900 font-bold">5 minutos</span>. 
+                            Qualquer alteração feita no INEP será refletida aqui instantaneamente.
+                        </p>
                     </div>
                 </div>
             </div>

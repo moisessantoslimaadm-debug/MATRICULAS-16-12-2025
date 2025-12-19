@@ -2,7 +2,10 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from '../router';
 import { useToast } from '../contexts/ToastContext';
-import { GraduationCap, Lock, User, ArrowRight, Loader2, ShieldCheck, FileText, Search, School, LayoutGrid, Users, BookOpen } from 'lucide-react';
+import { 
+  GraduationCap, Lock, User, ArrowRight, Loader2, ShieldCheck, 
+  Users, BookOpen, UserCircle, Globe 
+} from 'lucide-react';
 import { MUNICIPALITY_NAME } from '../constants';
 import { UserRole } from '../types';
 
@@ -22,132 +25,159 @@ export const Login: React.FC = () => {
       let role: UserRole | null = null;
       let userData = null;
 
-      // Mock de autenticação por perfil
-      if (username === 'sme' && password === '1234') {
+      const cleanUser = username.toLowerCase().trim();
+
+      if (cleanUser === 'sme' && password === '1234') {
         role = UserRole.ADMIN_SME;
-        userData = { id: '1', name: 'Gestor SME', role: UserRole.ADMIN_SME, email: 'sme@municipio.gov.br' };
-      } else if (username === 'diretor' && password === '1234') {
+        userData = { id: '1', name: 'Secretaria Executiva', role: UserRole.ADMIN_SME, email: 'sme@itaberaba.ba.gov.br' };
+      } else if (cleanUser === 'diretor' && password === '1234') {
         role = UserRole.DIRECTOR;
-        userData = { id: '2', name: 'Diretor Silva', role: UserRole.DIRECTOR, schoolId: '29383935', email: 'direcao@escola.gov.br' };
-      } else if (username === 'professor' && password === '1234') {
+        userData = { 
+          id: '2', 
+          name: 'Diretora Maria Silva', 
+          role: UserRole.DIRECTOR, 
+          schoolId: '29383935', 
+          schoolName: 'CRECHE PARAISO DA CRIANCA',
+          email: 'direcao.paraiso@itaberaba.ba.gov.br' 
+        };
+      } else if (cleanUser === 'professor' && password === '1234') {
         role = UserRole.TEACHER;
-        userData = { id: '3', name: 'Prof. Ana', role: UserRole.TEACHER, schoolId: '29383935', email: 'ana@educacao.gov.br' };
+        userData = { 
+          id: '3', 
+          name: 'Prof. Ricardo Santos', 
+          role: UserRole.TEACHER, 
+          schoolId: '29383935', 
+          schoolName: 'CRECHE PARAISO DA CRIANCA',
+          className: 'GRUPO 3 C',
+          email: 'ricardo.professor@itaberaba.ba.gov.br' 
+        };
+      } else if (cleanUser === 'aluno' && password === '1234') {
+        role = UserRole.PARENT_STUDENT;
+        userData = { 
+          id: '4', 
+          name: 'Família Leite', 
+          role: UserRole.PARENT_STUDENT, 
+          studentId: '207386980831',
+          email: 'familia.leite@gmail.com' 
+        };
       }
 
       if (role && userData) {
         sessionStorage.setItem('admin_auth', 'true');
         sessionStorage.setItem('user_role', role);
         sessionStorage.setItem('user_data', JSON.stringify(userData));
+        addToast(`Olá, ${userData.name}. Acesso autorizado.`, 'success');
         
-        addToast(`Bem-vindo, ${userData.name}!`, 'success');
-        navigate('/dashboard'); 
+        if (role === UserRole.PARENT_STUDENT) {
+            navigate(`/student/monitoring?id=${userData.studentId}`);
+        } else {
+            navigate('/dashboard');
+        }
       } else {
-        addToast('Credenciais inválidas. Tente: sme/1234, diretor/1234 ou professor/1234', 'error');
+        addToast('Credenciais inválidas. Tente novamente.', 'error');
         setIsLoading(false);
       }
-    }, 800);
+    }, 1000);
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-100 relative overflow-hidden p-4">
-      <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-900 via-blue-800 to-slate-900 opacity-90"></div>
-        <img 
-          src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&q=80" 
-          className="w-full h-full object-cover"
-        />
-      </div>
-
-      <div className="relative z-10 w-full max-w-5xl grid md:grid-cols-2 gap-8 items-center">
+    <div className="min-h-screen flex bg-white font-sans">
+      {/* Visual Side */}
+      <div className="hidden lg:flex lg:w-1/2 bg-slate-900 relative items-center justify-center p-20 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/20 via-transparent to-blue-600/10"></div>
+        <div className="absolute top-[-20%] left-[-20%] w-full h-full bg-indigo-500/10 blur-[150px] rounded-full"></div>
         
-        <div className="text-white space-y-6 md:pr-8 animate-in slide-in-from-left-8 duration-700 hidden md:block">
-            <div>
-                <h1 className="text-4xl font-bold mb-2">Portal da Educação</h1>
-                <p className="text-blue-100 text-lg">Plataforma oficial de gestão escolar de {MUNICIPALITY_NAME}.</p>
+        <div className="relative z-10 max-w-lg space-y-12 animate-in fade-in slide-in-from-left-8 duration-1000">
+            <div className="flex items-center gap-4">
+                <div className="bg-white p-3 rounded-[1.5rem] shadow-2xl">
+                    <GraduationCap className="h-10 w-10 text-slate-900" />
+                </div>
+                <h1 className="text-4xl font-black text-white tracking-tighter">Educa<span className="text-indigo-400">Município</span></h1>
             </div>
-            
-            <div className="grid gap-3">
-                <Link to="/registration" className="bg-white/10 hover:bg-white/20 border border-white/20 p-4 rounded-xl flex items-center gap-4 transition group backdrop-blur-sm shadow-lg">
-                    <div className="bg-green-500/20 p-3 rounded-lg text-green-300 transition border border-green-500/30">
-                        <FileText className="h-6 w-6" />
-                    </div>
-                    <div><h3 className="font-bold text-lg">Realizar Matrícula</h3><p className="text-sm text-blue-100 opacity-80">Solicite vaga para novos alunos</p></div>
-                    <ArrowRight className="h-5 w-5 ml-auto text-white/50 group-hover:translate-x-1 transition" />
-                </Link>
 
-                <Link to="/status" className="bg-white/10 hover:bg-white/20 border border-white/20 p-4 rounded-xl flex items-center gap-4 transition group backdrop-blur-sm shadow-lg">
-                    <div className="bg-blue-500/20 p-3 rounded-lg text-blue-300 transition border border-blue-500/30">
-                        <Search className="h-6 w-6" />
+            <h2 className="text-5xl font-black text-white leading-[1.1] tracking-tight">
+                Um novo horizonte para a <span className="text-indigo-400">gestão escolar</span> pública.
+            </h2>
+
+            <div className="grid gap-6">
+                <div className="flex items-start gap-4">
+                    <div className="mt-1 bg-white/10 p-2 rounded-lg"><Globe className="h-5 w-5 text-indigo-300" /></div>
+                    <div>
+                        <p className="text-white font-bold text-lg">Ecossistema Conectado</p>
+                        <p className="text-slate-400 text-sm">Integração nativa com Educacenso e sistemas MEC em tempo real.</p>
                     </div>
-                    <div><h3 className="font-bold text-lg">Consultar Protocolo</h3><p className="text-sm text-blue-100 opacity-80">Verifique o status da solicitação</p></div>
-                    <ArrowRight className="h-5 w-5 ml-auto text-white/50 group-hover:translate-x-1 transition" />
-                </Link>
-            </div>
-            
-            <div className="bg-blue-800/40 p-4 rounded-2xl border border-blue-400/20 backdrop-blur-sm">
-                <p className="text-xs font-bold text-blue-200 uppercase tracking-widest mb-3">Dicas de Acesso para Teste</p>
-                <div className="grid grid-cols-3 gap-2 text-[10px] font-mono text-blue-100">
-                    <div className="bg-white/5 p-2 rounded">SME: sme / 1234</div>
-                    <div className="bg-white/5 p-2 rounded">DIRETOR: diretor / 1234</div>
-                    <div className="bg-white/5 p-2 rounded">PROF: professor / 1234</div>
+                </div>
+                <div className="flex items-start gap-4">
+                    <div className="mt-1 bg-white/10 p-2 rounded-lg"><UserCircle className="h-5 w-5 text-indigo-300" /></div>
+                    <div>
+                        <p className="text-white font-bold text-lg">Portal Multifuncional</p>
+                        <p className="text-slate-400 text-sm">Desde o diário do professor até o boletim da família em um só clique.</p>
+                    </div>
                 </div>
             </div>
         </div>
+      </div>
 
-        <div className="bg-white rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500">
-          <div className="bg-slate-50 p-8 text-center border-b border-slate-100">
-            <div className="mx-auto w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-blue-200">
-              <GraduationCap className="h-8 w-8 text-white" />
-            </div>
-            <h2 className="text-2xl font-bold text-slate-800">Acesso Restrito</h2>
-            <p className="text-sm text-slate-500 mt-2">Profissionais da Rede Municipal</p>
+      {/* Login Side */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 lg:p-24 bg-slate-50">
+        <div className="max-w-md w-full animate-in zoom-in-95 duration-500">
+          <div className="mb-12 text-center lg:text-left">
+            <h3 className="text-4xl font-black text-slate-900 tracking-tighter mb-4">Bem-vindo de volta</h3>
+            <p className="text-slate-500 font-medium">Selecione seu perfil e insira suas credenciais para continuar.</p>
           </div>
 
-          <div className="p-8 pt-6">
-            <form onSubmit={handleLogin} className="space-y-5">
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-500 uppercase ml-1">Usuário</label>
+          <form onSubmit={handleLogin} className="space-y-8">
+            <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Identificação</label>
                 <div className="relative group">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 transition-colors" />
-                  <input
-                    type="text"
-                    required
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value.toLowerCase())}
-                    placeholder="Usuário ou CPF"
-                    className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                  />
+                    <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-300 group-focus-within:text-indigo-600 transition-colors" />
+                    <input 
+                        type="text"
+                        required
+                        value={username}
+                        onChange={e => setUsername(e.target.value)}
+                        placeholder="Usuário ou CPF"
+                        className="w-full pl-12 pr-4 py-4 bg-white border border-slate-200 rounded-3xl outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-600 transition-all font-medium text-slate-700"
+                    />
                 </div>
-              </div>
+            </div>
 
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-500 uppercase ml-1">Senha</label>
+            <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Senha de Acesso</label>
                 <div className="relative group">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 transition-colors" />
-                  <input
-                    type="password"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••"
-                    className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                  />
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-300 group-focus-within:text-indigo-600 transition-colors" />
+                    <input 
+                        type="password"
+                        required
+                        value={password}
+                        onChange={e => setPassword(e.target.value)}
+                        placeholder="••••••••"
+                        className="w-full pl-12 pr-4 py-4 bg-white border border-slate-200 rounded-3xl outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-600 transition-all font-medium text-slate-700"
+                    />
                 </div>
-              </div>
+            </div>
 
-              <button
+            <button 
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold shadow-lg shadow-blue-200 flex items-center justify-center gap-2 transition-all disabled:opacity-70"
-              >
+                className="w-full py-5 bg-slate-900 text-white rounded-[2rem] font-black text-sm uppercase tracking-widest hover:bg-slate-800 transition-all flex items-center justify-center gap-4 shadow-2xl shadow-slate-200 disabled:opacity-50"
+            >
                 {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <>Entrar no Sistema <ArrowRight className="h-5 w-5" /></>}
-              </button>
-            </form>
+            </button>
+          </form>
+
+          <div className="mt-12 flex items-center justify-between text-xs font-black uppercase tracking-widest">
+            <Link to="/registration" className="text-indigo-600 hover:text-indigo-800 transition">Nova Matrícula</Link>
+            <Link to="/status" className="text-slate-400 hover:text-slate-600 transition">Problemas no Acesso?</Link>
           </div>
 
-          <div className="bg-slate-50 p-4 border-t border-slate-200 flex items-center justify-center gap-2 text-[10px] text-slate-400">
-            <ShieldCheck className="h-3 w-3" />
-            <span>Criptografia de ponta a ponta ativa</span>
+          <div className="mt-24 p-6 bg-white rounded-3xl border border-slate-100 flex items-center gap-4 shadow-sm">
+             <div className="bg-emerald-50 text-emerald-600 p-2 rounded-lg">
+                <ShieldCheck className="h-5 w-5" />
+             </div>
+             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-relaxed">
+                Ambiente seguro • Secretaria Municipal de Educação <br/> de {MUNICIPALITY_NAME}
+             </p>
           </div>
         </div>
       </div>

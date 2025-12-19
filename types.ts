@@ -11,6 +11,7 @@ export enum UserRole {
   ADMIN_SME = 'Secretaria de Educação',
   DIRECTOR = 'Diretor Escolar',
   TEACHER = 'Professor',
+  PARENT_STUDENT = 'Aluno / Responsável',
   PUBLIC = 'Público'
 }
 
@@ -19,8 +20,10 @@ export interface User {
   name: string;
   role: UserRole;
   schoolId?: string;
+  schoolName?: string;
   email: string;
   photo?: string;
+  studentId?: string; // Vinculo para login de aluno
 }
 
 export interface School {
@@ -59,7 +62,6 @@ export interface TeacherNote {
   author: string;
 }
 
-// Added missing interface for chat assistant messages
 export interface ChatMessage {
   id: string;
   role: 'user' | 'model';
@@ -67,7 +69,6 @@ export interface ChatMessage {
   isLoading?: boolean;
 }
 
-// Added missing interface for enrollment movement indicators
 export interface MovementRow {
   grade: string;
   initial: number;
@@ -77,7 +78,6 @@ export interface MovementRow {
   current: number;
 }
 
-// Added missing interface for official performance headers
 export interface PerformanceHeader {
   unit: string;
   year: number;
@@ -89,7 +89,6 @@ export interface PerformanceHeader {
   dateYear: string;
 }
 
-// Updated PerformanceRow to support both simple unit-based grades and detailed indicator groups used in performance reports
 export interface PerformanceRow {
   subject: string;
   unit1?: number | string;
@@ -118,7 +117,7 @@ export interface RegistryStudent {
   classId?: string;
   className?: string;
   specialNeeds?: boolean;
-  medicalReport?: string; // URL para PDF/Imagem
+  medicalReport?: string;
   documents?: {
     rgAlu?: string;
     rgResp?: string;
@@ -132,7 +131,6 @@ export interface RegistryStudent {
   guardianName?: string;
   guardianContact?: string;
   guardianCpf?: string;
-  // Added missing fields used in constants, registration, and management pages
   transportRequest?: boolean;
   residenceZone?: 'Urbana' | 'Rural';
   transportType?: string;

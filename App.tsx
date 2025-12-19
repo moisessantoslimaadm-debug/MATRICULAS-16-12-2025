@@ -22,6 +22,7 @@ import { PerformanceIndicators } from './pages/PerformanceIndicators';
 import { StudentMonitoring } from './pages/StudentMonitoring';
 import { ExternalApp } from './pages/ExternalApp';
 import { TeacherJournal } from './pages/TeacherJournal';
+import { MapAnalysis } from './pages/MapAnalysis';
 import { NotFound } from './pages/NotFound';
 
 // Main Application component with route configuration
@@ -38,6 +39,7 @@ const AppContent: React.FC = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/admin/data" element={<AdminData />} />
+          <Route path="/admin/map" element={<MapAnalysis />} />
           <Route path="/reports" element={<Reports />} />
           <Route path="/performance" element={<PerformanceIndicators />} />
           <Route path="/student/monitoring" element={<StudentMonitoring />} />
