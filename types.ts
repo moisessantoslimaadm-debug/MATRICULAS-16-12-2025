@@ -42,31 +42,12 @@ export interface School {
   hasAEE?: boolean;
 }
 
-export interface ClassRoom {
-  id: string;
-  name: string;
-  grade: string;
-  shift: 'Matutino' | 'Vespertino' | 'Integral' | 'Noturno';
-  schoolId: string;
-  teacherId?: string;
-  teacherName?: string;
-  studentCount: number;
-  capacity: number;
-}
-
 export interface TeacherNote {
   id: string;
   date: string;
   type: 'Pedagógico' | 'Elogio' | 'Alerta' | 'Ocorrência';
   content: string;
   author: string;
-}
-
-export interface ChatMessage {
-  id: string;
-  role: 'user' | 'model';
-  text: string;
-  isLoading?: boolean;
 }
 
 export interface MovementRow {
@@ -79,7 +60,6 @@ export interface MovementRow {
 export interface PerformanceRow {
   subject: string;
   g1?: string[]; // Unidades I, II, III
-  g2?: string[]; // Avaliações Complementares
   average?: number;
   concept?: 'DI' | 'EP' | 'DB' | 'DE';
 }
@@ -105,7 +85,6 @@ export interface RegistryStudent {
   className?: string;
   specialNeeds?: boolean;
   specialNeedsType?: string;
-  medicalReport?: string;
   photo?: string;
   attendance?: {
     totalSchoolDays: number;
@@ -118,7 +97,6 @@ export interface RegistryStudent {
   teacherNotes?: TeacherNote[];
   guardianName?: string;
   guardianContact?: string;
-  guardianCpf?: string;
   address?: {
     street: string;
     number: string;
@@ -128,9 +106,26 @@ export interface RegistryStudent {
     zone: 'Urbana' | 'Rural';
   };
   transportRequest?: boolean;
-  transportType?: string;
-  lat?: number;
-  lng?: number;
+  lat: number;
+  lng: number;
+}
+
+// Added missing ChatMessage interface
+export interface ChatMessage {
+  id: string;
+  role: 'user' | 'model';
+  text: string;
+  isLoading?: boolean;
+}
+
+// Added missing ClassRoom interface
+export interface ClassRoom {
+  id: string;
+  name: string;
+  schoolId: string;
+  teacherId?: string;
+  grade?: string;
+  shift?: string;
 }
 
 export interface RegistrationFormState {
@@ -140,8 +135,6 @@ export interface RegistrationFormState {
     birthDate: string;
     cpf: string;
     needsSpecialEducation: boolean;
-    specialEducationDetails?: string;
-    medicalReport?: string;
     needsTransport: boolean;
     photo?: string;
   };
@@ -158,8 +151,6 @@ export interface RegistrationFormState {
     neighborhood: string;
     city: string;
     zipCode: string;
-    lat?: number;
-    lng?: number;
     residenceZone?: 'Urbana' | 'Rural';
   };
   selectedSchoolId: string | null;

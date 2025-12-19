@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { INITIAL_REGISTRATION_STATE } from '../constants';
 import { useData } from '../contexts/DataContext';
@@ -40,6 +41,7 @@ export const Registration: React.FC = () => {
     e.preventDefault();
     setIsSubmitting(true);
     
+    // Added lat and lng to comply with RegistryStudent interface
     const newStudent: RegistryStudent = {
         id: Date.now().toString(),
         name: formState.student.fullName.toUpperCase(),
@@ -48,7 +50,9 @@ export const Registration: React.FC = () => {
         status: 'Em Análise',
         school: 'Aguardando Alocação',
         enrollmentId: `PROT-${Math.floor(Math.random() * 900000) + 100000}`,
-        photo: formState.student.photo
+        photo: formState.student.photo,
+        lat: -12.5253,
+        lng: -40.2917
     };
 
     try {

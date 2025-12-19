@@ -1,34 +1,33 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { useData } from '../contexts/DataContext';
 import { useToast } from '../contexts/ToastContext';
 import { useLog } from '../contexts/LogContext';
 import { useNavigate } from '../router';
 import { 
   Search, Trash2, User, ChevronLeft, ChevronRight, 
-  Building, FileSpreadsheet, Upload,
-  Edit3, X, Save, Loader2, Users, ArrowUp, ArrowDown, 
-  ShieldCheck, Zap, Filter, LayoutGrid
+  Building, FileSpreadsheet, Upload, Edit3, Loader2, 
+  ArrowUp, ArrowDown, Zap, Filter
 } from 'lucide-react';
-import { RegistryStudent, School, UserRole } from '../types';
+import { UserRole } from '../types';
 
 const SortHeader = ({ label, field, sortField, sortDirection, onSort }: any) => (
     <th 
-        className="px-16 py-12 text-[11px] font-black text-slate-400 uppercase tracking-ultra cursor-pointer hover:bg-slate-50 transition border-b border-slate-50"
+        className="px-6 py-4 text-[11px] font-bold text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition border-b border-slate-200"
         onClick={() => onSort(field)}
     >
-        <div className="flex items-center gap-5">
+        <div className="flex items-center gap-2">
             {label}
             {sortField === field && (
-                <div className="bg-emerald-50 p-1.5 rounded-lg">
-                    {sortDirection === 'asc' ? <ArrowUp className="h-4 w-4 text-emerald-600" /> : <ArrowDown className="h-4 w-4 text-emerald-600" />}
-                </div>
+                <span className="text-blue-600">
+                    {sortDirection === 'asc' ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />}
+                </span>
             )}
         </div>
     </th>
 );
 
 export const AdminData: React.FC = () => {
-  const { students, schools, removeStudent, updateStudents } = useData();
+  const { students, schools, removeStudent } = useData();
   const { addToast } = useToast();
   const { addLog, setIsViewerOpen } = useLog();
   const navigate = useNavigate();
@@ -64,11 +63,10 @@ export const AdminData: React.FC = () => {
     setIsImporting(true);
     addLog(`Iniciando importação do arquivo: ${file.name}`, 'info');
 
-    // Simulação de processamento de dados do Excel/CSV
     setTimeout(() => {
         setIsImporting(false);
-        addToast(`Dados do arquivo "${file.name}" importados com sucesso para a base nominal.`, 'success');
-        addLog(`Importação finalizada. ${Math.floor(Math.random() * 50) + 10} novos registros identificados.`, 'info');
+        addToast(`Base nominal atualizada com sucesso.`, 'success');
+        addLog(`Importação via Excel finalizada.`, 'info');
         if (event.target) event.target.value = '';
     }, 2000);
   };
@@ -102,155 +100,126 @@ export const AdminData: React.FC = () => {
   const totalPages = Math.ceil(sortedData.length / itemsPerPage);
 
   return (
-    <div className="min-h-screen bg-[#fcfdfe] py-24 px-8 page-transition">
-      <input 
-        type="file" 
-        ref={fileInputRef} 
-        className="hidden" 
-        accept=".csv, .xlsx, .xls" 
-        onChange={handleFileChange}
-      />
+    <div className="min-h-screen bg-slate-50 py-12 px-8 page-transition">
+      <input type="file" ref={fileInputRef} className="hidden" accept=".csv, .xlsx, .xls" onChange={handleFileChange} />
       
       <div className="max-w-7xl mx-auto">
-        <header className="flex flex-col xl:flex-row justify-between items-start xl:items-end gap-12 mb-24">
-            <div className="fade-in-premium">
-                <div className="flex items-center gap-5 mb-10">
-                    <span className="bg-emerald-600 text-white px-7 py-2.5 rounded-full text-[11px] font-black uppercase tracking-ultra shadow-2xl border border-emerald-500">Gestão Governamental</span>
-                    <div className="h-2.5 w-2.5 rounded-full bg-slate-200"></div>
-                    <span className="text-slate-400 text-[10px] font-black uppercase tracking-ultra">SME ITABERABA</span>
+        <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12">
+            <div>
+                <div className="flex items-center gap-3 mb-3">
+                    <span className="bg-blue-600 text-white px-3 py-1 rounded text-[10px] font-bold uppercase tracking-wider">Gestão SME</span>
                 </div>
-                <h1 className="text-8xl font-black text-slate-900 tracking-tighter leading-none mb-10 text-display uppercase">Controle <br/> de <span className="text-emerald-600">Rede.</span></h1>
-                <p className="text-slate-500 font-medium text-3xl tracking-tight max-w-3xl leading-relaxed">Administração nominal centralizada e monitoramento de fluxo escolar em tempo real.</p>
+                <h1 className="text-4xl font-black text-slate-900 tracking-tight uppercase">Base de Dados <span className="text-blue-600">Nominal.</span></h1>
             </div>
-            <div className="flex flex-wrap gap-6 fade-in-premium" style={{animationDelay: '0.2s'}}>
+            <div className="flex flex-wrap gap-3">
                  <button 
                     onClick={handleImportClick}
                     disabled={isImporting}
-                    className="flex items-center gap-6 px-12 py-8 bg-white text-slate-900 rounded-[3rem] font-black text-[11px] uppercase tracking-ultra border border-slate-200 hover:bg-slate-50 transition shadow-luxury active:scale-95 disabled:opacity-50"
+                    className="flex items-center gap-2 px-6 py-3 bg-white text-slate-700 rounded-xl font-bold text-xs uppercase tracking-wider border border-slate-300 hover:bg-slate-50 transition shadow-sm active:scale-95 disabled:opacity-50"
                  >
-                    {isImporting ? <Loader2 className="h-8 w-8 animate-spin" /> : <Upload className="h-8 w-8 text-emerald-600" />} 
-                    Importar Planilha
+                    {isImporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4 text-blue-600" />} 
+                    Importar Excel
                  </button>
-                 <button className="flex items-center gap-6 px-12 py-8 bg-emerald-50 text-emerald-700 rounded-[3rem] font-black text-[11px] uppercase tracking-ultra border border-emerald-100 hover:bg-emerald-100 transition shadow-luxury active:scale-95">
-                    <FileSpreadsheet className="h-8 w-8" /> Exportar Censo
-                 </button>
-                 <button onClick={() => setIsViewerOpen(true)} className="flex items-center gap-6 px-12 py-8 bg-slate-900 text-white rounded-[3rem] font-black text-[11px] uppercase tracking-ultra hover:bg-emerald-600 transition shadow-luxury active:scale-95">
-                    <Zap className="h-8 w-8 text-emerald-400" /> Sistema Debug
+                 <button className="flex items-center gap-2 px-6 py-3 bg-white text-slate-700 rounded-xl font-bold text-xs uppercase tracking-wider border border-slate-300 hover:bg-slate-50 transition shadow-sm">
+                    <FileSpreadsheet className="h-4 w-4 text-emerald-600" /> Exportar Censo
                  </button>
             </div>
         </header>
 
-        <div className="bg-white p-10 rounded-[4rem] shadow-luxury border border-slate-100 mb-16 flex flex-col xl:flex-row gap-10 items-center fade-in-premium" style={{animationDelay: '0.4s'}}>
-            <div className="flex p-3 bg-slate-50 rounded-[3rem] border border-slate-100 w-full xl:w-fit shadow-inner">
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 mb-8 flex flex-col md:flex-row gap-6 items-center">
+            <div className="flex p-1 bg-slate-100 rounded-xl border border-slate-200 w-full md:w-fit">
                 <button 
                     onClick={() => { setActiveTab('students'); setCurrentPage(1); }} 
-                    className={`flex-1 xl:px-20 py-6 rounded-[2.5rem] text-[11px] font-black uppercase tracking-ultra transition-all ${activeTab === 'students' ? 'bg-white text-emerald-600 shadow-2xl scale-105' : 'text-slate-400 hover:text-slate-600'}`}
+                    className={`flex-1 md:px-10 py-2.5 rounded-lg text-[11px] font-bold uppercase tracking-wider transition-all ${activeTab === 'students' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
                 >
-                    Base Nominal
+                    Alunos
                 </button>
                 <button 
                     onClick={() => { setActiveTab('schools'); setCurrentPage(1); }} 
-                    className={`flex-1 xl:px-20 py-6 rounded-[2.5rem] text-[11px] font-black uppercase tracking-ultra transition-all ${activeTab === 'schools' ? 'bg-white text-emerald-600 shadow-2xl scale-105' : 'text-slate-400 hover:text-slate-600'}`}
+                    className={`flex-1 md:px-10 py-2.5 rounded-lg text-[11px] font-bold uppercase tracking-wider transition-all ${activeTab === 'schools' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
                 >
-                    Infraestrutura
+                    Escolas
                 </button>
             </div>
             <div className="relative flex-1 group w-full">
-                <Search className="absolute left-10 top-1/2 -translate-y-1/2 h-8 w-8 text-slate-200 group-focus-within:text-emerald-600 transition-colors" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
                 <input 
                     type="text" 
                     placeholder="Filtrar por nome, CPF ou protocolo..."
                     value={searchTerm}
                     onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
-                    className="w-full pl-24 pr-12 py-8 bg-slate-50 border border-transparent rounded-[3.5rem] focus:bg-white focus:border-emerald-600 focus:ring-8 focus:ring-emerald-50 outline-none transition-all font-black text-slate-700 text-xl shadow-inner"
+                    className="w-full pl-12 pr-6 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-blue-600 focus:ring-4 focus:ring-blue-100 outline-none transition-all font-medium text-slate-700 text-sm"
                 />
             </div>
         </div>
 
-        <div className="bg-white rounded-[5rem] shadow-luxury overflow-hidden border border-slate-100 fade-in-premium" style={{animationDelay: '0.6s'}}>
+        <div className="bg-white rounded-2xl shadow-sm overflow-hidden border border-slate-200">
             <div className="overflow-x-auto custom-scrollbar">
                 <table className="w-full text-left border-collapse">
-                    <thead className="bg-slate-50/50">
+                    <thead className="bg-slate-50">
                         <tr>
                             {activeTab === 'students' ? (
                                 <>
-                                    <th className="px-16 py-12 w-40"></th>
-                                    <SortHeader label="Identificação Nominal" field="name" sortField={sortField} sortDirection={sortDirection} onSort={handleSort} />
-                                    <SortHeader label="Alocação" field="school" sortField={sortField} sortDirection={sortDirection} onSort={handleSort} />
-                                    <th className="px-16 py-12 text-[11px] font-black text-slate-400 uppercase tracking-ultra text-right">Gestão</th>
+                                    <th className="px-6 py-4 w-20"></th>
+                                    <SortHeader label="Nome Completo" field="name" sortField={sortField} sortDirection={sortDirection} onSort={handleSort} />
+                                    <SortHeader label="Escola Alocada" field="school" sortField={sortField} sortDirection={sortDirection} onSort={handleSort} />
+                                    <th className="px-6 py-4 text-[11px] font-bold text-slate-500 uppercase tracking-wider text-right">Ações</th>
                                 </>
                             ) : (
                                 <>
-                                    <th className="px-16 py-12 text-[11px] font-black text-slate-400 uppercase tracking-ultra">Unidade de Ensino</th>
-                                    <th className="px-16 py-12 text-[11px] font-black text-slate-400 uppercase tracking-ultra text-center">Capacidade</th>
-                                    <th className="px-16 py-12 text-[11px] font-black text-slate-400 uppercase tracking-ultra text-right">Análise</th>
+                                    <th className="px-6 py-4 text-[11px] font-bold text-slate-500 uppercase tracking-wider">Unidade de Ensino</th>
+                                    <th className="px-6 py-4 text-[11px] font-bold text-slate-500 uppercase tracking-wider text-center">Vagas Totais</th>
+                                    <th className="px-6 py-4 text-[11px] font-bold text-slate-500 uppercase tracking-wider text-right">Ação</th>
                                 </>
                             )}
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-50">
+                    <tbody className="divide-y divide-slate-100">
                         {paginatedData.map((item: any) => (
-                            <tr key={item.id} className="transition-all hover:bg-slate-50 group">
+                            <tr key={item.id} className="tr-premium">
                                 {activeTab === 'students' ? (
                                     <>
-                                        <td className="px-16 py-12">
-                                            <div className="w-24 h-24 rounded-[3rem] bg-white border-[10px] border-white shadow-2xl flex items-center justify-center overflow-hidden transition-transform group-hover:rotate-6">
-                                                {item.photo ? <img src={item.photo} className="w-full h-full object-cover" /> : <User className="h-12 w-12 text-slate-200" />}
+                                        <td className="px-6 py-3 text-center">
+                                            <div className="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center overflow-hidden">
+                                                {item.photo ? <img src={item.photo} className="w-full h-full object-cover" /> : <User className="h-5 w-5 text-slate-400" />}
                                             </div>
                                         </td>
-                                        <td className="px-16 py-12">
-                                            <p className="font-black text-slate-900 text-3xl tracking-tighter leading-none mb-4 uppercase">{item.name}</p>
-                                            <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-4">
-                                                CPF: {item.cpf || 'PENDENTE'} <span className="h-2.5 w-2.5 rounded-full bg-slate-100"></span> ID: {item.enrollmentId || 'AUTO'}
-                                            </p>
+                                        <td className="px-6 py-3">
+                                            <p className="font-bold text-slate-900 text-sm mb-1">{item.name}</p>
+                                            <p className="text-[10px] text-slate-400 font-medium">CPF: {item.cpf || 'Não Informado'}</p>
                                         </td>
-                                        <td className="px-16 py-12">
-                                            <div className="flex items-center gap-5">
-                                                <div className="bg-emerald-50 p-4 rounded-3xl text-emerald-600 border border-emerald-100 shadow-sm">
-                                                    <Building className="h-6 w-6" />
-                                                </div>
-                                                <span className="text-lg font-black text-slate-700 uppercase tracking-tight">{item.school || 'AGUARDANDO UNIDADE'}</span>
+                                        <td className="px-6 py-3">
+                                            <div className="flex items-center gap-2">
+                                                <Building className="h-4 w-4 text-blue-500" />
+                                                <span className="text-sm text-slate-600 font-medium">{item.school || 'Pendente'}</span>
                                             </div>
                                         </td>
-                                        <td className="px-16 py-12 text-right">
-                                            <div className="flex justify-end gap-5 opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-x-12 group-hover:translate-x-0">
+                                        <td className="px-6 py-3 text-right">
+                                            <div className="flex justify-end gap-2">
                                                 <button 
                                                     onClick={() => navigate(`/student/monitoring?id=${item.id}`)}
-                                                    className="p-7 bg-white border border-slate-100 text-slate-400 hover:text-emerald-600 hover:border-emerald-100 rounded-[2.2rem] transition-all hover:shadow-2xl active:scale-90 shadow-sm"
+                                                    className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                                                    title="Editar Prontuário"
                                                 >
-                                                    <Edit3 className="h-8 w-8" />
+                                                    <Edit3 className="h-4 w-4" />
                                                 </button>
-                                                {userData.role === UserRole.ADMIN_SME && (
-                                                    <button onClick={() => removeStudent(item.id)} className="p-7 bg-white border border-slate-100 text-slate-400 hover:text-red-600 hover:border-red-100 rounded-[2.2rem] transition-all hover:shadow-2xl active:scale-90 shadow-sm">
-                                                        <Trash2 className="h-8 w-8" />
-                                                    </button>
-                                                )}
+                                                <button onClick={() => removeStudent(item.id)} className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition" title="Remover">
+                                                    <Trash2 className="h-4 w-4" />
+                                                </button>
                                             </div>
                                         </td>
                                     </>
                                 ) : (
                                     <>
-                                        <td className="px-16 py-16">
-                                            <div className="flex items-center gap-12">
-                                                <div className="w-24 h-24 rounded-[3.5rem] bg-emerald-50 flex items-center justify-center text-emerald-600 border border-emerald-100 shadow-inner group-hover:rotate-12 transition-transform">
-                                                    <Building className="h-12 w-12" />
-                                                </div>
-                                                <div>
-                                                    <p className="font-black text-slate-900 tracking-tighter text-4xl leading-none mb-4 uppercase">{item.name}</p>
-                                                    <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest truncate max-w-lg">{item.address}</p>
-                                                </div>
-                                            </div>
+                                        <td className="px-6 py-4">
+                                            <p className="font-bold text-slate-900 text-sm mb-1">{item.name}</p>
+                                            <p className="text-[10px] text-slate-400 font-medium">{item.address}</p>
                                         </td>
-                                        <td className="px-16 py-16 text-center">
-                                            <div className="inline-flex flex-col items-center">
-                                                <span className="font-black text-slate-900 text-5xl tracking-tighter mb-5">{students.filter(s => s.school === item.name).length} <span className="text-slate-200 mx-3">/</span> {item.availableSlots}</span>
-                                                <div className="w-56 h-3 bg-slate-50 rounded-full overflow-hidden shadow-inner border border-slate-100">
-                                                    <div className="h-full bg-emerald-500 rounded-full shadow-[0_0_15px_#10b981]" style={{ width: `${(students.filter(s => s.school === item.name).length / item.availableSlots) * 100}%` }}></div>
-                                                </div>
-                                            </div>
+                                        <td className="px-6 py-4 text-center">
+                                            <span className="text-lg font-bold text-slate-900">{item.availableSlots}</span>
                                         </td>
-                                        <td className="px-16 py-16 text-right">
-                                            <button className="px-16 py-7 bg-slate-900 text-white rounded-[3rem] font-black text-[11px] uppercase tracking-ultra hover:bg-emerald-600 transition-all shadow-luxury active:scale-95">Quadro Nominal</button>
+                                        <td className="px-6 py-4 text-right">
+                                            <button className="px-4 py-2 bg-slate-100 hover:bg-blue-600 hover:text-white text-slate-600 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all">Ver Detalhes</button>
                                         </td>
                                     </>
                                 )}
@@ -260,18 +229,12 @@ export const AdminData: React.FC = () => {
                 </table>
             </div>
 
-            <div className="bg-slate-50/50 px-20 py-16 border-t border-slate-100 flex flex-col md:flex-row items-center justify-between gap-12">
-                <div className="flex items-center gap-8">
-                    <div className="w-4 h-4 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_15px_#10b981]"></div>
-                    <span className="text-[13px] font-black text-slate-400 uppercase tracking-ultra">
-                        Total: {sortedData.length} Registros Sincronizados
-                    </span>
-                </div>
-
-                <div className="flex items-center gap-6">
-                    <button onClick={() => setCurrentPage(Math.max(1, currentPage - 1))} disabled={currentPage === 1} className="p-7 bg-white border border-slate-100 text-slate-400 rounded-3xl hover:text-emerald-600 disabled:opacity-20 transition shadow-xl active:scale-90"><ChevronLeft className="h-10 w-10" /></button>
-                    <div className="bg-slate-900 text-white px-16 py-7 rounded-[2.5rem] font-black text-4xl shadow-2xl mx-6">{currentPage}</div>
-                    <button onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))} disabled={currentPage >= totalPages} className="p-7 bg-white border border-slate-100 text-slate-400 rounded-3xl hover:text-emerald-600 disabled:opacity-20 transition shadow-xl active:scale-90"><ChevronRight className="h-10 w-10" /></button>
+            <div className="bg-slate-50 px-6 py-4 border-t border-slate-200 flex items-center justify-between">
+                <span className="text-xs font-medium text-slate-500">Mostrando {paginatedData.length} de {sortedData.length} registros</span>
+                <div className="flex items-center gap-2">
+                    <button onClick={() => setCurrentPage(Math.max(1, currentPage - 1))} disabled={currentPage === 1} className="p-2 bg-white border border-slate-300 text-slate-400 rounded-lg disabled:opacity-30 hover:bg-slate-50 transition"><ChevronLeft className="h-4 w-4" /></button>
+                    <span className="text-sm font-bold text-slate-700 px-4">Página {currentPage}</span>
+                    <button onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))} disabled={currentPage >= totalPages} className="p-2 bg-white border border-slate-300 text-slate-400 rounded-lg disabled:opacity-30 hover:bg-slate-50 transition"><ChevronRight className="h-4 w-4" /></button>
                 </div>
             </div>
         </div>
