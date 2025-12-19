@@ -36,11 +36,11 @@ const ProgressionVisual = ({ data }: { data: PerformanceRow[] }) => {
     }).join(' ');
 
     return (
-        <div className="bg-white p-14 rounded-[4.5rem] border border-slate-100 shadow-2xl shadow-slate-100 flex flex-col lg:flex-row items-center gap-14 overflow-hidden relative group fade-in-premium">
+        <div className="bg-white p-14 rounded-[4.5rem] border border-slate-100 shadow-luxury flex flex-col lg:flex-row items-center gap-14 overflow-hidden relative group fade-in-premium">
             <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-50 rounded-full -mr-40 -mt-40 opacity-40 group-hover:scale-110 transition-transform duration-1000"></div>
             
             <div className="shrink-0 relative z-10 text-center lg:text-left">
-                <div className="bg-emerald-600 w-20 h-20 rounded-[2rem] shadow-xl shadow-emerald-100 flex items-center justify-center mb-8 animate-float mx-auto lg:mx-0">
+                <div className="bg-emerald-600 w-20 h-20 rounded-[2rem] shadow-xl shadow-emerald-100 flex items-center justify-center mb-8 animate-luxury-float mx-auto lg:mx-0">
                     <Activity className="h-10 w-10 text-white" />
                 </div>
                 <h4 className="text-[12px] font-black text-slate-400 uppercase tracking-widest mb-1">Rendimento Global</h4>
@@ -136,7 +136,7 @@ export const PerformanceIndicators: React.FC = () => {
   if (!currentStudent) return null;
 
   return (
-    <div className="min-h-screen bg-[#fcfdfe] py-24 px-8 fade-in-premium">
+    <div className="min-h-screen bg-[#fcfdfe] py-24 px-8 fade-in-premium page-transition">
       <div className="max-w-7xl mx-auto">
         <header className="flex flex-col xl:flex-row justify-between items-start xl:items-end mb-24 gap-12">
             <div className="space-y-10">
@@ -145,7 +145,7 @@ export const PerformanceIndicators: React.FC = () => {
                       <ArrowLeft className="h-5 w-5" />
                     </div> Voltar ao Painel
                 </button>
-                <h1 className="text-8xl font-black text-slate-900 tracking-tighter leading-none mb-6">
+                <h1 className="text-8xl font-black text-slate-900 tracking-tighter leading-none mb-6 text-display uppercase">
                   Monitor de <br/><span className="text-emerald-600">Aprendizado.</span>
                 </h1>
                 <div className="flex items-center gap-8">
@@ -163,7 +163,7 @@ export const PerformanceIndicators: React.FC = () => {
                 <button onClick={() => window.print()} className="p-8 bg-white border border-slate-100 text-slate-400 rounded-[3rem] hover:text-emerald-600 transition-all hover:shadow-2xl shadow-slate-100 active:scale-95"><Printer className="h-7 w-7" /></button>
                 <button 
                     onClick={handleSave} disabled={isSaving}
-                    className="flex items-center gap-7 px-16 py-8 bg-slate-900 text-white rounded-[3.5rem] font-black text-[12px] uppercase tracking-ultra hover:bg-emerald-600 transition-all shadow-2xl shadow-slate-200 active:scale-95 disabled:opacity-50"
+                    className="flex items-center gap-7 px-16 py-8 bg-slate-900 text-white rounded-[3.5rem] font-black text-[12px] uppercase tracking-ultra hover:bg-emerald-600 transition-all shadow-2xl active:scale-95 disabled:opacity-50"
                 >
                     {isSaving ? <Loader2 className="h-6 w-6 animate-spin" /> : <Save className="h-6 w-6" />}
                     Sincronizar Boletim

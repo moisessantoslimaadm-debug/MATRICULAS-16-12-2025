@@ -3,7 +3,7 @@ import { useNavigate, Link } from '../router';
 import { useToast } from '../contexts/ToastContext';
 import { 
   GraduationCap, Lock, User, ArrowRight, Loader2, ShieldCheck, 
-  Globe, Sparkles, Fingerprint
+  Globe, Sparkles
 } from 'lucide-react';
 import { UserRole } from '../types';
 
@@ -33,9 +33,6 @@ export const Login: React.FC = () => {
       } else if (cleanUser === 'professor' && password === '1234') {
         role = UserRole.TEACHER;
         userData = { id: '3', name: 'Prof. Ricardo Santos', role: UserRole.TEACHER, schoolId: '29383935' };
-      } else if (cleanUser === 'aluno' && password === '1234') {
-        role = UserRole.PARENT_STUDENT;
-        userData = { id: '4', name: 'Família Leite', role: UserRole.PARENT_STUDENT, studentId: '207386980831' };
       }
 
       if (role && userData) {
@@ -43,7 +40,7 @@ export const Login: React.FC = () => {
         sessionStorage.setItem('user_role', role);
         sessionStorage.setItem('user_data', JSON.stringify(userData));
         addToast(`Olá, ${userData.name}. Acesso autorizado.`, 'success');
-        navigate(role === UserRole.PARENT_STUDENT ? `/student/monitoring?id=${userData.studentId}` : '/dashboard');
+        navigate('/dashboard');
       } else {
         addToast('Credenciais não reconhecidas pela rede.', 'error');
         setIsLoading(false);
@@ -52,9 +49,9 @@ export const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex bg-white font-sans overflow-hidden">
+    <div className="min-h-screen flex bg-white font-sans overflow-hidden page-transition">
       {/* Visual Side - Brand Identity */}
-      <div className="hidden lg:flex lg:w-3/5 bg-slate-900 relative items-center justify-center p-24">
+      <div className="hidden lg:flex lg:w-3/5 bg-[#0F172A] relative items-center justify-center p-24">
         <div className="absolute inset-0 bg-gradient-to-br from-emerald-600/20 via-transparent to-blue-600/10"></div>
         <div className="absolute top-[-20%] left-[-20%] w-full h-full bg-emerald-500/10 blur-[180px] rounded-full animate-pulse"></div>
         
@@ -96,18 +93,18 @@ export const Login: React.FC = () => {
                 <Sparkles className="h-4 w-4 text-emerald-600" />
                 <span className="text-[10px] font-black text-emerald-700 uppercase tracking-widest">Acesso Digital 2025</span>
             </div>
-            <h3 className="text-6xl font-black text-slate-900 tracking-tighter mb-4 leading-none">Autenticação.</h3>
-            <p className="text-slate-500 font-medium text-xl">Identifique-se para acessar seu painel.</p>
+            <h3 className="text-6xl font-black text-slate-900 tracking-tighter mb-4 leading-none uppercase">Login.</h3>
+            <p className="text-slate-500 font-medium text-xl">Identifique-se para acessar o painel administrativo.</p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-8">
             <div className="space-y-2">
-                <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-4">Protocolo de Usuário</label>
+                <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-4">Usuário de Rede</label>
                 <div className="relative group">
                     <User className="absolute left-6 top-1/2 -translate-y-1/2 h-6 w-6 text-slate-300 group-focus-within:text-emerald-600 transition-colors" />
                     <input 
                         type="text" required value={username} onChange={e => setUsername(e.target.value)}
-                        placeholder="Usuário SME"
+                        placeholder="Nome de usuário"
                         className="w-full pl-16 pr-6 py-6 bg-white border border-slate-200 rounded-[2.2rem] outline-none focus:ring-8 focus:ring-emerald-50 focus:border-emerald-600 transition-all font-black text-slate-700 text-lg shadow-sm"
                     />
                 </div>

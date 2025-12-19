@@ -4,16 +4,15 @@ import { useData } from '../contexts/DataContext';
 import { useToast } from '../contexts/ToastContext';
 import { RegistrationFormState, RegistryStudent } from '../types';
 import { 
-  Check, ChevronRight, ArrowLeft, Loader2, User, 
-  Camera, Zap, ArrowRight, ShieldCheck, MapPin, 
-  Globe, GraduationCap, Home
+  Check, ArrowLeft, Loader2, User, 
+  Camera, Zap, ArrowRight, ShieldCheck
 } from 'lucide-react';
 import { useNavigate } from '../router';
 
 const formatCPF = (v: string) => v.replace(/\D/g, '').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d{1,2})/, '$1-$2').substring(0, 14);
 
 export const Registration: React.FC = () => {
-  const { schools, addStudent } = useData();
+  const { addStudent } = useData();
   const { addToast } = useToast();
   const navigate = useNavigate();
   const [formState, setFormState] = useState<RegistrationFormState>(INITIAL_REGISTRATION_STATE);
@@ -62,7 +61,7 @@ export const Registration: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#fcfdfe] py-24 px-6 fade-in-premium">
+    <div className="min-h-screen bg-[#fcfdfe] py-24 px-6 fade-in-premium page-transition">
       <div className="max-w-4xl mx-auto">
         <header className="text-center mb-20 space-y-6">
             <div className="inline-flex items-center gap-3 px-6 py-2 bg-emerald-50 rounded-full border border-emerald-100 mb-4">
@@ -128,6 +127,14 @@ export const Registration: React.FC = () => {
                                 <input type="text" value={formState.student.cpf} onChange={e => handleInputChange('student', 'cpf', e.target.value)} className="input-premium" />
                             </div>
                         </div>
+                    </div>
+                )}
+
+                {/* Simplified subsequent steps for design preview */}
+                {formState.step > 1 && formState.step < 4 && (
+                    <div className="py-20 text-center animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        <h2 className="text-4xl font-black text-slate-800 mb-6 uppercase tracking-tight">Etapa {formState.step} em Construção</h2>
+                        <p className="text-slate-400 font-medium">Esta interface faz parte do fluxo nominal completo.</p>
                     </div>
                 )}
 

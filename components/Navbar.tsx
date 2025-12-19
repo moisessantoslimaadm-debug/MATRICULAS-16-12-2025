@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from '../router';
-import { GraduationCap, Menu, X, CloudCheck, CloudOff, LogOut, LayoutDashboard, Map, Database, User } from 'lucide-react';
+import { GraduationCap, Menu, X, CloudCheck, CloudOff, LogOut } from 'lucide-react';
 import { useData } from '../contexts/DataContext';
 import { UserRole } from '../types';
 
@@ -31,7 +31,7 @@ export const Navbar: React.FC = () => {
       : 'text-slate-500 hover:text-emerald-600 font-bold px-6 py-3 hover:bg-white rounded-2xl transition-all duration-300';
 
   return (
-    <nav className="glass-premium sticky top-0 z-[100] px-8 py-3 mx-4 my-4 rounded-[2.5rem] shadow-2xl shadow-slate-200/50 border border-white/50 transition-all duration-500">
+    <nav className="glass-premium sticky top-0 z-[100] px-8 py-4 mx-4 my-4 rounded-[2.5rem] shadow-2xl shadow-slate-200/50 border border-white/50 transition-all duration-500">
       <div className="max-w-7xl mx-auto flex justify-between items-center h-14">
         <div className="flex items-center gap-12">
           <Link to="/" className="flex items-center gap-5 group">
@@ -85,7 +85,7 @@ export const Navbar: React.FC = () => {
               </div>
               <div className="group relative">
                 <div className="w-12 h-12 rounded-[1.4rem] bg-slate-900 flex items-center justify-center text-emerald-400 font-black shadow-xl shadow-slate-200 cursor-pointer group-hover:scale-110 transition-all duration-500 border border-slate-800">
-                  {userName.charAt(0)}
+                  {userName.charAt(0).toUpperCase()}
                 </div>
                 <div className="absolute top-full right-0 mt-4 w-72 bg-white rounded-[2.5rem] shadow-2xl border border-slate-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-500 p-4 z-[200] transform origin-top-right scale-95 group-hover:scale-100">
                     <div className="p-5 border-b border-slate-50 mb-3 bg-slate-50/50 rounded-[2rem]">
