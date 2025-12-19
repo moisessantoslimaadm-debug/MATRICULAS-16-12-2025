@@ -66,7 +66,7 @@ const ProgressionVisual = ({ data }: { data: PerformanceRow[] }) => {
                         </linearGradient>
                     </defs>
                     <path d={`M ${padding} ${height - padding} L ${points} L ${width - padding} ${height - padding} Z`} fill="url(#gradPath)" />
-                    <polyline points={points} fill="none" stroke="#10b981" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" className="progression-path" />
+                    <polyline points={points} fill="none" stroke="#10b981" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" className="progression-path" style={{ strokeDasharray: 1000, strokeDashoffset: 0 }} />
                     {scores.map((s, i) => {
                         const x = padding + (i * (width - padding * 2) / (units.length - 1));
                         const y = height - padding - (s * (height - padding * 2) / 4);
@@ -139,9 +139,9 @@ export const PerformanceIndicators: React.FC = () => {
       setIsSaving(true);
       try {
           await updateStudents([{ ...currentStudent, performanceHistory: performanceData }]);
-          addToast("Boletim nominal sincronizado.", "success");
+          addToast("Boletim nominal sincronizado com a base.", "success");
       } catch (e) { 
-          addToast("Erro na sincronização.", "error"); 
+          addToast("Erro na comunicação com a rede.", "error"); 
       } finally { 
           setIsSaving(false); 
       }
@@ -216,7 +216,7 @@ export const PerformanceIndicators: React.FC = () => {
                             </thead>
                             <tbody className="divide-y divide-slate-50">
                                 {performanceData.map((row, rIdx) => (
-                                    <tr key={row.subject} className="tr-premium group">
+                                    <tr key={row.subject} className="group transition-all hover:bg-emerald-50/20">
                                         <td className="px-12 py-12">
                                             <p className="font-black text-slate-800 text-lg tracking-tight uppercase">{row.subject}</p>
                                         </td>

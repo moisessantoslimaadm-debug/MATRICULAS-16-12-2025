@@ -3,12 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <meta name="theme-color" content="#1e40af" />
-    <title>EducaMunicípio - Matrícula Digital</title>
+    <meta name="theme-color" content="#10b981" />
+    <title>EducaMunicípio - Itaberaba Digital</title>
     
     <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     
     <!-- Leaflet CSS & JS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
@@ -22,15 +21,13 @@
         theme: {
           extend: {
             fontFamily: {
-              sans: ["Inter", "sans-serif"],
-              script: ["Dancing Script", "cursive"]
+              sans: ["Inter", "sans-serif"]
             }
           }
         }
       };
     </script>
 
-    <!-- System Polyfills -->
     <script>
       window.process = window.process || { env: { NODE_ENV: 'development' } };
     </script>
@@ -53,12 +50,19 @@
 }
 </script>
   </head>
-  <body class="bg-slate-50 text-slate-900 antialiased">
+  <body class="bg-[#fcfdfe] text-slate-900 antialiased overflow-x-hidden">
     <div id="root">
-        <div style="height: 100vh; display: flex; justify-content: center; align-items: center; background-color: #f8fafc; color: #3b82f6;">
-            <svg class="animate-spin" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+        <div style="height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; background-color: #0f172a;">
+            <div style="position: relative; width: 80px; height: 80px;">
+                <div style="position: absolute; width: 100%; height: 100%; border: 4px solid rgba(16, 185, 129, 0.1); border-radius: 30px;"></div>
+                <div style="position: absolute; width: 100%; height: 100%; border: 4px solid #10b981; border-top-color: transparent; border-radius: 30px; animation: spin 1s cubic-bezier(0.16, 1, 0.3, 1) infinite;"></div>
+            </div>
+            <p style="margin-top: 32px; color: #10b981; font-family: 'Inter', sans-serif; font-weight: 900; letter-spacing: 0.5em; font-size: 10px; text-transform: uppercase;">Iniciando SME Itaberaba</p>
         </div>
     </div>
+    <style>
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    </style>
     <script type="module" src="/index.tsx"></script>
   </body>
 </html>

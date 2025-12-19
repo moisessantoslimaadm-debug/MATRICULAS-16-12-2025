@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from '../router';
-import { GraduationCap, Menu, X, CloudCheck, CloudOff, LogOut, Bell, LayoutDashboard, Map, Database, FileText } from 'lucide-react';
+import { GraduationCap, Menu, X, CloudCheck, CloudOff, LogOut, Bell, LayoutDashboard, Map, Database, FileText, User } from 'lucide-react';
 import { useData } from '../contexts/DataContext';
 import { UserRole } from '../types';
 
@@ -27,38 +27,37 @@ export const Navbar: React.FC = () => {
 
   const isActive = (path: string) => 
     location.pathname === path 
-      ? 'text-emerald-600 font-black bg-emerald-50 px-4 py-2 rounded-xl shadow-sm' 
-      : 'text-slate-500 hover:text-emerald-600 font-bold px-4 py-2 hover:bg-slate-50 rounded-xl transition-all';
+      ? 'text-emerald-600 font-black bg-emerald-50/80 px-5 py-2.5 rounded-2xl shadow-sm border border-emerald-100/50' 
+      : 'text-slate-500 hover:text-emerald-600 font-bold px-5 py-2.5 hover:bg-white rounded-2xl transition-all duration-300';
 
   return (
-    <nav className="glass-premium sticky top-0 z-[100] border-b border-slate-200/50 px-6 py-2">
-      <div className="max-w-7xl mx-auto flex justify-between items-center h-16">
-        <div className="flex items-center gap-8">
-          <Link to="/" className="flex items-center gap-3 group">
-            <div className="bg-slate-900 p-2.5 rounded-[1.2rem] group-hover:rotate-6 transition-transform shadow-lg shadow-slate-200">
-              <GraduationCap className="h-6 w-6 text-white" />
+    <nav className="glass-premium sticky top-0 z-[100] px-8 py-3 mx-4 my-4 rounded-[2.5rem] shadow-2xl shadow-slate-200/50 border border-white/50 transition-all duration-500">
+      <div className="max-w-7xl mx-auto flex justify-between items-center h-14">
+        <div className="flex items-center gap-10">
+          <Link to="/" className="flex items-center gap-4 group">
+            <div className="bg-slate-900 p-3 rounded-[1.4rem] group-hover:rotate-[10deg] transition-all duration-500 shadow-xl shadow-slate-200/20 active:scale-90">
+              <GraduationCap className="h-7 w-7 text-emerald-400" />
             </div>
-            <span className="font-black text-2xl text-slate-900 tracking-tighter uppercase">
+            <span className="font-black text-2xl text-slate-900 tracking-tighter uppercase hidden sm:block">
               Educa<span className="text-emerald-600">Município</span>
             </span>
           </Link>
 
-          <div className="hidden lg:flex items-center gap-1">
+          <div className="hidden xl:flex items-center gap-2">
             {(role === UserRole.ADMIN_SME || role === UserRole.DIRECTOR) && (
               <>
-                <Link to="/dashboard" className={isActive('/dashboard')}>Painel</Link>
-                <Link to="/schools" className={isActive('/schools')}>Escolas</Link>
-                <Link to="/admin/map" className={isActive('/admin/map')}>Mapa</Link>
+                <Link to="/dashboard" className={isActive('/dashboard')}>Dashboard</Link>
+                <Link to="/schools" className={isActive('/schools')}>Rede</Link>
+                <Link to="/admin/map" className={isActive('/admin/map')}>Geoprocess</Link>
                 <Link to="/admin/data" className={isActive('/admin/data')}>Gestão</Link>
-                <Link to="/reports" className={isActive('/reports')}>Relatórios</Link>
               </>
             )}
 
             {role === UserRole.TEACHER && (
               <>
-                <Link to="/dashboard" className={isActive('/dashboard')}>Início</Link>
-                <Link to="/journal" className={isActive('/journal')}>Meu Diário</Link>
-                <Link to="/performance" className={isActive('/performance')}>Avaliações</Link>
+                <Link to="/dashboard" className={isActive('/dashboard')}>Portal</Link>
+                <Link to="/journal" className={isActive('/journal')}>Diário</Link>
+                <Link to="/performance" className={isActive('/performance')}>Rendimento</Link>
               </>
             )}
           </div>
@@ -67,46 +66,63 @@ export const Navbar: React.FC = () => {
         <div className="flex items-center gap-6">
           <div className="hidden md:flex items-center gap-4">
             {isOffline ? (
-              <button onClick={() => refreshData()} className="flex items-center gap-2 bg-orange-50 px-4 py-2 rounded-full border border-orange-200 text-orange-600 text-[10px] font-black uppercase tracking-widest">
+              <button onClick={() => refreshData()} className="flex items-center gap-2 bg-red-50 px-4 py-2 rounded-full border border-red-100 text-red-600 text-[9px] font-black uppercase tracking-widest animate-pulse">
                 <CloudOff className="h-3 w-3" /> Offline
               </button>
             ) : (
-              <div className="flex items-center gap-2 bg-emerald-50 px-4 py-2 rounded-full border border-emerald-100 text-emerald-600 text-[10px] font-black uppercase tracking-widest">
-                <CloudCheck className="h-3 w-3" /> Sincronizado
+              <div className="flex items-center gap-2 bg-emerald-50 px-4 py-2 rounded-full border border-emerald-100 text-emerald-600 text-[9px] font-black uppercase tracking-widest">
+                <CloudCheck className="h-3 w-3" /> Rede Sincronizada
               </div>
             )}
           </div>
 
-          <div className="h-10 w-px bg-slate-200 hidden md:block"></div>
+          <div className="h-8 w-px bg-slate-200/50 hidden md:block"></div>
 
           {role ? (
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-5">
               <div className="flex flex-col items-end hidden sm:flex">
                 <span className="text-sm font-black text-slate-900 leading-none">{userName}</span>
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1.5">{role}</span>
+                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-2">{role}</span>
               </div>
               <div className="group relative">
-                <div className="w-10 h-10 rounded-2xl bg-emerald-600 flex items-center justify-center text-white font-black shadow-lg shadow-emerald-100 cursor-pointer group-hover:scale-105 transition-transform">
+                <div className="w-11 h-11 rounded-[1.3rem] bg-slate-900 flex items-center justify-center text-emerald-400 font-black shadow-xl shadow-slate-200 cursor-pointer group-hover:scale-110 transition-all duration-500 border border-slate-800">
                   {userName.charAt(0)}
                 </div>
-                <div className="absolute top-full right-0 mt-3 w-56 bg-white rounded-[1.5rem] shadow-2xl border border-slate-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all p-2 z-[200]">
-                    <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3.5 text-red-500 hover:bg-red-50 rounded-xl transition-colors font-black text-[10px] uppercase tracking-widest">
-                        <LogOut className="h-4 w-4" /> Sair do Sistema
+                <div className="absolute top-full right-0 mt-4 w-64 bg-white rounded-[2rem] shadow-2xl border border-slate-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-500 p-3 z-[200] transform origin-top-right scale-95 group-hover:scale-100">
+                    <div className="p-5 border-b border-slate-50 mb-3 bg-slate-50/50 rounded-[1.5rem]">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Identidade Digital</p>
+                        <p className="text-xs font-bold text-slate-700 truncate">{userName}</p>
+                    </div>
+                    <button onClick={handleLogout} className="w-full flex items-center justify-between gap-3 px-5 py-4 text-red-500 hover:bg-red-50 rounded-[1.5rem] transition-colors font-black text-[10px] uppercase tracking-widest group/btn">
+                        <span>Encerrar Sessão</span>
+                        <LogOut className="h-4 w-4 group-hover/btn:translate-x-1 transition-transform" />
                     </button>
                 </div>
               </div>
             </div>
           ) : (
-            <Link to="/login" className="bg-slate-900 text-white px-6 py-2.5 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-emerald-600 transition-all shadow-lg shadow-slate-200">
-                Acessar Portal
+            <Link to="/login" className="bg-slate-900 text-white px-8 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] hover:bg-emerald-600 transition-all shadow-2xl shadow-slate-200 active:scale-95">
+                Portal de Acesso
             </Link>
           )}
 
-          <button onClick={() => setIsOpen(!isOpen)} className="lg:hidden p-2 text-slate-400 hover:text-emerald-600">
+          <button onClick={() => setIsOpen(!isOpen)} className="xl:hidden p-3 bg-slate-50 rounded-2xl text-slate-400 hover:text-emerald-600 transition-colors">
             {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
         </div>
       </div>
+      
+      {/* Mobile Menu */}
+      {isOpen && (
+        <div className="xl:hidden absolute top-[calc(100%+1rem)] left-0 right-0 bg-white rounded-[2.5rem] shadow-2xl border border-slate-100 p-6 animate-in slide-in-from-top-4 duration-500">
+             <div className="flex flex-col gap-3">
+                 <Link onClick={()=>setIsOpen(false)} to="/dashboard" className="px-6 py-4 rounded-2xl font-black text-xs uppercase tracking-widest text-slate-600 hover:bg-emerald-50 hover:text-emerald-600 transition-colors">Dashboard</Link>
+                 <Link onClick={()=>setIsOpen(false)} to="/schools" className="px-6 py-4 rounded-2xl font-black text-xs uppercase tracking-widest text-slate-600 hover:bg-emerald-50 hover:text-emerald-600 transition-colors">Rede Escolar</Link>
+                 <Link onClick={()=>setIsOpen(false)} to="/registration" className="px-6 py-4 rounded-2xl font-black text-xs uppercase tracking-widest text-slate-600 hover:bg-emerald-50 hover:text-emerald-600 transition-colors">Nova Matrícula</Link>
+                 <Link onClick={()=>setIsOpen(false)} to="/status" className="px-6 py-4 rounded-2xl font-black text-xs uppercase tracking-widest text-slate-600 hover:bg-emerald-50 hover:text-emerald-600 transition-colors">Consultar Protocolo</Link>
+             </div>
+        </div>
+      )}
     </nav>
   );
 };

@@ -14,12 +14,11 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-family: 'Inter', sans-serif;
-  overflow-x: hidden;
   background-color: #fcfdfe;
   color: #0f172a;
 }
 
-/* Scrollbar Personalizada Requintada */
+/* Scrollbar Requintada */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -37,15 +36,15 @@ body {
   background: var(--primary);
 }
 
-/* Glassmorphism de Alta Performance */
+/* Glassmorphism Premium */
 .glass-premium {
   background: var(--glass);
   backdrop-filter: blur(24px) saturate(180%);
   -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border: 1px solid var(--glass-border);
+  border-bottom: 1px solid var(--glass-border);
 }
 
-/* Animações Flutuantes Premium */
+/* Animações Flutuantes */
 @keyframes float {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-10px); }
@@ -62,29 +61,19 @@ body {
   animation: glow-green 4s infinite ease-in-out;
 }
 
-/* Design de Cartão Itaberaba High-End */
+/* Design de Cartão Requinte */
 .card-requinte {
   background: white;
-  border-radius: 3.5rem;
+  border-radius: 3rem;
   border: 1px solid #f1f5f9;
   box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.02);
-  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .card-requinte:hover {
   transform: translateY(-8px);
   box-shadow: 0 45px 80px -25px rgba(16, 185, 129, 0.08);
   border-color: rgba(16, 185, 129, 0.3);
-}
-
-/* Gráficos de Progressão SVG */
-@keyframes pathDraw {
-  from { stroke-dashoffset: 1000; }
-  to { stroke-dashoffset: 0; }
-}
-.progression-path {
-  stroke-dasharray: 1000;
-  animation: pathDraw 4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .text-tracking-ultra {
@@ -95,13 +84,14 @@ body {
   box-shadow: 0 0 40px -10px rgba(16, 185, 129, 0.4);
 }
 
-.tr-premium {
-  transition: all 0.3s ease;
-}
-.tr-premium:hover {
-  background-color: rgba(16, 185, 129, 0.03);
-}
-
 .input-premium {
   @apply w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-[1.8rem] focus:ring-8 focus:ring-emerald-50 focus:border-emerald-600 outline-none transition-all font-medium text-slate-700;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 10px;
 }

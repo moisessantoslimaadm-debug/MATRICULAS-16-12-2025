@@ -3,9 +3,8 @@ import { useNavigate, Link } from '../router';
 import { useToast } from '../contexts/ToastContext';
 import { 
   GraduationCap, Lock, User, ArrowRight, Loader2, ShieldCheck, 
-  Users, BookOpen, UserCircle, Globe, LayoutGrid, Sparkles
+  Globe, Sparkles
 } from 'lucide-react';
-import { MUNICIPALITY_NAME } from '../constants';
 import { UserRole } from '../types';
 
 export const Login: React.FC = () => {
@@ -85,7 +84,6 @@ export const Login: React.FC = () => {
       <div className="hidden lg:flex lg:w-3/5 bg-slate-900 relative items-center justify-center p-24 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-emerald-600/20 via-transparent to-blue-600/10"></div>
         <div className="absolute top-[-20%] left-[-20%] w-full h-full bg-emerald-500/10 blur-[180px] rounded-full animate-pulse"></div>
-        <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-blue-500/5 blur-[150px] rounded-full"></div>
         
         <div className="relative z-10 max-w-2xl space-y-16 animate-in fade-in slide-in-from-left-12 duration-1000">
             <div className="flex items-center gap-6">
@@ -123,13 +121,13 @@ export const Login: React.FC = () => {
         </div>
       </div>
 
-      {/* Login Side - High Reqinte */}
+      {/* Login Side */}
       <div className="w-full lg:w-2/5 flex items-center justify-center p-12 lg:p-24 bg-[#FCFDFE]">
         <div className="max-w-md w-full animate-in zoom-in-95 duration-700">
           <div className="mb-16 text-center lg:text-left">
-            <div className="inline-flex items-center gap-3 px-5 py-2 bg-emerald-50 rounded-full mb-8 border border-emerald-100 animate-in slide-in-from-top-4 duration-1000">
+            <div className="inline-flex items-center gap-3 px-5 py-2 bg-emerald-50 rounded-full mb-8 border border-emerald-100">
                 <Sparkles className="h-4 w-4 text-emerald-600" />
-                <span className="text-[10px] font-black text-emerald-700 uppercase tracking-ultra">Identidade Digital 2025</span>
+                <span className="text-[10px] font-black text-emerald-700 uppercase tracking-widest">Identidade Digital 2025</span>
             </div>
             <h3 className="text-6xl font-black text-slate-900 tracking-tighter mb-4 leading-none">Autenticação.</h3>
             <p className="text-slate-500 font-medium text-xl">Insira suas credenciais exclusivas para acessar o sistema operacional.</p>
@@ -137,7 +135,7 @@ export const Login: React.FC = () => {
 
           <form onSubmit={handleLogin} className="space-y-10">
             <div className="space-y-3">
-                <label className="text-[11px] font-black text-slate-400 uppercase tracking-ultra ml-2">Protocolo de Usuário</label>
+                <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-2">Protocolo de Usuário</label>
                 <div className="relative group">
                     <User className="absolute left-6 top-1/2 -translate-y-1/2 h-6 w-6 text-slate-300 group-focus-within:text-emerald-600 transition-colors" />
                     <input 
@@ -152,7 +150,7 @@ export const Login: React.FC = () => {
             </div>
 
             <div className="space-y-3">
-                <label className="text-[11px] font-black text-slate-400 uppercase tracking-ultra ml-2">Chave de Segurança</label>
+                <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-2">Chave de Segurança</label>
                 <div className="relative group">
                     <Lock className="absolute left-6 top-1/2 -translate-y-1/2 h-6 w-6 text-slate-300 group-focus-within:text-emerald-600 transition-colors" />
                     <input 
@@ -169,25 +167,15 @@ export const Login: React.FC = () => {
             <button 
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-7 bg-slate-900 text-white rounded-[2.8rem] font-black text-xs uppercase tracking-ultra hover:bg-emerald-600 transition-all flex items-center justify-center gap-6 shadow-2xl shadow-slate-200 disabled:opacity-50 active:scale-95"
+                className="w-full py-7 bg-slate-900 text-white rounded-[2.8rem] font-black text-xs uppercase tracking-widest hover:bg-emerald-600 transition-all flex items-center justify-center gap-6 shadow-2xl shadow-slate-200 disabled:opacity-50 active:scale-95"
             >
                 {isLoading ? <Loader2 className="h-6 w-6 animate-spin" /> : <>Validar Credenciais <ArrowRight className="h-6 w-6" /></>}
             </button>
           </form>
 
-          <div className="mt-16 flex items-center justify-between text-[10px] font-black uppercase tracking-ultra px-2">
+          <div className="mt-16 flex items-center justify-between text-[10px] font-black uppercase tracking-widest px-2">
             <Link to="/registration" className="text-emerald-600 hover:text-emerald-800 transition underline underline-offset-8">Solicitar Matrícula</Link>
             <Link to="/status" className="text-slate-400 hover:text-slate-600 transition">Problemas no Acesso?</Link>
-          </div>
-
-          <div className="mt-28 p-8 bg-white rounded-[3rem] border border-slate-100 flex items-center gap-6 shadow-sm group">
-             <div className="bg-slate-50 text-emerald-600 p-4 rounded-2xl group-hover:scale-110 transition-transform">
-                <ShieldCheck className="h-8 w-8" />
-             </div>
-             <div>
-                <p className="text-[11px] font-black text-slate-900 uppercase tracking-widest leading-none mb-2">Conexão Criptografada</p>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-ultra">Ambiente Fiscalizado pela SME Itaberaba</p>
-             </div>
           </div>
         </div>
       </div>

@@ -30,7 +30,7 @@ class ErrorBoundaryInner extends Component<InnerProps, ErrorBoundaryState> {
     
     if (this.props.logError) {
         this.props.logError(
-            `Falha Crítica de Interface: ${error.message}`, 
+            `Erro Crítico de Rede: ${error.message}`, 
             errorInfo.componentStack || ''
         );
     }
@@ -44,7 +44,7 @@ class ErrorBoundaryInner extends Component<InnerProps, ErrorBoundaryState> {
       const { error, errorInfo } = this.state;
       const text = `Erro: ${error?.message}\n\nStack Trace:\n${errorInfo?.componentStack || 'Não disponível'}`;
       navigator.clipboard.writeText(text);
-      alert('Relatório de erro copiado.');
+      alert('Diagnóstico copiado para a área de transferência.');
   };
 
   render() {
@@ -55,17 +55,17 @@ class ErrorBoundaryInner extends Component<InnerProps, ErrorBoundaryState> {
             <div className="w-32 h-32 bg-red-50 rounded-[2.5rem] flex items-center justify-center mx-auto mb-12 shadow-xl shadow-red-50">
               <ShieldAlert className="h-16 w-16 text-red-500" />
             </div>
-            <h1 className="text-5xl font-black text-slate-900 mb-6 tracking-tighter">Interrupção de Sistema.</h1>
+            <h1 className="text-5xl font-black text-slate-900 mb-6 tracking-tighter">Interrupção de Módulo.</h1>
             <p className="text-slate-500 mb-12 text-xl font-medium leading-relaxed">
-              Ocorreu uma falha inesperada no processamento de rede. Por favor, reinicie o módulo.
+              Ocorreu uma falha inesperada no núcleo de processamento. Por favor, reinicie a aplicação.
             </p>
             
             <div className="bg-slate-50 p-10 rounded-[2.5rem] text-left mb-14 overflow-hidden border border-slate-200 font-mono">
                 <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                  <FileSearch className="h-4 w-4" /> Protocolo de Diagnóstico
+                   <FileSearch className="h-4 w-4" /> Protocolo de Diagnóstico
                 </p>
                 <p className="text-sm text-slate-600 break-words line-clamp-3">
-                    {this.state.error?.message || "Erro desconhecido pela SME Itaberaba"}
+                    {this.state.error?.message || "Código de erro não catalogado pela SME"}
                 </p>
             </div>
 

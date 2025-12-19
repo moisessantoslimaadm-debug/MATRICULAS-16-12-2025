@@ -75,9 +75,9 @@ export const Dashboard: React.FC = () => {
         <header className="mb-20 flex flex-col lg:flex-row justify-between items-start lg:items-end gap-10">
             <div className="animate-in fade-in slide-in-from-left-8 duration-1000">
                 <div className="flex items-center gap-4 mb-6">
-                    <span className="px-5 py-2 bg-emerald-50 text-emerald-700 text-[11px] font-black uppercase rounded-full tracking-ultra border border-emerald-100 glow-emerald">Rede Digital 2025</span>
+                    <span className="px-5 py-2 bg-emerald-50 text-emerald-700 text-[11px] font-black uppercase rounded-full tracking-widest border border-emerald-100 glow-emerald">Rede Digital 2025</span>
                     <span className="w-2 h-2 rounded-full bg-slate-200"></span>
-                    <span className="text-slate-400 text-[11px] font-black uppercase tracking-ultra">{new Date().toLocaleDateString('pt-BR', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                    <span className="text-slate-400 text-[11px] font-black uppercase tracking-widest">{new Date().toLocaleDateString('pt-BR', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
                 </div>
                 <h1 className="text-7xl font-black text-slate-900 tracking-tighter leading-none mb-6">Painel de <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-blue-500">{role}</span></h1>
                 <p className="text-slate-500 text-2xl font-medium tracking-tight">
@@ -91,7 +91,7 @@ export const Dashboard: React.FC = () => {
                         <CloudLightning className="h-10 w-10" />
                     </div>
                     <div>
-                        <p className="text-[11px] font-black uppercase opacity-50 tracking-ultra">SME ITABERABA</p>
+                        <p className="text-[11px] font-black uppercase opacity-50 tracking-widest">SME ITABERABA</p>
                         <p className="text-3xl font-black">Status: Online</p>
                     </div>
                 </div>
