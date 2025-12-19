@@ -1,10 +1,9 @@
-
 import React, { useState } from 'react';
 import { useNavigate, Link } from '../router';
 import { useToast } from '../contexts/ToastContext';
 import { 
   GraduationCap, Lock, User, ArrowRight, Loader2, ShieldCheck, 
-  Users, BookOpen, UserCircle, Globe 
+  Users, BookOpen, UserCircle, Globe, LayoutGrid, Sparkles
 } from 'lucide-react';
 import { MUNICIPALITY_NAME } from '../constants';
 import { UserRole } from '../types';
@@ -66,7 +65,7 @@ export const Login: React.FC = () => {
         sessionStorage.setItem('admin_auth', 'true');
         sessionStorage.setItem('user_role', role);
         sessionStorage.setItem('user_data', JSON.stringify(userData));
-        addToast(`Olá, ${userData.name}. Acesso autorizado.`, 'success');
+        addToast(`Olá, ${userData.name}. Identificação autorizada pela Rede.`, 'success');
         
         if (role === UserRole.PARENT_STUDENT) {
             navigate(`/student/monitoring?id=${userData.studentId}`);
@@ -74,85 +73,95 @@ export const Login: React.FC = () => {
             navigate('/dashboard');
         }
       } else {
-        addToast('Credenciais inválidas. Tente novamente.', 'error');
+        addToast('Credenciais de acesso não reconhecidas.', 'error');
         setIsLoading(false);
       }
-    }, 1000);
+    }, 1200);
   };
 
   return (
-    <div className="min-h-screen flex bg-white font-sans">
-      {/* Visual Side */}
-      <div className="hidden lg:flex lg:w-1/2 bg-slate-900 relative items-center justify-center p-20 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/20 via-transparent to-blue-600/10"></div>
-        <div className="absolute top-[-20%] left-[-20%] w-full h-full bg-indigo-500/10 blur-[150px] rounded-full"></div>
+    <div className="min-h-screen flex bg-white">
+      {/* Visual Side - Premium Abstract */}
+      <div className="hidden lg:flex lg:w-3/5 bg-slate-900 relative items-center justify-center p-24 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-emerald-600/20 via-transparent to-blue-600/10"></div>
+        <div className="absolute top-[-20%] left-[-20%] w-full h-full bg-emerald-500/10 blur-[180px] rounded-full animate-pulse"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-blue-500/5 blur-[150px] rounded-full"></div>
         
-        <div className="relative z-10 max-w-lg space-y-12 animate-in fade-in slide-in-from-left-8 duration-1000">
-            <div className="flex items-center gap-4">
-                <div className="bg-white p-3 rounded-[1.5rem] shadow-2xl">
-                    <GraduationCap className="h-10 w-10 text-slate-900" />
+        <div className="relative z-10 max-w-2xl space-y-16 animate-in fade-in slide-in-from-left-12 duration-1000">
+            <div className="flex items-center gap-6">
+                <div className="bg-white p-4 rounded-[2rem] shadow-2xl transform rotate-3">
+                    <GraduationCap className="h-12 w-12 text-slate-900" />
                 </div>
-                <h1 className="text-4xl font-black text-white tracking-tighter">Educa<span className="text-indigo-400">Município</span></h1>
+                <h1 className="text-5xl font-black text-white tracking-tighter">Educa<span className="text-emerald-400">Município</span></h1>
             </div>
 
-            <h2 className="text-5xl font-black text-white leading-[1.1] tracking-tight">
-                Um novo horizonte para a <span className="text-indigo-400">gestão escolar</span> pública.
-            </h2>
+            <div className="space-y-8">
+                <h2 className="text-8xl font-black text-white leading-[0.85] tracking-tighter">
+                    Gestão <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-blue-400">Pública</span> <br/>de Elite.
+                </h2>
+                <p className="text-slate-400 text-2xl font-medium max-w-xl leading-relaxed">
+                    Bem-vindo ao núcleo operacional da rede municipal. Autentique-se para gerenciar ativos escolares e indicadores pedagógicos.
+                </p>
+            </div>
 
-            <div className="grid gap-6">
-                <div className="flex items-start gap-4">
-                    <div className="mt-1 bg-white/10 p-2 rounded-lg"><Globe className="h-5 w-5 text-indigo-300" /></div>
+            <div className="grid grid-cols-2 gap-10">
+                <div className="flex flex-col gap-5 p-8 bg-white/5 backdrop-blur-3xl rounded-[3rem] border border-white/10 hover:bg-white/10 transition-all group">
+                    <div className="bg-emerald-600 p-4 rounded-2xl w-fit group-hover:scale-110 transition-transform"><Globe className="h-6 w-6 text-white" /></div>
                     <div>
-                        <p className="text-white font-bold text-lg">Ecossistema Conectado</p>
-                        <p className="text-slate-400 text-sm">Integração nativa com Educacenso e sistemas MEC em tempo real.</p>
+                        <p className="text-white font-black text-xl tracking-tight mb-2">Rede Unificada</p>
+                        <p className="text-slate-500 text-sm leading-relaxed">Sincronização nominal entre escolas e Secretaria em tempo real.</p>
                     </div>
                 </div>
-                <div className="flex items-start gap-4">
-                    <div className="mt-1 bg-white/10 p-2 rounded-lg"><UserCircle className="h-5 w-5 text-indigo-300" /></div>
+                <div className="flex flex-col gap-5 p-8 bg-white/5 backdrop-blur-3xl rounded-[3rem] border border-white/10 hover:bg-white/10 transition-all group">
+                    <div className="bg-blue-600 p-4 rounded-2xl w-fit group-hover:scale-110 transition-transform"><ShieldCheck className="h-6 w-6 text-white" /></div>
                     <div>
-                        <p className="text-white font-bold text-lg">Portal Multifuncional</p>
-                        <p className="text-slate-400 text-sm">Desde o diário do professor até o boletim da família em um só clique.</p>
+                        <p className="text-white font-black text-xl tracking-tight mb-2">Segurança SME</p>
+                        <p className="text-slate-500 text-sm leading-relaxed">Criptografia de ponta e auditoria constante de acessos nominais.</p>
                     </div>
                 </div>
             </div>
         </div>
       </div>
 
-      {/* Login Side */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 lg:p-24 bg-slate-50">
-        <div className="max-w-md w-full animate-in zoom-in-95 duration-500">
-          <div className="mb-12 text-center lg:text-left">
-            <h3 className="text-4xl font-black text-slate-900 tracking-tighter mb-4">Bem-vindo de volta</h3>
-            <p className="text-slate-500 font-medium">Selecione seu perfil e insira suas credenciais para continuar.</p>
+      {/* Login Side - High Reqinte */}
+      <div className="w-full lg:w-2/5 flex items-center justify-center p-12 lg:p-24 bg-[#FCFDFE]">
+        <div className="max-w-md w-full animate-in zoom-in-95 duration-700">
+          <div className="mb-16 text-center lg:text-left">
+            <div className="inline-flex items-center gap-3 px-5 py-2 bg-emerald-50 rounded-full mb-8 border border-emerald-100 animate-in slide-in-from-top-4 duration-1000">
+                <Sparkles className="h-4 w-4 text-emerald-600" />
+                <span className="text-[10px] font-black text-emerald-700 uppercase tracking-ultra">Identidade Digital 2025</span>
+            </div>
+            <h3 className="text-6xl font-black text-slate-900 tracking-tighter mb-4 leading-none">Autenticação.</h3>
+            <p className="text-slate-500 font-medium text-xl">Insira suas credenciais exclusivas para acessar o sistema operacional.</p>
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-8">
-            <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Identificação</label>
+          <form onSubmit={handleLogin} className="space-y-10">
+            <div className="space-y-3">
+                <label className="text-[11px] font-black text-slate-400 uppercase tracking-ultra ml-2">Protocolo de Usuário</label>
                 <div className="relative group">
-                    <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-300 group-focus-within:text-indigo-600 transition-colors" />
+                    <User className="absolute left-6 top-1/2 -translate-y-1/2 h-6 w-6 text-slate-300 group-focus-within:text-emerald-600 transition-colors" />
                     <input 
                         type="text"
                         required
                         value={username}
                         onChange={e => setUsername(e.target.value)}
-                        placeholder="Usuário ou CPF"
-                        className="w-full pl-12 pr-4 py-4 bg-white border border-slate-200 rounded-3xl outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-600 transition-all font-medium text-slate-700"
+                        placeholder="Usuário SME ou CPF"
+                        className="w-full pl-16 pr-6 py-6 bg-white border border-slate-200 rounded-[2.5rem] outline-none focus:ring-8 focus:ring-emerald-50 focus:border-emerald-600 transition-all font-black text-slate-700 text-lg shadow-sm"
                     />
                 </div>
             </div>
 
-            <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Senha de Acesso</label>
+            <div className="space-y-3">
+                <label className="text-[11px] font-black text-slate-400 uppercase tracking-ultra ml-2">Chave de Segurança</label>
                 <div className="relative group">
-                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-300 group-focus-within:text-indigo-600 transition-colors" />
+                    <Lock className="absolute left-6 top-1/2 -translate-y-1/2 h-6 w-6 text-slate-300 group-focus-within:text-emerald-600 transition-colors" />
                     <input 
                         type="password"
                         required
                         value={password}
                         onChange={e => setPassword(e.target.value)}
                         placeholder="••••••••"
-                        className="w-full pl-12 pr-4 py-4 bg-white border border-slate-200 rounded-3xl outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-600 transition-all font-medium text-slate-700"
+                        className="w-full pl-16 pr-6 py-6 bg-white border border-slate-200 rounded-[2.5rem] outline-none focus:ring-8 focus:ring-emerald-50 focus:border-emerald-600 transition-all font-black text-slate-700 text-lg shadow-sm"
                     />
                 </div>
             </div>
@@ -160,24 +169,25 @@ export const Login: React.FC = () => {
             <button 
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-5 bg-slate-900 text-white rounded-[2rem] font-black text-sm uppercase tracking-widest hover:bg-slate-800 transition-all flex items-center justify-center gap-4 shadow-2xl shadow-slate-200 disabled:opacity-50"
+                className="w-full py-7 bg-slate-900 text-white rounded-[2.8rem] font-black text-xs uppercase tracking-ultra hover:bg-emerald-600 transition-all flex items-center justify-center gap-6 shadow-2xl shadow-slate-200 disabled:opacity-50 active:scale-95"
             >
-                {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <>Entrar no Sistema <ArrowRight className="h-5 w-5" /></>}
+                {isLoading ? <Loader2 className="h-6 w-6 animate-spin" /> : <>Validar Credenciais <ArrowRight className="h-6 w-6" /></>}
             </button>
           </form>
 
-          <div className="mt-12 flex items-center justify-between text-xs font-black uppercase tracking-widest">
-            <Link to="/registration" className="text-indigo-600 hover:text-indigo-800 transition">Nova Matrícula</Link>
+          <div className="mt-16 flex items-center justify-between text-[10px] font-black uppercase tracking-ultra px-2">
+            <Link to="/registration" className="text-emerald-600 hover:text-emerald-800 transition underline underline-offset-8">Solicitar Matrícula</Link>
             <Link to="/status" className="text-slate-400 hover:text-slate-600 transition">Problemas no Acesso?</Link>
           </div>
 
-          <div className="mt-24 p-6 bg-white rounded-3xl border border-slate-100 flex items-center gap-4 shadow-sm">
-             <div className="bg-emerald-50 text-emerald-600 p-2 rounded-lg">
-                <ShieldCheck className="h-5 w-5" />
+          <div className="mt-28 p-8 bg-white rounded-[3rem] border border-slate-100 flex items-center gap-6 shadow-sm group">
+             <div className="bg-slate-50 text-emerald-600 p-4 rounded-2xl group-hover:scale-110 transition-transform">
+                <ShieldCheck className="h-8 w-8" />
              </div>
-             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-relaxed">
-                Ambiente seguro • Secretaria Municipal de Educação <br/> de {MUNICIPALITY_NAME}
-             </p>
+             <div>
+                <p className="text-[11px] font-black text-slate-900 uppercase tracking-widest leading-none mb-2">Conexão Criptografada</p>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-ultra">Ambiente Fiscalizado pela SME Itaberaba</p>
+             </div>
           </div>
         </div>
       </div>

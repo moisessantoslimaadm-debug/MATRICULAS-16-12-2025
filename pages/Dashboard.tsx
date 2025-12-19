@@ -64,7 +64,7 @@ export const Dashboard: React.FC = () => {
         </div>
         <div className="text-center">
             <h2 className="text-xl font-black text-slate-900 uppercase tracking-[0.4em]">EducaMunicípio</h2>
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-[0.5em] mt-3 animate-pulse">Base Nominal Ativa...</p>
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-[0.5em] mt-3 animate-pulse">Sincronizando Base de Rede...</p>
         </div>
     </div>
   );
@@ -104,7 +104,7 @@ export const Dashboard: React.FC = () => {
                 value={stats.matriculados} 
                 icon={Users} 
                 colorClass="bg-emerald-600" 
-                subtext="Censo Escolar Ativo"
+                subtext="Censo Nominal Ativo"
                 onClick={() => navigate('/admin/data')}
             />
             <PremiumStatCard 
@@ -119,7 +119,7 @@ export const Dashboard: React.FC = () => {
                 value={stats.pendentes} 
                 icon={AlertTriangle} 
                 colorClass="bg-amber-500" 
-                subtext="Triagem de Rede"
+                subtext="Triagem Pendente"
                 onClick={() => navigate('/status')}
             />
             <PremiumStatCard 
@@ -148,7 +148,7 @@ export const Dashboard: React.FC = () => {
                                     <div className="bg-emerald-600 p-8 rounded-[2rem] text-white shadow-xl group-hover/card:bg-white group-hover/card:text-emerald-600 transition-colors self-start"><UserCheck className="h-10 w-10" /></div>
                                     <div>
                                         <h4 className="font-black text-slate-900 group-hover/card:text-white text-3xl tracking-tighter">Diário Digital</h4>
-                                        <p className="text-slate-500 group-hover/card:text-emerald-100 mt-3 text-lg font-medium">Controle nominal de frequência.</p>
+                                        <p className="text-slate-500 group-hover/card:text-emerald-100 mt-3 text-lg font-medium">Controle de frequência e notas.</p>
                                     </div>
                                     <ArrowRight className="h-10 w-10 text-emerald-600 group-hover/card:text-white transition-all group-hover/card:translate-x-6" />
                                 </Link>
@@ -168,15 +168,15 @@ export const Dashboard: React.FC = () => {
                                     <div className="bg-emerald-600 p-8 rounded-[2rem] text-white shadow-xl group-hover/card:bg-white group-hover/card:text-emerald-600 transition-colors self-start"><Map className="h-10 w-10" /></div>
                                     <div>
                                         <h4 className="font-black text-slate-900 group-hover/card:text-white text-3xl tracking-tighter">Geoprocess</h4>
-                                        <p className="text-slate-500 group-hover/card:text-emerald-100 mt-3 text-lg font-medium">Análise macro de demanda escolar.</p>
+                                        <p className="text-slate-500 group-hover/card:text-emerald-100 mt-3 text-lg font-medium">Análise de demanda por georeferência.</p>
                                     </div>
                                     <ArrowRight className="h-10 w-10 text-emerald-600 group-hover/card:text-white transition-all group-hover/card:translate-x-6" />
                                 </Link>
                                 <Link to="/admin/data" className="group/card flex flex-col gap-10 p-12 bg-slate-900 rounded-[3.5rem] border border-slate-800 hover:bg-slate-800 transition-all duration-700">
                                     <div className="bg-white p-8 rounded-[2.2rem] text-slate-900 shadow-xl self-start group-hover/card:scale-110 transition-transform"><Building className="h-10 w-10" /></div>
                                     <div>
-                                        <h4 className="font-black text-white text-3xl tracking-tighter">Gestão de Rede</h4>
-                                        <p className="text-slate-400 group-hover/card:text-slate-200 mt-3 text-lg font-medium">Controle nominal e vagas totais.</p>
+                                        <h4 className="font-black text-white text-3xl tracking-tighter">Gestão SME</h4>
+                                        <p className="text-slate-400 group-hover/card:text-slate-200 mt-3 text-lg font-medium">Controle de rede e vagas totais.</p>
                                     </div>
                                     <ArrowRight className="h-10 w-10 text-white transition-all group-hover/card:translate-x-6" />
                                 </Link>

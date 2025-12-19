@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   Printer, ArrowLeft, TrendingUp, Save, 
   Loader2, Award, ShieldCheck, Activity,
-  BookOpen, Target, Sparkles,
-  ChevronRight, ArrowUpRight, Zap
+  BookOpen, Target, ArrowUpRight, Zap
 } from 'lucide-react';
 import { useSearchParams, useNavigate } from '../router';
 import { useData } from '../contexts/DataContext';
@@ -18,7 +17,7 @@ const CONCEPTS = {
   '': { label: 'Pendente', color: 'bg-slate-200', text: 'text-slate-400', bg: 'bg-slate-50', val: 0 }
 };
 
-const ProgressionDashboard = ({ data }: { data: PerformanceRow[] }) => {
+const ProgressionVisual = ({ data }: { data: PerformanceRow[] }) => {
     const units = ['Unidade I', 'Unidade II', 'Unidade III'];
     const scores = units.map((_, idx) => {
         let count = 0;
@@ -43,18 +42,18 @@ const ProgressionDashboard = ({ data }: { data: PerformanceRow[] }) => {
     }).join(' ');
 
     return (
-        <div className="bg-white p-10 rounded-[4rem] border border-slate-100 shadow-2xl shadow-slate-100 flex flex-col lg:flex-row items-center gap-10 overflow-hidden relative group">
+        <div className="bg-white p-12 rounded-[4rem] border border-slate-100 shadow-2xl shadow-slate-100 flex flex-col lg:flex-row items-center gap-10 overflow-hidden relative group">
             <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-50 rounded-full -mr-40 -mt-40 opacity-40 group-hover:scale-110 transition-transform duration-1000"></div>
             
             <div className="shrink-0 relative z-10 text-center lg:text-left">
                 <div className="bg-emerald-600 w-16 h-16 rounded-3xl shadow-xl shadow-emerald-100 flex items-center justify-center mb-6 animate-float mx-auto lg:mx-0">
                     <Activity className="h-8 w-8 text-white" />
                 </div>
-                <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.3em] mb-1">Ritmo de</h4>
-                <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.3em]">Aprendizagem</h4>
-                <p className="text-5xl font-black text-slate-900 mt-3 tracking-tighter leading-none">
+                <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1">Rendimento</h4>
+                <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Pedagógico</h4>
+                <p className="text-6xl font-black text-slate-900 mt-3 tracking-tighter leading-none">
                   {(scores.reduce((a,b)=>a+b,0)/3).toFixed(1)} 
-                  <span className="text-xs font-black text-emerald-500 ml-2 uppercase tracking-widest">Global</span>
+                  <span className="text-xs font-black text-emerald-500 ml-2 uppercase tracking-widest">Score</span>
                 </p>
             </div>
 
@@ -82,10 +81,10 @@ const ProgressionDashboard = ({ data }: { data: PerformanceRow[] }) => {
                 </svg>
             </div>
 
-            <div className="bg-slate-900 p-10 rounded-[3.5rem] text-white min-w-[240px] shadow-2xl relative overflow-hidden group/card">
+            <div className="bg-slate-900 p-12 rounded-[3.5rem] text-white min-w-[240px] shadow-2xl relative overflow-hidden group/card">
                 <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/10 rounded-full -mr-12 -mt-12 group-hover/card:scale-150 transition-transform duration-700"></div>
                 <Zap className="h-6 w-6 text-emerald-400 mb-6" />
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40 mb-3">Status de Rede</p>
+                <p className="text-[10px] font-black uppercase tracking-widest opacity-40 mb-3">Status de Rede</p>
                 <div className="flex items-center gap-4">
                     <div className="h-3 w-3 rounded-full bg-emerald-500 animate-pulse"></div>
                     <span className="text-2xl font-black tracking-tight">Sincronizado</span>
@@ -140,9 +139,12 @@ export const PerformanceIndicators: React.FC = () => {
       setIsSaving(true);
       try {
           await updateStudents([{ ...currentStudent, performanceHistory: performanceData }]);
-          addToast("Performance sincronizada com sucesso!", "success");
-      } catch (e) { addToast("Erro ao gravar dados.", "error"); }
-      finally { setIsSaving(false); }
+          addToast("Boletim nominal sincronizado.", "success");
+      } catch (e) { 
+          addToast("Erro na sincronização.", "error"); 
+      } finally { 
+          setIsSaving(false); 
+      }
   };
 
   if (!currentStudent) return null;
@@ -152,10 +154,10 @@ export const PerformanceIndicators: React.FC = () => {
       <div className="max-w-6xl mx-auto">
         <header className="flex flex-col lg:flex-row justify-between items-start lg:items-end mb-16 gap-8">
             <div className="animate-in fade-in slide-in-from-left-6 duration-700">
-                <button onClick={() => navigate(-1)} className="flex items-center gap-3 text-[10px] font-black text-slate-400 uppercase tracking-ultra mb-8 hover:text-emerald-600 transition group">
+                <button onClick={() => navigate(-1)} className="flex items-center gap-3 text-[10px] font-black text-slate-400 uppercase tracking-widest mb-8 hover:text-emerald-600 transition group">
                     <div className="bg-slate-100 p-2.5 rounded-xl group-hover:bg-emerald-50 transition-colors">
                       <ArrowLeft className="h-4 w-4" />
-                    </div> Painel de Rede
+                    </div> Voltar ao Painel
                 </button>
                 <h1 className="text-7xl font-black text-slate-900 tracking-tighter leading-none mb-6">
                   Monitor de <br/><span className="text-emerald-600">Aprendizado.</span>
@@ -166,7 +168,7 @@ export const PerformanceIndicators: React.FC = () => {
                     </div>
                     <div>
                         <p className="text-slate-900 font-black text-2xl tracking-tight leading-none">{currentStudent.name}</p>
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">{currentStudent.enrollmentId || 'ID: '+currentStudent.id}</p>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Protocolo SME: {currentStudent.enrollmentId || currentStudent.id}</p>
                     </div>
                 </div>
             </div>
@@ -176,7 +178,7 @@ export const PerformanceIndicators: React.FC = () => {
                 <button 
                     onClick={handleSave} 
                     disabled={isSaving}
-                    className="flex items-center gap-5 px-14 py-7 bg-slate-900 text-white rounded-[2.8rem] font-black text-[10px] uppercase tracking-ultra hover:bg-emerald-600 transition-all shadow-2xl shadow-slate-200 disabled:opacity-50 active:scale-95"
+                    className="flex items-center gap-5 px-14 py-7 bg-slate-900 text-white rounded-[2.8rem] font-black text-[10px] uppercase tracking-widest hover:bg-emerald-600 transition-all shadow-2xl shadow-slate-200 disabled:opacity-50 active:scale-95"
                 >
                     {isSaving ? <Loader2 className="h-5 w-5 animate-spin" /> : <Save className="h-5 w-5" />}
                     Sincronizar Boletim
@@ -185,7 +187,7 @@ export const PerformanceIndicators: React.FC = () => {
         </header>
 
         <div className="mb-16 animate-in slide-in-from-bottom-8 duration-1000 delay-200">
-            <ProgressionDashboard data={performanceData} />
+            <ProgressionVisual data={performanceData} />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
@@ -193,10 +195,9 @@ export const PerformanceIndicators: React.FC = () => {
                 <div className="card-requinte overflow-hidden">
                     <div className="bg-slate-50/50 px-12 py-10 border-b border-slate-100 flex justify-between items-center">
                         <div>
-                            <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-ultra flex items-center gap-4">
-                                <Target className="h-5 w-5 text-emerald-600" /> Matriz de Competências
+                            <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-4">
+                                <Target className="h-5 w-5 text-emerald-600" /> Matriz BNCC Nominal
                             </h3>
-                            <p className="text-slate-500 text-xs mt-2 font-medium">Clique nas células para alternar o conceito.</p>
                         </div>
                         <div className="bg-emerald-50 text-emerald-700 px-5 py-2.5 rounded-2xl text-[9px] font-black uppercase tracking-widest border border-emerald-100 glow-emerald">
                             Ano Letivo 2025
@@ -207,7 +208,7 @@ export const PerformanceIndicators: React.FC = () => {
                         <table className="w-full text-left border-collapse">
                             <thead>
                                 <tr className="border-b border-slate-50">
-                                    <th className="px-12 py-10 text-[11px] font-black text-slate-500 uppercase tracking-widest w-1/3">Componente</th>
+                                    <th className="px-12 py-10 text-[11px] font-black text-slate-500 uppercase tracking-widest w-1/3">Área de Conhecimento</th>
                                     {['UNID I', 'UNID II', 'UNID III'].map(u => (
                                         <th key={u} className="px-6 py-10 text-[11px] font-black text-slate-400 uppercase tracking-widest text-center">{u}</th>
                                     ))}
@@ -218,7 +219,6 @@ export const PerformanceIndicators: React.FC = () => {
                                     <tr key={row.subject} className="tr-premium group">
                                         <td className="px-12 py-12">
                                             <p className="font-black text-slate-800 text-lg tracking-tight uppercase">{row.subject}</p>
-                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">BNCC Referencial</p>
                                         </td>
                                         {[0, 1, 2].map(cIdx => {
                                             const val = (row.g1?.[cIdx] || '') as keyof typeof CONCEPTS;
@@ -254,7 +254,7 @@ export const PerformanceIndicators: React.FC = () => {
                                 <div className={`${info.bg} ${info.text} w-20 h-20 rounded-[1.8rem] flex items-center justify-center font-black text-2xl shadow-sm border border-transparent group-hover:border-slate-200 transition-all`}>{key}</div>
                                 <div>
                                     <p className="font-black text-slate-800 text-xl tracking-tight leading-none">{info.label}</p>
-                                    <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-3">Proficiência Nível {info.val}</p>
+                                    <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-3">Nível {info.val}</p>
                                 </div>
                             </div>
                         ))}
@@ -264,10 +264,10 @@ export const PerformanceIndicators: React.FC = () => {
                 <div className="bg-emerald-600 p-12 rounded-[4.5rem] text-white shadow-2xl shadow-emerald-100 relative overflow-hidden group">
                     <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-1000"></div>
                     <ShieldCheck className="h-14 w-14 mb-10 opacity-50" />
-                    <h3 className="text-4xl font-black tracking-tighter mb-6 leading-tight">Validação Jurídica</h3>
-                    <p className="text-emerald-50 text-base font-medium leading-relaxed mb-12">Os conceitos registrados integram a base de dados nominal da Secretaria e possuem fé pública para fins de transferência ou certificação.</p>
+                    <h3 className="text-4xl font-black tracking-tighter mb-6 leading-tight">Vigência SME</h3>
+                    <p className="text-emerald-50 text-base font-medium leading-relaxed mb-12">Documento nominal com validade para fins de histórico escolar digital.</p>
                     <div className="flex items-center justify-between pt-8 border-t border-emerald-500/50">
-                        <span className="text-[11px] font-black uppercase tracking-ultra">SME ITABERABA</span>
+                        <span className="text-[11px] font-black uppercase tracking-widest">SME ITABERABA</span>
                         <ArrowUpRight className="h-8 w-8" />
                     </div>
                 </div>
