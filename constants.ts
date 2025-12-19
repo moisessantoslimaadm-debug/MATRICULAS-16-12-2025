@@ -11,10 +11,6 @@ export const MOCK_SCHOOLS: School[] = [
     address: 'Av. Rio Branco, 450 - Centro, Itaberaba - BA',
     types: [SchoolType.INFANTIL],
     image: 'https://images.unsplash.com/photo-1588072432836-e10032774350?auto=format&fit=crop&q=80',
-    gallery: [
-      'https://images.unsplash.com/photo-1588072432836-e10032774350?auto=format&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&q=80'
-    ],
     rating: 5.0,
     availableSlots: 150,
     lat: -12.5253,
@@ -35,74 +31,58 @@ export const MOCK_SCHOOLS: School[] = [
   }
 ];
 
-// Gerador de pontos próximos para o Heatmap (Simulação de demanda real)
-const generatePoints = (count: number) => {
-    return Array.from({ length: count }).map((_, i) => ({
-        lat: -12.5253 + (Math.random() - 0.5) * 0.04,
-        lng: -40.2917 + (Math.random() - 0.5) * 0.04
-    }));
-};
-
-const points = generatePoints(50);
-
 export const MOCK_STUDENT_REGISTRY: RegistryStudent[] = [
   { 
-    id: '207386980831', 
+    id: '207386980831',
+    enrollmentId: '2025.001.094',
+    inepId: '1239840293',
     name: 'CAIO DAVY LEITE', 
-    birthDate: '03/01/2022', 
-    cpf: '12722754509', 
+    birthDate: '2022-01-03', 
+    gender: 'M',
+    colorRace: 'Parda',
+    nationality: 'Brasileira',
+    cpf: '127.227.545-09', 
+    rg: '21.093.444-X',
+    nis: '102.394.506.77',
     status: 'Matriculado', 
     school: 'CRECHE PARAISO DA CRIANCA', 
     className: 'GRUPO 3 C - INTEGRAL', 
-    shift: 'Integral', 
-    residenceZone: 'Urbana',
-    lat: points[0].lat,
-    lng: points[0].lng,
+    shift: 'Integral',
+    grade: 'Grupo 3',
+    guardianName: 'ADRIANA SANTOS LEITE',
+    guardianContact: '(75) 99933-2211',
+    guardianCpf: '003.444.555-66',
+    address: {
+        street: 'Rua das Flores',
+        number: '12',
+        neighborhood: 'Centro',
+        city: 'Itaberaba',
+        zipCode: '46880-000',
+        zone: 'Urbana'
+    },
+    attendance: {
+        totalSchoolDays: 200,
+        presentDays: 185,
+        justifiedAbsences: 5,
+        unjustifiedAbsences: 10
+    },
     performanceHistory: [
-        { subject: 'DESENVOLVIMENTO', g1: ['DE','DE','DB'], g2: ['DE','DE','DE'], g3: ['DE','DE'] }
-    ]
-  },
-  { 
-    id: '230565943594', 
-    name: 'ARTHUR SANTOS BORGES', 
-    birthDate: '03/04/2021', 
-    cpf: '12449554505', 
-    status: 'Matriculado', 
-    school: 'CRECHE PARAISO DA CRIANCA', 
-    className: 'GRUPO 3 A - INTEGRAL', 
-    shift: 'Integral', 
-    specialNeeds: true,
-    medicalReport: 'TEA',
-    residenceZone: 'Urbana',
-    lat: points[1].lat,
-    lng: points[1].lng
-  },
-  { 
-    id: '229230253187', 
-    name: 'LEVI GABRIEL PASSOS NEVES', 
-    birthDate: '10/03/2023', 
-    // Fix: Added missing required property 'cpf'
-    cpf: '000.000.000-00',
-    status: 'Pendente', 
-    school: 'Não alocada', 
-    transportRequest: true, 
-    residenceZone: 'Rural',
-    lat: points[2].lat,
-    lng: points[2].lng
-  },
-  // Mais registros para o Heatmap
-  ...Array.from({ length: 40 }).map((_, i) => ({
-      id: `sim-${i}`,
-      name: `ALUNO SIMULADO ${i + 1}`,
-      birthDate: '01/01/2020',
-      cpf: `000.000.000-${i}`,
-      status: i % 3 === 0 ? 'Pendente' : 'Matriculado' as any,
-      school: i % 3 === 0 ? 'Não alocada' : 'CRECHE PARAISO DA CRIANCA',
-      lat: points[i + 3].lat,
-      lng: points[i + 3].lng,
-      residenceZone: i % 5 === 0 ? 'Rural' : 'Urbana' as any,
-      specialNeeds: i % 8 === 0
-  }))
+        { subject: 'LÍNGUA PORTUGUESA', g1: ['DE','DE','DB'], average: 9.5, concept: 'DE' },
+        { subject: 'MATEMÁTICA', g1: ['DB','DE','DE'], average: 9.0, concept: 'DE' },
+        { subject: 'CIÊNCIAS', g1: ['DE','DB','DB'], average: 8.5, concept: 'DB' },
+        { subject: 'ARTES', g1: ['DE','DE','DE'], average: 10.0, concept: 'DE' }
+    ],
+    movementHistory: [
+        { date: '2025-02-10', type: 'Entrada', description: 'Matrícula Inicial', origin_dest: 'Portal Online' },
+        { date: '2025-05-15', type: 'Remanejamento', description: 'Mudança de Turma', origin_dest: 'SME Central' }
+    ],
+    teacherNotes: [
+        { id: '1', date: '2025-03-20T14:00:00Z', type: 'Pedagógico', content: 'Aluno demonstra excelente coordenação motora e interação social.', author: 'Prof. Márcia Oliveira' }
+    ],
+    lat: -12.5253,
+    lng: -40.2917,
+    specialNeeds: false
+  }
 ];
 
 export const INITIAL_REGISTRATION_STATE: RegistrationFormState = {

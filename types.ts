@@ -23,7 +23,7 @@ export interface User {
   schoolName?: string;
   email: string;
   photo?: string;
-  studentId?: string; // Vinculo para login de aluno
+  studentId?: string;
 }
 
 export interface School {
@@ -70,46 +70,33 @@ export interface ChatMessage {
 }
 
 export interface MovementRow {
-  grade: string;
-  initial: number;
-  abandon: string | number;
-  transfer: number;
-  admitted: number;
-  current: number;
-}
-
-export interface PerformanceHeader {
-  unit: string;
-  year: number;
-  shift: string;
-  director: string;
-  coordinator: string;
-  dateDay: string;
-  dateMonth: string;
-  dateYear: string;
+  date: string;
+  type: 'Entrada' | 'Saída' | 'Transferência' | 'Remanejamento';
+  description: string;
+  origin_dest: string;
 }
 
 export interface PerformanceRow {
   subject: string;
-  unit1?: number | string;
-  unit2?: number | string;
-  unit3?: number | string;
+  g1?: string[]; // Unidades I, II, III
+  g2?: string[]; // Avaliações Complementares
   average?: number;
   concept?: 'DI' | 'EP' | 'DB' | 'DE';
-  g1?: string[];
-  g2?: string[];
-  g3?: string[];
-  g4?: string[];
-  g5?: string[];
 }
 
 export interface RegistryStudent {
   id: string;
   enrollmentId?: string;
+  inepId?: string;
   name: string;
   birthDate: string;
+  gender?: 'M' | 'F' | 'Outro';
+  colorRace?: string;
+  nationality?: string;
   cpf: string;
-  status: 'Matriculado' | 'Pendente' | 'Em Análise';
+  rg?: string;
+  nis?: string;
+  status: 'Matriculado' | 'Pendente' | 'Em Análise' | 'Transferido' | 'Abandono';
   school?: string;
   schoolId?: string;
   shift?: string;
@@ -117,34 +104,33 @@ export interface RegistryStudent {
   classId?: string;
   className?: string;
   specialNeeds?: boolean;
+  specialNeedsType?: string;
   medicalReport?: string;
-  documents?: {
-    rgAlu?: string;
-    rgResp?: string;
-    compRes?: string;
-    vacina?: string;
-  };
   photo?: string;
-  attendance?: AttendanceData;
+  attendance?: {
+    totalSchoolDays: number;
+    presentDays: number;
+    justifiedAbsences: number;
+    unjustifiedAbsences: number;
+  };
   performanceHistory?: PerformanceRow[];
+  movementHistory?: MovementRow[];
   teacherNotes?: TeacherNote[];
   guardianName?: string;
   guardianContact?: string;
   guardianCpf?: string;
+  address?: {
+    street: string;
+    number: string;
+    neighborhood: string;
+    city: string;
+    zipCode: string;
+    zone: 'Urbana' | 'Rural';
+  };
   transportRequest?: boolean;
-  residenceZone?: 'Urbana' | 'Rural';
   transportType?: string;
   lat?: number;
   lng?: number;
-  movementHistory?: MovementRow[];
-  performanceHeader?: PerformanceHeader;
-}
-
-export interface AttendanceData {
-  totalSchoolDays: number;
-  presentDays: number;
-  justifiedAbsences: number;
-  unjustifiedAbsences: number;
 }
 
 export interface RegistrationFormState {
