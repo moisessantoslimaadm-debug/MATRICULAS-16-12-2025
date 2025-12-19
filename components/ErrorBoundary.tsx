@@ -14,8 +14,8 @@ interface ErrorBoundaryState {
   errorInfo: ErrorInfo | null;
 }
 
-// Fixed: Explicitly extending React.Component to ensure props and setState are correctly inherited and recognized by TypeScript
-class ErrorBoundaryInner extends React.Component<InnerProps, ErrorBoundaryState> {
+// Fix: Use the 'Component' named import directly to ensure proper recognition of inherited properties like setState and props
+class ErrorBoundaryInner extends Component<InnerProps, ErrorBoundaryState> {
   public state: ErrorBoundaryState = {
     hasError: false,
     error: null,
@@ -28,10 +28,10 @@ class ErrorBoundaryInner extends React.Component<InnerProps, ErrorBoundaryState>
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error("Uncaught error:", error, errorInfo);
-    // Fixed: Correctly using the setState method inherited from the React.Component base class
+    // Fix: Access setState from the Component base class
     this.setState({ errorInfo });
     
-    // Fixed: Correctly accessing logError through this.props inherited from React.Component base class
+    // Fix: Access props from the Component base class
     if (this.props.logError) {
         this.props.logError(
             `Erro Crítico de Interface: ${error.message}`, 
@@ -115,7 +115,7 @@ class ErrorBoundaryInner extends React.Component<InnerProps, ErrorBoundaryState>
       );
     }
 
-    // Fixed: Correctly accessing children through this.props inherited from React.Component base class
+    // Fix: Access children through this.props which is correctly inherited from the Component base class
     return this.props.children;
   }
 }
