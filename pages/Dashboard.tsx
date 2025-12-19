@@ -65,7 +65,7 @@ export const Dashboard: React.FC = () => {
         </div>
         <div className="text-center">
             <h2 className="text-lg font-black text-slate-900 uppercase tracking-widest">EducaMunicípio</h2>
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-[0.3em] mt-1 animate-pulse">Sincronizando Rede Municipal...</p>
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-[0.3em] mt-1 animate-pulse">Sincronizando Base de Dados...</p>
         </div>
     </div>
   );
@@ -85,7 +85,7 @@ export const Dashboard: React.FC = () => {
                 <p className="text-slate-500 text-xl font-medium flex items-center gap-2">
                     Operador: <span className="text-slate-900 font-black">{userData?.name}</span>
                     <span className="h-1 w-1 rounded-full bg-slate-300"></span>
-                    <span className="text-sm uppercase tracking-widest text-slate-400">{userData?.schoolName || 'Gestão SME Itaberaba'}</span>
+                    <span className="text-sm uppercase tracking-widest text-slate-400">{userData?.schoolName || 'SME Itaberaba'}</span>
                 </p>
             </div>
             
@@ -96,7 +96,7 @@ export const Dashboard: React.FC = () => {
                     </div>
                     <div>
                         <p className="text-[10px] font-black uppercase opacity-50 tracking-widest">Status da Rede</p>
-                        <p className="text-2xl font-black">100% Digital</p>
+                        <p className="text-2xl font-black">Online / SME</p>
                     </div>
                 </div>
             </div>
@@ -104,19 +104,19 @@ export const Dashboard: React.FC = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-14 animate-in fade-in slide-in-from-bottom-8 duration-1000">
             <PremiumStatCard 
-                title="Total Matriculados" 
+                title="Matriculados" 
                 value={stats.matriculados} 
                 icon={Users} 
                 colorClass="bg-emerald-600" 
-                subtext="Confirmados na Rede"
+                subtext="Total na Rede"
                 onClick={() => navigate('/admin/data')}
             />
             <PremiumStatCard 
-                title="Suporte AEE" 
+                title="AEE Ativo" 
                 value={stats.aee} 
                 icon={Award} 
                 colorClass="bg-pink-600" 
-                subtext="Inclusão Ativa"
+                subtext="Educação Especial"
             />
             <PremiumStatCard 
                 title="Solicitações" 
@@ -127,11 +127,11 @@ export const Dashboard: React.FC = () => {
                 onClick={() => navigate('/status')}
             />
             <PremiumStatCard 
-                title="Escolas Ativas" 
+                title="Unidades" 
                 value={schools.length} 
                 icon={School} 
                 colorClass="bg-blue-600" 
-                subtext="Unidades de Ensino"
+                subtext="Escolas Ativas"
             />
         </div>
 
@@ -141,9 +141,9 @@ export const Dashboard: React.FC = () => {
                     <div className="p-12 border-b border-slate-50 flex justify-between items-center bg-slate-50/30">
                         <div>
                             <h3 className="font-black text-slate-900 flex items-center gap-4 text-3xl tracking-tight">
-                                <LayoutGrid className="h-9 w-9 text-emerald-600" /> Cockpit de Gestão
+                                <LayoutGrid className="h-9 w-9 text-emerald-600" /> Módulos de Gestão
                             </h3>
-                            <p className="text-slate-400 text-sm mt-2 font-medium">Acesso rápido aos módulos administrativos</p>
+                            <p className="text-slate-400 text-sm mt-2 font-medium">Acesso rápido às ferramentas operacionais</p>
                         </div>
                     </div>
                     <div className="p-10 grid md:grid-cols-2 gap-8">
@@ -152,8 +152,8 @@ export const Dashboard: React.FC = () => {
                                 <Link to="/journal" className="group/card flex flex-col gap-8 p-10 bg-emerald-50/50 rounded-[3rem] border border-emerald-100 hover:bg-emerald-600 transition-all duration-700">
                                     <div className="bg-emerald-600 p-6 rounded-[2rem] text-white shadow-xl group-hover/card:bg-white group-hover/card:text-emerald-600 transition-colors self-start"><UserCheck className="h-8 w-8" /></div>
                                     <div>
-                                        <h4 className="font-black text-slate-900 group-hover/card:text-white text-2xl tracking-tight">Diário Digital</h4>
-                                        <p className="text-slate-500 group-hover/card:text-emerald-100 mt-2 font-medium">Controle nominal de frequência e rendimento.</p>
+                                        <h4 className="font-black text-slate-900 group-hover/card:text-white text-2xl tracking-tight">Diário Eletrônico</h4>
+                                        <p className="text-slate-500 group-hover/card:text-emerald-100 mt-2 font-medium">Chamada e rendimento pedagógico.</p>
                                     </div>
                                     <ArrowRight className="h-8 w-8 text-emerald-600 group-hover/card:text-white transition-all group-hover/card:translate-x-4" />
                                 </Link>
@@ -161,7 +161,7 @@ export const Dashboard: React.FC = () => {
                                     <div className="bg-blue-600 p-6 rounded-[2rem] text-white shadow-xl group-hover/card:bg-white group-hover/card:text-blue-600 transition-colors self-start"><TrendingUp className="h-8 w-8" /></div>
                                     <div>
                                         <h4 className="font-black text-slate-900 group-hover/card:text-white text-2xl tracking-tight">Indicadores</h4>
-                                        <p className="text-slate-500 group-hover/card:text-blue-100 mt-2 font-medium">Monitoramento do progresso acadêmico da turma.</p>
+                                        <p className="text-slate-500 group-hover/card:text-blue-100 mt-2 font-medium">Avaliações e metas educacionais.</p>
                                     </div>
                                     <ArrowRight className="h-8 w-8 text-blue-600 group-hover/card:text-white transition-all group-hover/card:translate-x-4" />
                                 </Link>
@@ -172,16 +172,16 @@ export const Dashboard: React.FC = () => {
                                 <Link to="/admin/map" className="group/card flex flex-col gap-8 p-10 bg-emerald-50/50 rounded-[3rem] border border-emerald-100 hover:bg-emerald-600 transition-all duration-700">
                                     <div className="bg-emerald-600 p-6 rounded-[2rem] text-white shadow-xl group-hover/card:bg-white group-hover/card:text-emerald-600 transition-colors self-start"><Map className="h-8 w-8" /></div>
                                     <div>
-                                        <h4 className="font-black text-slate-900 group-hover/card:text-white text-2xl tracking-tight">Geolocalização</h4>
-                                        <p className="text-slate-500 group-hover/card:text-emerald-100 mt-2 font-medium">Mapa de calor e densidade de demanda por bairro.</p>
+                                        <h4 className="font-black text-slate-900 group-hover/card:text-white text-2xl tracking-tight">Mapa de Calor</h4>
+                                        <p className="text-slate-500 group-hover/card:text-emerald-100 mt-2 font-medium">Análise de demanda por bairro e zoneamento.</p>
                                     </div>
                                     <ArrowRight className="h-8 w-8 text-emerald-600 group-hover/card:text-white transition-all group-hover/card:translate-x-4" />
                                 </Link>
                                 <Link to="/admin/data" className="group/card flex flex-col gap-8 p-10 bg-slate-900 rounded-[3rem] border border-slate-800 hover:bg-slate-800 transition-all duration-700">
                                     <div className="bg-white p-6 rounded-[2rem] text-slate-900 shadow-xl self-start group-hover/card:scale-110 transition-transform"><Building className="h-8 w-8" /></div>
                                     <div>
-                                        <h4 className="font-black text-white text-2xl tracking-tight">Base de Dados</h4>
-                                        <p className="text-slate-400 group-hover/card:text-slate-200 mt-2 font-medium">Gestão nominal de matrículas e quadro escolar.</p>
+                                        <h4 className="font-black text-white text-2xl tracking-tight">Gestão SME</h4>
+                                        <p className="text-slate-400 group-hover/card:text-slate-200 mt-2 font-medium">Base nominal e quadro escolar municipal.</p>
                                     </div>
                                     <ArrowRight className="h-8 w-8 text-white transition-all group-hover/card:translate-x-4" />
                                 </Link>
@@ -194,12 +194,12 @@ export const Dashboard: React.FC = () => {
             <div className="lg:col-span-4 space-y-8">
                 <div className="bg-white p-12 rounded-[3.5rem] shadow-xl shadow-slate-100 border border-slate-100">
                     <h3 className="font-black text-slate-900 mb-10 flex items-center gap-4 text-2xl tracking-tight">
-                        <Calendar className="h-7 w-7 text-emerald-600" /> Agenda 2025
+                        <Calendar className="h-7 w-7 text-emerald-600" /> Agenda SME
                     </h3>
                     <div className="space-y-8">
                         {[
                             { day: '30', month: 'NOV', title: 'Matrículas Regulares', type: 'Prazo Limite', color: 'bg-red-50 text-red-600' },
-                            { day: '15', month: 'DEZ', title: 'Rematrícula Automática', type: 'SME / Itaberaba', color: 'bg-emerald-50 text-emerald-700' }
+                            { day: '15', month: 'DEZ', title: 'Rematrícula Automática', type: 'Sistema Ativo', color: 'bg-emerald-50 text-emerald-700' }
                         ].map((event, i) => (
                             <div key={i} className="flex items-center gap-8 group cursor-pointer">
                                 <div className="bg-white p-4 rounded-3xl text-center w-20 border border-slate-100 shadow-sm group-hover:shadow-md transition-shadow">
@@ -212,16 +212,6 @@ export const Dashboard: React.FC = () => {
                                 </div>
                             </div>
                         ))}
-                    </div>
-                    
-                    <div className="mt-12 p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100">
-                        <h4 className="font-black text-slate-900 text-sm uppercase tracking-widest mb-4 flex items-center gap-2">
-                            <CloudLightning className="h-4 w-4 text-amber-500" /> Sincronização
-                        </h4>
-                        <p className="text-xs text-slate-500 leading-relaxed font-medium">
-                            A base do Educacenso Itaberaba foi atualizada há <span className="text-slate-900 font-bold">2 minutos</span>. 
-                            Todos os dados nominais estão em conformidade com o MEC.
-                        </p>
                     </div>
                 </div>
             </div>

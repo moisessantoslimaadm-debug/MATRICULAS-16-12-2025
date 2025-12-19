@@ -1,5 +1,5 @@
 
-import React, { ErrorInfo, ReactNode } from 'react';
+import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle, RefreshCw, Home, Copy } from 'lucide-react';
 import { useLog } from '../contexts/LogContext';
 
@@ -14,7 +14,7 @@ interface ErrorBoundaryState {
   errorInfo: ErrorInfo | null;
 }
 
-// Fix: Explicitly using React.Component to resolve inheritance issues for setState and props in certain TypeScript configurations
+// Fixed: Explicitly extending React.Component to ensure props and setState are correctly inherited and recognized by TypeScript
 class ErrorBoundaryInner extends React.Component<InnerProps, ErrorBoundaryState> {
   public state: ErrorBoundaryState = {
     hasError: false,
@@ -28,10 +28,10 @@ class ErrorBoundaryInner extends React.Component<InnerProps, ErrorBoundaryState>
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error("Uncaught error:", error, errorInfo);
-    // Fix: Use the setState method inherited from the React.Component base class
+    // Fixed: Correctly using the setState method inherited from the React.Component base class
     this.setState({ errorInfo });
     
-    // Fix: Access logError through this.props inherited from React.Component
+    // Fixed: Correctly accessing logError through this.props inherited from React.Component base class
     if (this.props.logError) {
         this.props.logError(
             `Erro Crítico de Interface: ${error.message}`, 
@@ -115,7 +115,7 @@ class ErrorBoundaryInner extends React.Component<InnerProps, ErrorBoundaryState>
       );
     }
 
-    // Fix: Correctly inherit props member from the React.Component base class
+    // Fixed: Correctly accessing children through this.props inherited from React.Component base class
     return this.props.children;
   }
 }
