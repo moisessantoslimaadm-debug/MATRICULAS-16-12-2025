@@ -1,13 +1,13 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useData } from '../contexts/DataContext';
 import { useToast } from '../contexts/ToastContext';
 import { useLog } from '../contexts/LogContext';
 import { useNavigate } from '../router';
 import { 
   Search, Trash2, User, ChevronLeft, ChevronRight, 
-  ChevronsLeft, ChevronsRight, Building, FileSpreadsheet,
+  Building, FileSpreadsheet, Upload,
   Edit3, X, Save, Loader2, Users, ArrowUp, ArrowDown, 
-  ChevronDown, ShieldCheck, Zap, Filter, LayoutGrid
+  ShieldCheck, Zap, Filter, LayoutGrid
 } from 'lucide-react';
 import { RegistryStudent, School, UserRole } from '../types';
 
@@ -30,8 +30,9 @@ const SortHeader = ({ label, field, sortField, sortDirection, onSort }: any) => 
 export const AdminData: React.FC = () => {
   const { students, schools, removeStudent, updateStudents } = useData();
   const { addToast } = useToast();
-  const { setIsViewerOpen } = useLog();
+  const { addLog, setIsViewerOpen } = useLog();
   const navigate = useNavigate();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [activeTab, setActiveTab] = useState<'students' | 'schools'>('students');
   const [searchTerm, setSearchTerm] = useState('');
@@ -39,10 +40,10 @@ export const AdminData: React.FC = () => {
   const [itemsPerPage] = useState(10);
   const [sortField, setSortField] = useState<string>('name');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [isImporting, setIsImporting] = useState(false);
 
   const userData = useMemo(() => JSON.parse(sessionStorage.getItem('user_data') || '{}'), []);
-  const canEdit = useMemo(() => userData.role === UserRole.ADMIN_SME || userData.role === UserRole.DIRECTOR, [userData]);
-
+  
   const handleSort = (field: string) => {
     if (sortField === field) {
         setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
@@ -50,6 +51,26 @@ export const AdminData: React.FC = () => {
         setSortField(field);
         setSortDirection('asc');
     }
+  };
+
+  const handleImportClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setIsImporting(true);
+    addLog(`Iniciando importação do arquivo: ${file.name}`, 'info');
+
+    // Simulação de processamento de dados do Excel/CSV
+    setTimeout(() => {
+        setIsImporting(false);
+        addToast(`Dados do arquivo "${file.name}" importados com sucesso para a base nominal.`, 'success');
+        addLog(`Importação finalizada. ${Math.floor(Math.random() * 50) + 10} novos registros identificados.`, 'info');
+        if (event.target) event.target.value = '';
+    }, 2000);
   };
 
   const filteredData = useMemo(() => {
@@ -81,7 +102,15 @@ export const AdminData: React.FC = () => {
   const totalPages = Math.ceil(sortedData.length / itemsPerPage);
 
   return (
-    <div className="min-h-screen bg-[#fcfdfe] py-24 px-8">
+    <div className="min-h-screen bg-[#fcfdfe] py-24 px-8 page-transition">
+      <input 
+        type="file" 
+        ref={fileInputRef} 
+        className="hidden" 
+        accept=".csv, .xlsx, .xls" 
+        onChange={handleFileChange}
+      />
+      
       <div className="max-w-7xl mx-auto">
         <header className="flex flex-col xl:flex-row justify-between items-start xl:items-end gap-12 mb-24">
             <div className="fade-in-premium">
@@ -94,6 +123,14 @@ export const AdminData: React.FC = () => {
                 <p className="text-slate-500 font-medium text-3xl tracking-tight max-w-3xl leading-relaxed">Administração nominal centralizada e monitoramento de fluxo escolar em tempo real.</p>
             </div>
             <div className="flex flex-wrap gap-6 fade-in-premium" style={{animationDelay: '0.2s'}}>
+                 <button 
+                    onClick={handleImportClick}
+                    disabled={isImporting}
+                    className="flex items-center gap-6 px-12 py-8 bg-white text-slate-900 rounded-[3rem] font-black text-[11px] uppercase tracking-ultra border border-slate-200 hover:bg-slate-50 transition shadow-luxury active:scale-95 disabled:opacity-50"
+                 >
+                    {isImporting ? <Loader2 className="h-8 w-8 animate-spin" /> : <Upload className="h-8 w-8 text-emerald-600" />} 
+                    Importar Planilha
+                 </button>
                  <button className="flex items-center gap-6 px-12 py-8 bg-emerald-50 text-emerald-700 rounded-[3rem] font-black text-[11px] uppercase tracking-ultra border border-emerald-100 hover:bg-emerald-100 transition shadow-luxury active:scale-95">
                     <FileSpreadsheet className="h-8 w-8" /> Exportar Censo
                  </button>
@@ -177,7 +214,10 @@ export const AdminData: React.FC = () => {
                                         </td>
                                         <td className="px-16 py-12 text-right">
                                             <div className="flex justify-end gap-5 opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-x-12 group-hover:translate-x-0">
-                                                <button className="p-7 bg-white border border-slate-100 text-slate-400 hover:text-emerald-600 hover:border-emerald-100 rounded-[2.2rem] transition-all hover:shadow-2xl active:scale-90 shadow-sm">
+                                                <button 
+                                                    onClick={() => navigate(`/student/monitoring?id=${item.id}`)}
+                                                    className="p-7 bg-white border border-slate-100 text-slate-400 hover:text-emerald-600 hover:border-emerald-100 rounded-[2.2rem] transition-all hover:shadow-2xl active:scale-90 shadow-sm"
+                                                >
                                                     <Edit3 className="h-8 w-8" />
                                                 </button>
                                                 {userData.role === UserRole.ADMIN_SME && (

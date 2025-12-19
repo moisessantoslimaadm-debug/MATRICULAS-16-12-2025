@@ -1,4 +1,3 @@
-
 import { School, SchoolType, RegistryStudent, RegistrationFormState } from './types';
 
 export const MUNICIPALITY_NAME = "Itaberaba";
@@ -42,46 +41,72 @@ export const MOCK_STUDENT_REGISTRY: RegistryStudent[] = [
     colorRace: 'Parda',
     nationality: 'Brasileira',
     cpf: '127.227.545-09', 
-    rg: '21.093.444-X',
-    nis: '102.394.506.77',
     status: 'Matriculado', 
     school: 'CRECHE PARAISO DA CRIANCA', 
     className: 'GRUPO 3 C - INTEGRAL', 
     shift: 'Integral',
     grade: 'Grupo 3',
-    guardianName: 'ADRIANA SANTOS LEITE',
-    guardianContact: '(75) 99933-2211',
-    guardianCpf: '003.444.555-66',
-    address: {
-        street: 'Rua das Flores',
-        number: '12',
-        neighborhood: 'Centro',
-        city: 'Itaberaba',
-        zipCode: '46880-000',
-        zone: 'Urbana'
-    },
-    attendance: {
-        totalSchoolDays: 200,
-        presentDays: 185,
-        justifiedAbsences: 5,
-        unjustifiedAbsences: 10
-    },
-    performanceHistory: [
-        { subject: 'LÍNGUA PORTUGUESA', g1: ['DE','DE','DB'], average: 9.5, concept: 'DE' },
-        { subject: 'MATEMÁTICA', g1: ['DB','DE','DE'], average: 9.0, concept: 'DE' },
-        { subject: 'CIÊNCIAS', g1: ['DE','DB','DB'], average: 8.5, concept: 'DB' },
-        { subject: 'ARTES', g1: ['DE','DE','DE'], average: 10.0, concept: 'DE' }
-    ],
-    movementHistory: [
-        { date: '2025-02-10', type: 'Entrada', description: 'Matrícula Inicial', origin_dest: 'Portal Online' },
-        { date: '2025-05-15', type: 'Remanejamento', description: 'Mudança de Turma', origin_dest: 'SME Central' }
-    ],
-    teacherNotes: [
-        { id: '1', date: '2025-03-20T14:00:00Z', type: 'Pedagógico', content: 'Aluno demonstra excelente coordenação motora e interação social.', author: 'Prof. Márcia Oliveira' }
-    ],
+    address: { street: 'Rua das Flores', number: '12', neighborhood: 'Centro', city: 'Itaberaba', zipCode: '46880-000', zone: 'Urbana' },
+    attendance: { totalSchoolDays: 200, presentDays: 185, justifiedAbsences: 5, unjustifiedAbsences: 10 },
+    performanceHistory: [{ subject: 'LÍNGUA PORTUGUESA', g1: ['DE','DE','DB'], average: 9.5, concept: 'DE' }],
+    movementHistory: [{ date: '2025-02-10', type: 'Entrada', description: 'Matrícula Inicial', origin_dest: 'Portal Online' }],
     lat: -12.5253,
     lng: -40.2917,
     specialNeeds: false
+  },
+  { 
+    id: '207386980832',
+    enrollmentId: '2025.001.095',
+    name: 'MARIA EDUARDA SILVA', 
+    birthDate: '2021-05-15', 
+    cpf: '127.227.000-00', 
+    status: 'Matriculado', 
+    school: 'CRECHE PARAISO DA CRIANCA', 
+    lat: -12.5265,
+    lng: -40.2930,
+    specialNeeds: true
+  },
+  { 
+    id: '207386980833',
+    name: 'JOAO PEDRO SANTOS', 
+    birthDate: '2020-08-20', 
+    cpf: '127.227.111-11', 
+    status: 'Pendente', 
+    lat: -12.5290,
+    lng: -40.2980,
+    specialNeeds: false
+  },
+  { 
+    id: '207386980834',
+    name: 'ANA BEATRIZ OLIVEIRA', 
+    birthDate: '2019-12-10', 
+    cpf: '127.227.222-22', 
+    status: 'Matriculado', 
+    school: 'ESCOLA MUNICIPAL JOÃO XXIII',
+    lat: -12.5240,
+    lng: -40.3050,
+    specialNeeds: false
+  },
+  { 
+    id: '207386980835',
+    name: 'LUCAS GOMES FERREIRA', 
+    birthDate: '2022-03-03', 
+    cpf: '127.227.333-33', 
+    status: 'Em Análise', 
+    lat: -12.5285,
+    lng: -40.2905,
+    specialNeeds: false
+  },
+  { 
+    id: '207386980836',
+    name: 'BEATRIZ SOUZA', 
+    birthDate: '2021-01-22', 
+    cpf: '127.227.444-44', 
+    status: 'Matriculado', 
+    school: 'ESCOLA MUNICIPAL JOÃO XXIII',
+    lat: -12.5310,
+    lng: -40.3015,
+    specialNeeds: true
   }
 ];
 

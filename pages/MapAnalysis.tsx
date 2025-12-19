@@ -77,7 +77,6 @@ export const MapAnalysis: React.FC = () => {
     let minDistance = Infinity;
     let closest = null;
 
-    // RIGOROUS DEFENSIVE FILTERING: Ensure schools and coordinates exist
     const validSchools = (schools || []).filter(s => s && typeof s.lat === 'number' && typeof s.lng === 'number');
 
     validSchools.forEach(school => {
@@ -106,8 +105,10 @@ export const MapAnalysis: React.FC = () => {
   useEffect(() => {
     if (!mapRef.current) return;
     
-    if (heatLayerRef.current && mapRef.current.hasLayer(heatLayerRef.current)) {
+    // Limpeza rigorosa antes de alternar camadas
+    if (heatLayerRef.current) {
         mapRef.current.removeLayer(heatLayerRef.current);
+        heatLayerRef.current = null;
     }
     
     if (schoolMarkersRef.current) {
@@ -117,13 +118,22 @@ export const MapAnalysis: React.FC = () => {
     if (activeLayer === 'heat') {
         const heatData = (students || [])
             .filter(s => s && typeof s.lat === 'number' && typeof s.lng === 'number')
-            .map(s => [s.lat, s.lng, 0.8]);
+            .map(s => [s.lat, s.lng, 1.0]); // Intensidade máxima por ponto
 
-        if (heatData.length > 0 && (L as any).heatLayer) {
-            heatLayerRef.current = (L as any).heatLayer(heatData, {
-                radius: 40, blur: 25, maxZoom: 17,
-                gradient: { 0.4: '#3b82f6', 0.65: '#10b981', 1: '#ef4444' }
-            }).addTo(mapRef.current);
+        if (heatData.length > 0) {
+            // Verifica se o plugin está disponível no objeto L global
+            if (typeof L.heatLayer === 'function') {
+                heatLayerRef.current = L.heatLayer(heatData, {
+                    radius: 35,
+                    blur: 20,
+                    maxZoom: 17,
+                    minOpacity: 0.4,
+                    gradient: { 0.4: '#3b82f6', 0.6: '#10b981', 0.8: '#facc15', 1: '#ef4444' }
+                }).addTo(mapRef.current);
+            } else {
+                console.warn("Plugin Leaflet.heat não detectado. Verifique o script no index.html.");
+                addToast("Erro ao carregar mapa de calor.", "error");
+            }
         }
     }
 
@@ -157,7 +167,7 @@ export const MapAnalysis: React.FC = () => {
   }, [activeLayer, schools, students]);
 
   return (
-    <div className="h-[calc(100vh-64px)] bg-slate-100 flex overflow-hidden">
+    <div className="h-[calc(100vh-64px)] bg-slate-100 flex overflow-hidden page-transition">
       
       {/* Sidebar de Gestão de Mapa */}
       <div className="w-[450px] bg-white border-r border-slate-200 shadow-2xl z-20 flex flex-col animate-in slide-in-from-left-4 duration-700">
@@ -234,11 +244,12 @@ export const MapAnalysis: React.FC = () => {
                 <div className="flex items-center gap-1.5 h-4 w-full rounded-full overflow-hidden mb-4">
                     <div className="flex-1 bg-blue-500 h-full"></div>
                     <div className="flex-1 bg-emerald-500 h-full"></div>
+                    <div className="flex-1 bg-yellow-500 h-full"></div>
                     <div className="flex-1 bg-red-500 h-full"></div>
                 </div>
                 <div className="flex justify-between text-[8px] font-black text-slate-400 uppercase tracking-[0.3em]">
                     <span>Baixa Demanda</span>
-                    <span>Saturação</span>
+                    <span>Alta Densidade</span>
                 </div>
             </div>
         </div>
